@@ -1,0 +1,30 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "description": "Personal website built using MERN stack",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustinCWang/Personal-Website.git"
+  },
+  "keywords": [],
+  "author": "Justin Wang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JustinCWang/Personal-Website/issues"
+  },
+  "homepage": "https://github.com/JustinCWang/Personal-Website#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
