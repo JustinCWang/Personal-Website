@@ -11,3 +11,5 @@
 - Mongoose
 - Nodemon
 
+Starting Backend:
+- npm run server
