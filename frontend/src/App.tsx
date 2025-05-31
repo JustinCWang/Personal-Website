@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import Login from './components/Login'
+import GoalForm from './components/GoalForm'
 import { goalsAPI, handleAPIError, type Goal } from './services/api'
-import './App.css'
 
-function App() {
+const Dashboard = () => {
   const [goals, setGoals] = useState<Goal[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { user, logout } = useAuth()
 
   // Fetch goals from backend
   const fetchGoals = async () => {
@@ -23,103 +26,139 @@ function App() {
   }
 
   useEffect(() => {
-    // You can uncomment this when your backend is ready
-    // fetchGoals()
+    fetchGoals()
   }, [])
 
+  const handleGoalCreated = (newGoal: Goal) => {
+    setGoals(prevGoals => [newGoal, ...prevGoals])
+  }
+
+  const handleDeleteGoal = async (goalId: string) => {
+    try {
+      await goalsAPI.delete(goalId)
+      setGoals(prevGoals => prevGoals.filter(goal => goal._id !== goalId))
+    } catch (error) {
+      setError(handleAPIError(error))
+    }
+  }
+
   return (
-    <div className="app">
-      <header className="header">
-        <nav className="nav">
-          <div className="nav-brand">
-            <h2>Personal Website</h2>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-lg">
+        <nav className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <h2 className="text-2xl font-bold text-primary-600">My Goals Dashboard</h2>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-slate-600">Welcome, {user?.name}</span>
+              <button
+                onClick={logout}
+                className="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors font-medium"
+              >
+                Logout
+              </button>
+            </div>
           </div>
-          <ul className="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#goals">Goals</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
         </nav>
       </header>
 
-      <main className="main">
-        <section id="hero" className="hero">
-          <div className="hero-content">
-            <h1>Welcome to My Personal Website</h1>
-            <p>This is a clean, modern design ready for backend integration</p>
-            <button className="cta-button" onClick={fetchGoals}>
-              Load Goals from Backend
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Goal Creation Form */}
+        <GoalForm onGoalCreated={handleGoalCreated} />
+
+        {/* Goals Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-slate-800">Your Goals</h3>
+            <button
+              onClick={fetchGoals}
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+            >
+              Refresh
             </button>
           </div>
-        </section>
 
-        <section id="about" className="section">
-          <div className="container">
-            <h2>About Me</h2>
-            <p>This section can contain information about yourself.</p>
-          </div>
-        </section>
-
-        <section id="projects" className="section">
-          <div className="container">
-            <h2>Projects</h2>
-            <div className="projects-grid">
-              <div className="project-card">
-                <h3>Project 1</h3>
-                <p>Description of your project</p>
-              </div>
-              <div className="project-card">
-                <h3>Project 2</h3>
-                <p>Description of your project</p>
-              </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-slate-600">Loading goals...</p>
             </div>
-          </div>
-        </section>
-
-        <section id="goals" className="section">
-          <div className="container">
-            <h2>Goals</h2>
-            {loading ? (
-              <p>Loading goals...</p>
-            ) : error ? (
-              <div className="error-message">
-                <p style={{ color: '#ef4444', fontWeight: 'bold' }}>Error: {error}</p>
-                <button className="cta-button" onClick={fetchGoals} style={{ marginTop: '1rem' }}>
-                  Try Again
-                </button>
-              </div>
-            ) : (
-              <div className="goals-list">
-                {goals.length > 0 ? (
-                  goals.map((goal, index) => (
-                    <div key={index} className="goal-item">
-                      <h4>{goal.title}</h4>
-                      <p>{goal.description}</p>
+          ) : error ? (
+            <div className="text-center bg-red-50 border border-red-200 rounded-lg p-6">
+              <p className="text-red-600 font-semibold mb-4">Error: {error}</p>
+              <button 
+                onClick={fetchGoals}
+                className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {goals.length > 0 ? (
+                goals.map((goal) => (
+                  <div key={goal._id} className="bg-slate-50 border-l-4 border-primary-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="text-xl font-semibold text-slate-800 mb-2">{goal.title}</h4>
+                        <p className="text-slate-600">{goal.description}</p>
+                      </div>
+                      <button
+                        onClick={() => goal._id && handleDeleteGoal(goal._id)}
+                        className="ml-4 text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Delete goal"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <p>No goals found. Make sure your backend is running!</p>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section id="contact" className="section">
-          <div className="container">
-            <h2>Contact</h2>
-            <p>Get in touch with me.</p>
-          </div>
-        </section>
-      </main>
-
-      <footer className="footer">
-        <div className="container">
-          <p>&copy; 2024 Personal Website. All rights reserved.</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-slate-400 mb-4">
+                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-slate-600 text-lg">No goals yet!</p>
+                  <p className="text-slate-500 mt-2">Create your first goal using the form above.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </footer>
+      </main>
     </div>
+  )
+}
+
+const AppContent = () => {
+  const { isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+          <p className="text-xl">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return isAuthenticated ? <Dashboard /> : <Login />
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
