@@ -9,6 +9,7 @@ export interface Project {
   githubUrl: string
   demoUrl: string
   status: 'Planning' | 'In Progress' | 'Completed' | 'On Hold'
+  featured: boolean
 }
 
 export interface User {
@@ -48,25 +49,45 @@ const getAuthHeaders = () => {
 
 // Projects API
 export const projectsAPI = {
+  // Public endpoint for featured projects
+  getFeatured: async (): Promise<Project[]> => {
+    const response = await fetch(`${API_BASE_URL}/projects/featured`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Failed to fetch featured projects:', response.status, errorText)
+      throw new Error(`Failed to fetch featured projects: ${response.status} ${response.statusText}`)
+    }
+    return response.json()
+  },
+
   getAll: async (): Promise<Project[]> => {
     const response = await fetch(`${API_BASE_URL}/projects`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) {
-      throw new Error('Failed to fetch projects')
+      const errorText = await response.text()
+      console.error('Failed to fetch projects:', response.status, errorText)
+      throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`)
     }
     return response.json()
   },
 
   create: async (project: Omit<Project, '_id'>): Promise<Project> => {
+    console.log('Creating project with data:', project)
+    console.log('Using headers:', getAuthHeaders())
+    
     const response = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(project),
     })
+    
     if (!response.ok) {
-      throw new Error('Failed to create project')
+      const errorText = await response.text()
+      console.error('Failed to create project:', response.status, errorText)
+      throw new Error(`Failed to create project: ${response.status} ${response.statusText}`)
     }
+    
     return response.json()
   },
 
@@ -77,7 +98,9 @@ export const projectsAPI = {
       body: JSON.stringify(project),
     })
     if (!response.ok) {
-      throw new Error('Failed to update project')
+      const errorText = await response.text()
+      console.error('Failed to update project:', response.status, errorText)
+      throw new Error(`Failed to update project: ${response.status} ${response.statusText}`)
     }
     return response.json()
   },
@@ -88,7 +111,9 @@ export const projectsAPI = {
       headers: getAuthHeaders(),
     })
     if (!response.ok) {
-      throw new Error('Failed to delete project')
+      const errorText = await response.text()
+      console.error('Failed to delete project:', response.status, errorText)
+      throw new Error(`Failed to delete project: ${response.status} ${response.statusText}`)
     }
   },
 }

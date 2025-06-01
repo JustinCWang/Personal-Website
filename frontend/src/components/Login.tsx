@@ -2,7 +2,11 @@ import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { handleAPIError } from '../services/api'
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLoginSuccess?: () => void
+}
+
+const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
@@ -35,6 +39,7 @@ const Login: React.FC = () => {
         }
         await register(formData.name, formData.email, formData.password)
       }
+      onLoginSuccess?.()
     } catch (error) {
       setError(handleAPIError(error))
     } finally {
@@ -61,7 +66,7 @@ const Login: React.FC = () => {
             Welcome {isLogin ? 'Back' : ''}
           </h1>
           <p className="text-slate-600">
-            {isLogin ? 'Sign in to access your goals' : 'Create your account to get started'}
+            {isLogin ? 'Sign in to access your projects' : 'Create your account to get started'}
           </p>
         </div>
 

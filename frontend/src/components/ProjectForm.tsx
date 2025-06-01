@@ -13,11 +13,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated }) => {
     technologies: [] as string[],
     githubUrl: '',
     demoUrl: '',
-    status: 'Planning' as const
+    status: 'Planning' as const,
+    featured: false
   })
   const [techInput, setTechInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -46,10 +48,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(null)
     setLoading(true)
 
     try {
+      console.log('Submitting project data:', formData)
       const newProject = await projectsAPI.create(formData)
+      console.log('Project created successfully:', newProject)
       onProjectCreated(newProject)
       setFormData({ 
         title: '', 
@@ -57,9 +62,16 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated }) => {
         technologies: [], 
         githubUrl: '', 
         demoUrl: '', 
-        status: 'Planning' 
+        status: 'Planning',
+        featured: false
       })
+      setTechInput('')
+      setSuccess('Project created successfully!')
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000)
     } catch (error) {
+      console.error('Error creating project:', error)
       setError(handleAPIError(error))
     } finally {
       setLoading(false)
@@ -73,6 +85,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated }) => {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
           <p className="text-red-600 text-sm font-medium">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <p className="text-green-600 text-sm font-medium">{success}</p>
         </div>
       )}
 
@@ -197,6 +215,20 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated }) => {
             <option value="Completed">Completed</option>
             <option value="On Hold">On Hold</option>
           </select>
+        </div>
+
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="featured"
+            name="featured"
+            checked={formData.featured}
+            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+            className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
+          />
+          <label htmlFor="featured" className="ml-3 text-sm font-medium text-slate-700">
+            Feature this project on landing page
+          </label>
         </div>
 
         <button
