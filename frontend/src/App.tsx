@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './components/Login'
-import GoalForm from './components/GoalForm'
-import { goalsAPI, handleAPIError, type Goal } from './services/api'
+import ProjectForm from './components/ProjectForm'
+import { projectsAPI, handleAPIError, type Project } from './services/api'
 
 const Dashboard = () => {
-  const [goals, setGoals] = useState<Goal[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { user, logout } = useAuth()
@@ -15,11 +15,11 @@ const Dashboard = () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await goalsAPI.getAll()
-      setGoals(data)
+      const data = await projectsAPI.getAll()
+      setProjects(data)
     } catch (error) {
       setError(handleAPIError(error))
-      console.error('Error fetching goals:', error)
+      console.error('Error fetching projects:', error)
     } finally {
       setLoading(false)
     }
@@ -29,14 +29,14 @@ const Dashboard = () => {
     fetchGoals()
   }, [])
 
-  const handleGoalCreated = (newGoal: Goal) => {
-    setGoals(prevGoals => [newGoal, ...prevGoals])
+  const handleProjectCreated = (newProject: Project) => {
+    setProjects(prevProjects => [newProject, ...prevProjects])
   }
 
-  const handleDeleteGoal = async (goalId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     try {
-      await goalsAPI.delete(goalId)
-      setGoals(prevGoals => prevGoals.filter(goal => goal._id !== goalId))
+      await projectsAPI.delete(projectId)
+      setProjects(prevProjects => prevProjects.filter(project => project._id !== projectId))
     } catch (error) {
       setError(handleAPIError(error))
     }
@@ -67,7 +67,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Goal Creation Form */}
-        <GoalForm onGoalCreated={handleGoalCreated} />
+        <ProjectForm onProjectCreated={handleProjectCreated} />
 
         {/* Goals Section */}
         <div className="bg-white rounded-xl shadow-lg p-6">
@@ -98,18 +98,18 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {goals.length > 0 ? (
-                goals.map((goal) => (
-                  <div key={goal._id} className="bg-slate-50 border-l-4 border-primary-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+              {projects.length > 0 ? (
+                projects.map((project) => (
+                  <div key={project._id} className="bg-slate-50 border-l-4 border-primary-600 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h4 className="text-xl font-semibold text-slate-800 mb-2">{goal.title}</h4>
-                        <p className="text-slate-600">{goal.description}</p>
+                        <h4 className="text-xl font-semibold text-slate-800 mb-2">{project.title}</h4>
+                        <p className="text-slate-600">{project.description}</p>
                       </div>
                       <button
-                        onClick={() => goal._id && handleDeleteGoal(goal._id)}
+                        onClick={() => project._id && handleDeleteProject(project._id)}
                         className="ml-4 text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                        title="Delete goal"
+                        title="Delete project"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

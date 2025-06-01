@@ -1,10 +1,14 @@
 // API service for backend integration
 const API_BASE_URL = 'http://localhost:5000/api'
 
-export interface Goal {
+export interface Project {
   _id?: string
   title: string
   description: string
+  technologies: string[]
+  githubUrl: string
+  demoUrl: string
+  status: 'Planning' | 'In Progress' | 'Completed' | 'On Hold'
 }
 
 export interface User {
@@ -42,49 +46,49 @@ const getAuthHeaders = () => {
   }
 }
 
-// Goals API
-export const goalsAPI = {
-  getAll: async (): Promise<Goal[]> => {
-    const response = await fetch(`${API_BASE_URL}/goals`, {
+// Projects API
+export const projectsAPI = {
+  getAll: async (): Promise<Project[]> => {
+    const response = await fetch(`${API_BASE_URL}/projects`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) {
-      throw new Error('Failed to fetch goals')
+      throw new Error('Failed to fetch projects')
     }
     return response.json()
   },
 
-  create: async (goal: Omit<Goal, '_id'>): Promise<Goal> => {
-    const response = await fetch(`${API_BASE_URL}/goals`, {
+  create: async (project: Omit<Project, '_id'>): Promise<Project> => {
+    const response = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify(goal),
+      body: JSON.stringify(project),
     })
     if (!response.ok) {
-      throw new Error('Failed to create goal')
+      throw new Error('Failed to create project')
     }
     return response.json()
   },
 
-  update: async (id: string, goal: Partial<Goal>): Promise<Goal> => {
-    const response = await fetch(`${API_BASE_URL}/goals/${id}`, {
+  update: async (id: string, project: Partial<Project>): Promise<Project> => {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify(goal),
+      body: JSON.stringify(project),
     })
     if (!response.ok) {
-      throw new Error('Failed to update goal')
+      throw new Error('Failed to update project')
     }
     return response.json()
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/goals/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     })
     if (!response.ok) {
-      throw new Error('Failed to delete goal')
+      throw new Error('Failed to delete project')
     }
   },
 }
