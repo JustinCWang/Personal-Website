@@ -3,6 +3,18 @@ const asyncHandler = require('express-async-handler')
 const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 
+// @desc Get featured projects (public)
+// @route GET /api/projects/featured
+// @access Public
+const getFeaturedProjects = asyncHandler(async (req, res) => {
+    const featuredProjects = await Project.find({ featured: true })
+        .populate('user', 'name')
+        .select('-user')
+        .sort({ updatedAt: -1 })
+
+    res.status(200).json(featuredProjects)
+})
+
 // @desc Get projects
 // @route GET /api/projects
 // @access Private
@@ -28,6 +40,7 @@ const setProject = asyncHandler(async (req, res) => {
         githubUrl: req.body.githubUrl || '',
         demoUrl: req.body.demoUrl || '',
         status: req.body.status || 'Planning',
+        featured: req.body.featured || false,
         user: req.user.id
     })
 
@@ -95,6 +108,7 @@ const deleteProject = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
+    getFeaturedProjects,
     getProjects,
     setProject,
     updateProject,

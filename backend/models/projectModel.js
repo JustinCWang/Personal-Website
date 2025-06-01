@@ -30,6 +30,10 @@ const projectSchema = mongoose.Schema({
         type: String,
         enum: ['Planning', 'In Progress', 'Completed', 'On Hold'],
         default: 'Planning'
+    },
+    featured: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
