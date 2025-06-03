@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { projectsAPI, type Project } from '../services/api'
+import { projectsAPI, type Project } from '../services/api.ts'
 
 const PERSONAL_INFO = {
   name: "Justin Wang",
@@ -273,4 +273,4 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   )
 }
 
-export default LandingPage 
+export default LandingPage

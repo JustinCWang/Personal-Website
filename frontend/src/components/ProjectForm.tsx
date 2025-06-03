@@ -7,8 +7,8 @@
 
 // Import React dependencies and API services
 import React, { useState } from 'react'
-import type { Project } from '../services/api'                    // Project type definition
-import { projectsAPI, handleAPIError } from '../services/api'     // API functions and error handling
+import type { Project } from '../services/api.ts'                    // Project type definition
+import { projectsAPI, handleAPIError } from '../services/api.ts'     // API functions and error handling
 
 /**
  * Props interface for ProjectForm component

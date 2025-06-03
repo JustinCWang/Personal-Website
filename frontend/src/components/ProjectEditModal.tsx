@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import type { Project } from '../services/api'
-import { projectsAPI, handleAPIError } from '../services/api'
+import type { Project } from '../services/api.ts'
+import { projectsAPI, handleAPIError } from '../services/api.ts'
 
 interface ProjectEditModalProps {
   project: Project

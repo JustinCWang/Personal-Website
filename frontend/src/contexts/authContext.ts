@@ -4,7 +4,7 @@
  */
 
 import { createContext } from 'react'
-import type { User } from '../services/api'
+import type { User } from '../services/api.ts'
 
 /**
  * Authentication Context Type Definition

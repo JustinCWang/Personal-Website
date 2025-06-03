@@ -6,9 +6,9 @@
 
 import React, { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import type { User, AuthResponse } from '../services/api'
-import { usersAPI, authUtils } from '../services/api'
-import { AuthContext, type AuthContextType } from './authContext'
+import type { User, AuthResponse } from '../services/api.ts'
+import { usersAPI, authUtils } from '../services/api.ts'
+import { AuthContext, type AuthContextType } from './authContext.ts'
 
 /**
  * Authentication Provider Component
