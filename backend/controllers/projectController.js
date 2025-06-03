@@ -1,109 +1,151 @@
-const asyncHandler = require('express-async-handler')
+/**
+ * Project Controller for the Personal Website backend
+ * Handles all project-related CRUD operations
+ * Manages both public featured projects and private user projects
+ */
 
-const Project = require('../models/projectModel')
-const User = require('../models/userModel')
+// Import required dependencies
+const asyncHandler = require('express-async-handler')  // Wrapper for async functions to handle errors
+const Project = require('../models/projectModel')      // Project model for database operations
+const User = require('../models/userModel')            // User model for authorization checks
 
-// @desc Get featured projects (public)
-// @route GET /api/projects/featured
-// @access Public
+/**
+ * Get featured projects for public display
+ * @desc Retrieves all projects marked as featured for the landing page
+ * @route GET /api/projects/featured
+ * @access Public
+ */
 const getFeaturedProjects = asyncHandler(async (req, res) => {
+    // Fetch projects marked as featured, populate user name, exclude user field from response
     const featuredProjects = await Project.find({ featured: true })
-        .populate('user', 'name')
-        .select('-user')
-        .sort({ updatedAt: -1 })
+        .populate('user', 'name')    // Populate user field with only the name
+        .select('-user')             // Remove user field from response for security
+        .sort({ updatedAt: -1 })     // Sort by most recently updated first
 
+    // Return the featured projects array
     res.status(200).json(featuredProjects)
 })
 
-// @desc Get projects
-// @route GET /api/projects
-// @access Private
+/**
+ * Get all projects for authenticated user
+ * @desc Retrieves all projects belonging to the authenticated user
+ * @route GET /api/projects
+ * @access Private (requires authentication)
+ */
 const getProjects = asyncHandler(async (req, res) => {
+    // Find all projects belonging to the authenticated user
     const projects = await Project.find({ user: req.user.id })
 
+    // Return user's projects
     res.status(200).json(projects)
 })
 
-// @desc Set project
-// @route POST /api/projects
-// @access Private
+/**
+ * Create a new project
+ * @desc Creates a new project for the authenticated user
+ * @route POST /api/projects
+ * @access Private (requires authentication)
+ */
 const setProject = asyncHandler(async (req, res) => {
+    // Validate required fields
     if (!req.body || !req.body.title || !req.body.description) {
         res.status(400)
         throw new Error('Please add title and description fields')
     }
 
+    // Create new project with provided data and authenticated user ID
     const project = await Project.create({
         title: req.body.title,
         description: req.body.description,
-        technologies: req.body.technologies || [],
-        githubUrl: req.body.githubUrl || '',
-        demoUrl: req.body.demoUrl || '',
-        status: req.body.status || 'Planning',
-        featured: req.body.featured || false,
-        user: req.user.id
+        technologies: req.body.technologies || [],    // Default to empty array if not provided
+        githubUrl: req.body.githubUrl || '',          // Default to empty string if not provided
+        demoUrl: req.body.demoUrl || '',              // Default to empty string if not provided
+        status: req.body.status || 'Planning',        // Default to 'Planning' status
+        featured: req.body.featured || false,         // Default to not featured
+        user: req.user.id                             // Associate with authenticated user
     })
 
+    // Return the newly created project
     res.status(200).json(project)
 })
 
-// @desc Update project
-// @route PUT /api/projects/:id
-// @access Private
+/**
+ * Update an existing project
+ * @desc Updates a project if the user owns it
+ * @route PUT /api/projects/:id
+ * @access Private (requires authentication and ownership)
+ */
 const updateProject = asyncHandler(async (req, res) => {
+    // Find the project by ID
     const project = await Project.findById(req.params.id)
 
+    // Check if project exists
     if (!project) {
         res.status(400)
         throw new Error('Project not found')
     }
 
+    // Find the authenticated user
     const user = await User.findById(req.user.id)
 
-    // Check for user
+    // Verify user exists
     if (!user) {
         res.status(401)
         throw new Error('User not found')
     }
 
-    // Make sure the logged in user matches the project user
+    // Verify that the authenticated user owns this project
     if (project.user.toString() !== user.id) {
         res.status(401)
         throw new Error('User not authorized')
     }
 
-    const updatedProject = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    // Update the project with new data and return the updated version
+    const updatedProject = await Project.findByIdAndUpdate(
+        req.params.id,      // Project ID to update
+        req.body,           // New data from request body
+        { new: true }       // Return the updated document
+    )
 
+    // Return the updated project
     res.status(200).json(updatedProject)
 })
 
-// @desc Delete project
-// @route DELETE /api/projects/:id
-// @access Private
+/**
+ * Delete a project
+ * @desc Deletes a project if the user owns it
+ * @route DELETE /api/projects/:id
+ * @access Private (requires authentication and ownership)
+ */
 const deleteProject = asyncHandler(async (req, res) => {
+    // Find the project by ID
     const project = await Project.findById(req.params.id)
 
+    // Check if project exists
     if (!project) {
         res.status(400)
         throw new Error('Project not found')
     }
 
+    // Find the authenticated user
     const user = await User.findById(req.user.id)
 
-    // Check for user
+    // Verify user exists
     if (!user) {
         res.status(401)
         throw new Error('User not found')
     }
 
-    // Make sure the logged in user matches the project user
+    // Verify that the authenticated user owns this project
     if (project.user.toString() !== user.id) {
         res.status(401)
         throw new Error('User not authorized')
     }
 
+    // Delete the project from the database
     await project.deleteOne()
 
+    // Return confirmation with the deleted project ID
     res.status(200).json({ id: req.params.id })
 })
 

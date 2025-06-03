@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, type Project } from '../services/api'
 
-// You can customize these values
 const PERSONAL_INFO = {
-  name: "Your Name",
-  title: "Full Stack Developer", 
-  bio: "Passionate developer creating innovative solutions with modern technologies.",
-  image: "/api/placeholder/300/300", // Replace with your actual image path
+  name: "Justin Wang",
+  title: "CS Student at Boston University", 
+  bio: "Passionate about learning and creating fun and impactful software!",
+  image: "/public/professionalpic.jpg", 
   hobbies: [
-    "🎵 Music Production",
-    "📚 Reading Tech Blogs", 
-    "🎮 Gaming",
-    "🏃‍♂️ Running",
-    "📸 Photography"
+    "🎵 Classical Pianist",
+    "📚 Anime & Manga", 
+    "🎴 Pokémon TCG",
+    "🎾 Tennis & Ping Pong",
+    "⛸️ Rollerskating & Ice Skating"
   ],
   skills: [
     "React", "TypeScript", "Node.js", "Express", "MongoDB", 
     "Python", "JavaScript", "HTML/CSS", "Git", "Docker"
   ],
   social: {
-    github: "https://github.com/yourusername",
-    linkedin: "https://linkedin.com/in/yourprofile",
-    email: "your.email@example.com"
+    github: "https://github.com/JustinCWang",
+    linkedin: "https://linkedin.com/in/jcwang27",
+    email: "jcwang27@bu.edu"
   }
 }
 
@@ -266,7 +265,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
       <footer className="py-8 px-6 bg-slate-800 text-white">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-slate-300">
-            © 2024 {PERSONAL_INFO.name}. Built with React, TypeScript, and lots of ☕
+            © 2025 {PERSONAL_INFO.name}. Built with React, TypeScript, and lots of ☕
           </p>
         </div>
       </footer>
