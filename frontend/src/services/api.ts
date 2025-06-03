@@ -5,20 +5,8 @@
  * Manages JWT tokens and request headers automatically
  */
 
-// Base URL for all API requests - points to local development server
-const API_BASE_URL = 'http://localhost:5000/api'
-
 /**
  * Project Interface
- * @interface Project
- * @property {string} _id - MongoDB document ID (optional for new projects)
- * @property {string} title - Project title
- * @property {string} description - Project description
- * @property {string[]} technologies - Array of technologies used
- * @property {string} githubUrl - GitHub repository URL
- * @property {string} demoUrl - Live demo URL
- * @property {string} status - Current project status
- * @property {boolean} featured - Whether project is featured on landing page
  */
 export interface Project {
   _id?: string
@@ -33,10 +21,6 @@ export interface Project {
 
 /**
  * User Interface
- * @interface User
- * @property {string} _id - MongoDB document ID (optional)
- * @property {string} name - User's full name
- * @property {string} email - User's email address
  */
 export interface User {
   _id?: string
@@ -46,11 +30,6 @@ export interface User {
 
 /**
  * Authentication Response Interface
- * @interface AuthResponse
- * @property {string} _id - User's MongoDB document ID
- * @property {string} name - User's full name
- * @property {string} email - User's email address
- * @property {string} token - JWT authentication token
  */
 export interface AuthResponse {
   _id: string
@@ -58,6 +37,9 @@ export interface AuthResponse {
   email: string
   token: string
 }
+
+// Base URL for all API requests - points to local development server
+const API_BASE_URL = 'http://localhost:5000/api'
 
 /**
  * JWT Token Management Functions

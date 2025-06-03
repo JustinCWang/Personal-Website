@@ -7,8 +7,8 @@
 
 // Import React dependencies and custom hooks/utilities
 import React, { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'      // Authentication context hook
-import { handleAPIError } from '../services/api'      // Error handling utility
+import { useAuth } from '../hooks/useAuth'           // Authentication context hook
+import { handleAPIError } from '../services/api'    // Error handling utility
 
 /**
  * Props interface for Login component

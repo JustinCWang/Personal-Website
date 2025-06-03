@@ -9,7 +9,8 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 
 // Import authentication context and components
-import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AuthProvider } from './contexts/AuthContext'
+import { useAuth } from './hooks/useAuth'
 import Login from './components/Login'
 import ProjectForm from './components/ProjectForm'
 import ProjectEditModal from './components/ProjectEditModal'

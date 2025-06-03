@@ -5,7 +5,7 @@ const PERSONAL_INFO = {
   name: "Justin Wang",
   title: "CS Student at Boston University", 
   bio: "Passionate about learning and creating fun and impactful software!",
-  image: "/public/professionalpic.jpg", 
+  image: "/professionalpic.jpg", 
   hobbies: [
     "🎵 Classical Pianist",
     "📚 Anime & Manga", 
