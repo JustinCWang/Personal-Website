@@ -38,8 +38,10 @@ export interface AuthResponse {
   token: string
 }
 
-// Base URL for all API requests - points to local development server
-const API_BASE_URL = 'http://localhost:5000/api'
+// Base URL for all API requests - dynamically set based on environment
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/api'  // In production (Vercel), use relative path
+  : 'http://localhost:5000/api'  // In development, use local server
 
 /**
  * JWT Token Management Functions

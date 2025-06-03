@@ -1,6 +1,7 @@
 /**
  * Main server file for the Personal Website backend
  * Sets up Express server with middleware, routes, and database connection
+ * Modified for Vercel serverless deployment
  */
 
 // Import required dependencies
@@ -10,7 +11,6 @@ const colors = require('colors')             // Console output coloring
 const dotenv = require("dotenv").config()   // Environment variable configuration
 const { errorHandler } = require('./middleware/errorMiddleware')  // Custom error handling middleware
 const connectDB = require('./config/db')    // Database connection configuration
-const port = process.env.PORT || 5000       // Server port from environment or default 5000
 
 // Connect to MongoDB database
 connectDB()
@@ -24,7 +24,11 @@ const app = express()
 
 // CORS configuration - allows frontend to communicate with backend
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow frontend origins (Vite dev server and Create React App)
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000',
+    'https://your-vercel-domain.vercel.app'  // Add your Vercel domain here
+  ],
   credentials: true // Allow cookies/credentials to be sent with requests
 }))
 
@@ -35,6 +39,11 @@ app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request b
 /**
  * ROUTE HANDLERS
  */
+
+// Health check route for Vercel
+app.get('/api', (req, res) => {
+  res.json({ message: 'Personal Website API is running!' })
+})
 
 // Project routes - handles CRUD operations for projects
 app.use('/api/projects', require('./routes/projectRoutes'))
@@ -49,7 +58,12 @@ app.use('/api/users', require('./routes/userRoutes'))
 app.use(errorHandler)
 
 /**
- * START SERVER
- * Listen on specified port and log server status
+ * START SERVER OR EXPORT FOR VERCEL
  */
-app.listen(port, () => console.log(`Server started on port ${port}`))
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 5000
+  app.listen(port, () => console.log(`Server started on port ${port}`))
+}
+
+// Export app for Vercel serverless functions
+module.exports = app
