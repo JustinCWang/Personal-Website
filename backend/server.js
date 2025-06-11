@@ -27,7 +27,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173', 
     'http://localhost:3000',
-    'https://your-vercel-domain.vercel.app'  // Add your Vercel domain here
+    'https://personal-website-theta-nine-38.vercel.app'  // Add your Vercel domain here
   ],
   credentials: true // Allow cookies/credentials to be sent with requests
 }))
