@@ -61,14 +61,50 @@
 
 /* Hero section */
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      #0a0a0a 0px,
+      #0a0a0a 20px,
+      #00ff41 20px,
+      #00ff41 40px
+    ),
+    linear-gradient(135deg, #001100 0%, #003300 100%);
+  background-size: 40px 40px, 100% 100%;
+  color: #00ff41;
   text-align: center;
   padding: 4rem 2rem;
   min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(0, 255, 65, 0.1) 19px,
+      rgba(0, 255, 65, 0.1) 21px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(0, 255, 65, 0.1) 19px,
+      rgba(0, 255, 65, 0.1) 21px
+    );
+  pointer-events: none;
 }
 
 .hero-content h1 {
@@ -84,20 +120,25 @@
 }
 
 .cta-button {
-  background: #fff;
-  color: #2563eb;
-  border: none;
+  background: #0a0a0a;
+  color: #00ff41;
+  border: 2px solid #00ff41;
   padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Courier New', monospace;
 }
 
 .cta-button:hover {
+  background: #00ff41;
+  color: #0a0a0a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
 }
 
 /* Sections */
@@ -179,6 +220,62 @@
   color: white;
   text-align: center;
   padding: 2rem;
+}
+
+/* Hacker theme classes for dark mode */
+.hacker-text-gradient {
+  background: linear-gradient(135deg, #00ff41 0%, #00cc33 50%, #008822 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+}
+
+.hacker-border-gradient {
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      #0a0a0a 0px,
+      #0a0a0a 8px,
+      #00ff41 8px,
+      #00ff41 16px
+    );
+  border-radius: 50%;
+}
+
+.hacker-skill-tag {
+  background: 
+    linear-gradient(135deg, #001100 0%, #002200 100%),
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 255, 65, 0.1) 2px,
+      rgba(0, 255, 65, 0.1) 4px
+    );
+  color: #00ff41 !important;
+  border: 1px solid #00ff41 !important;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.hacker-skill-tag:hover {
+  background: #00ff41;
+  color: #0a0a0a !important;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+  transform: scale(1.05);
+}
+
+.hacker-glow {
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+/* Smooth transitions for mode switching */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Responsive design */
