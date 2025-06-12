@@ -8,6 +8,7 @@
 // Import React dependencies and custom hooks/utilities
 import React, { useState } from 'react'
 import { useAuth } from '../hooks/useAuth.ts'           // Authentication context hook
+import { useDarkMode } from '../hooks/useDarkMode.ts'   // Dark mode hook
 import { handleAPIError } from '../services/api.ts'    // Error handling utility
 
 /**
@@ -37,6 +38,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   
   // Authentication functions from context
   const { login, register } = useAuth()
+  const { isDarkMode, toggleDarkMode } = useDarkMode()       // Persistent dark mode state
 
   /**
    * Handle form input changes
@@ -99,24 +101,69 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center p-4">
+    <div className={`min-h-screen transition-all duration-300 flex items-center justify-center p-4 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-black to-gray-900' 
+        : 'bg-gradient-to-br from-slate-50 to-slate-100'
+    }`}>
+      {/* Dark Mode Toggle - Fixed positioned */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          onClick={toggleDarkMode}
+          className={`p-2 rounded-lg transition-all duration-300 ${
+            isDarkMode
+              ? 'bg-green-400 text-black hover:bg-green-300'
+              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+          }`}
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Hacker Mode'}
+        >
+          {isDarkMode ? (
+            // Sun icon for light mode
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            // Hacker/terminal icon for dark mode
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
+      </div>
+
       {/* Main form container with centered layout */}
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div className={`rounded-2xl shadow-2xl w-full max-w-md p-8 transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-black border border-green-500' 
+          : 'bg-white'
+      }`}>
         
         {/* Form header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+          <h1 className={`text-3xl font-bold mb-2 font-mono ${
+            isDarkMode ? 'text-green-400' : 'text-slate-800'
+          }`}>
             Welcome {isLogin ? 'Back' : ''}
           </h1>
-          <p className="text-slate-600">
+          <p className={`font-mono ${
+            isDarkMode ? 'text-green-300' : 'text-slate-600'
+          }`}>
             {isLogin ? 'Sign in to access your projects' : 'Create your account to get started'}
           </p>
         </div>
 
         {/* Error message display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-600 text-sm font-medium">{error}</p>
+          <div className={`border rounded-lg p-4 mb-6 transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-red-900 border-red-600' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <p className={`text-sm font-medium font-mono ${
+              isDarkMode ? 'text-red-300' : 'text-red-600'
+            }`}>
+              {error}
+            </p>
           </div>
         )}
 
@@ -126,7 +173,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {/* Name field - only shown in register mode */}
           {!isLogin && (
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="name" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
                 Full Name
               </label>
               <input
@@ -136,7 +185,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 value={formData.name}
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="Enter your full name"
               />
             </div>
@@ -144,7 +197,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           {/* Email field - always visible */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+            <label htmlFor="email" className={`block text-sm font-medium mb-2 font-mono ${
+              isDarkMode ? 'text-green-300' : 'text-slate-700'
+            }`}>
               Email Address
             </label>
             <input
@@ -154,14 +209,20 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                isDarkMode
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              }`}
               placeholder="Enter your email"
             />
           </div>
 
           {/* Password field - always visible */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+            <label htmlFor="password" className={`block text-sm font-medium mb-2 font-mono ${
+              isDarkMode ? 'text-green-300' : 'text-slate-700'
+            }`}>
               Password
             </label>
             <input
@@ -171,7 +232,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                isDarkMode
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              }`}
               placeholder="Enter your password"
             />
           </div>
@@ -179,7 +244,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {/* Confirm password field - only shown in register mode */}
           {!isLogin && (
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="confirmPassword" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
                 Confirm Password
               </label>
               <input
@@ -189,7 +256,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="Confirm your password"
               />
             </div>
@@ -199,12 +270,22 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-mono font-bold text-sm uppercase tracking-wide border-2 ${
+              loading
+                ? isDarkMode
+                  ? 'border-gray-600 text-gray-400 cursor-not-allowed bg-gray-800'
+                  : 'border-gray-300 text-gray-500 cursor-not-allowed bg-gray-100'
+                : isDarkMode
+                  ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                  : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            }`}
           >
             {loading ? (
               // Loading state with spinner
               <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <div className={`animate-spin rounded-full h-5 w-5 border-b-2 mr-2 ${
+                  isDarkMode ? 'border-green-400' : 'border-slate-600'
+                }`}></div>
                 {isLogin ? 'Signing In...' : 'Creating Account...'}
               </div>
             ) : (
@@ -218,7 +299,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div className="mt-6 text-center">
           <button
             onClick={toggleMode}
-            className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+            className={`font-medium transition-colors font-mono ${
+              isDarkMode
+                ? 'text-green-400 hover:text-green-300'
+                : 'text-slate-600 hover:text-slate-700'
+            }`}
           >
             {isLogin 
               ? "Don't have an account? Sign up" 
