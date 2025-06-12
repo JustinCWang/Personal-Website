@@ -31,10 +31,18 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null)          // Error state for displaying errors
   const [editingProject, setEditingProject] = useState<Project | null>(null)  // Project being edited
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)    // Modal visibility state
+  const [isDarkMode, setIsDarkMode] = useState(false)              // Dark mode state
   
   // Authentication context and navigation
   const { user, logout } = useAuth()  // Get current user and logout function
   const navigate = useNavigate()      // Navigation function for routing
+
+  /**
+   * Toggle dark mode
+   */
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode)
+  }
 
   /**
    * Fetch projects from backend API
@@ -125,12 +133,24 @@ const Dashboard = () => {
    * @returns {string} CSS classes for status styling
    */
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Planning': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'Completed': return 'bg-green-100 text-green-800 border-green-200'
-      case 'On Hold': return 'bg-gray-100 text-gray-800 border-gray-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    if (isDarkMode) {
+      // Dark mode status colors
+      switch (status) {
+        case 'Planning': return 'bg-yellow-900 text-yellow-300 border-yellow-600'
+        case 'In Progress': return 'bg-blue-900 text-blue-300 border-blue-600'
+        case 'Completed': return 'bg-green-900 text-green-300 border-green-600'
+        case 'On Hold': return 'bg-gray-700 text-gray-300 border-gray-600'
+        default: return 'bg-gray-700 text-gray-300 border-gray-600'
+      }
+    } else {
+      // Light mode status colors
+      switch (status) {
+        case 'Planning': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200'
+        case 'Completed': return 'bg-green-100 text-green-800 border-green-200'
+        case 'On Hold': return 'bg-gray-100 text-gray-800 border-gray-200'
+        default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
     }
   }
 
@@ -143,35 +163,88 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`min-h-screen transition-all duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-black to-gray-900' 
+        : 'bg-gradient-to-br from-slate-50 to-slate-100'
+    }`}>
       {/* Header Section */}
-      <header className="bg-white shadow-lg">
+      <header className={`shadow-lg border-b transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-black border-green-500' 
+          : 'bg-white border-slate-200'
+      }`}>
         <nav className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo/Title */}
             <div className="flex items-center">
-              <h2 className="text-2xl font-bold text-primary-600">My Projects Portfolio</h2>
+              <h2 className={`text-2xl font-bold tracking-wide font-mono ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-slate-800'
+              }`}>
+                Dashboard
+              </h2>
             </div>
             
             {/* Navigation Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-4">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isDarkMode
+                    ? 'bg-green-400 text-black hover:bg-green-300'
+                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                }`}
+                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Hacker Mode'}
+              >
+                {isDarkMode ? (
+                  // Sun icon for light mode
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  // Hacker/terminal icon for dark mode
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
               {/* View Landing Page Button */}
               <button
                 onClick={handleViewLandingPage}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg border border-blue-700"
+                className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide font-mono font-bold ${
+                  isDarkMode
+                    ? 'bg-black text-green-400 hover:bg-green-400 hover:text-black border-2 border-green-400'
+                    : 'bg-white text-slate-800 hover:bg-slate-800 hover:text-white border-2 border-slate-800'
+                }`}
               >
                 View Landing Page
               </button>
               
               {/* User Welcome Message */}
-              <span className="text-slate-600">Welcome, {user?.name}</span>
+              <span className={`font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-600'
+              }`}>
+                Welcome, {user?.name}
+              </span>
               
               {/* Logout Button */}
               <button
                 onClick={logout}
-                className="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors font-medium"
+                className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+                  isDarkMode
+                    ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                    : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                }`}
+                title="Logout"
               >
-                Logout
+                {/* Logout/Exit Icon */}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           </div>
@@ -181,17 +254,29 @@ const Dashboard = () => {
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Project Creation Form */}
-        <ProjectForm onProjectCreated={handleProjectCreated} />
+        <ProjectForm onProjectCreated={handleProjectCreated} isDarkMode={isDarkMode} />
 
         {/* Projects Display Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className={`rounded-xl shadow-lg p-6 transition-all duration-300 ${
+          isDarkMode 
+            ? 'bg-black border border-green-500' 
+            : 'bg-white'
+        }`}>
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-slate-800">Your Projects</h3>
+            <h3 className={`text-5xl font-bold font-mono ${
+              isDarkMode ? 'text-green-400' : 'text-slate-800'
+            }`}>
+              Your Projects
+            </h3>
             
             {/* Refresh Button */}
             <button
               onClick={fetchProjects}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide font-mono font-bold ${
+                isDarkMode
+                  ? 'bg-green-400 text-black hover:bg-green-300'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
               Refresh
             </button>
@@ -200,18 +285,36 @@ const Dashboard = () => {
           {/* Loading State */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              <p className="mt-4 text-slate-600">Loading projects...</p>
+              <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
+                isDarkMode ? 'border-green-400' : 'border-blue-600'
+              }`}></div>
+              <p className={`mt-4 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-600'
+              }`}>
+                Loading projects...
+              </p>
             </div>
           ) : 
           
           /* Error State */
           error ? (
-            <div className="text-center bg-red-50 border border-red-200 rounded-lg p-6">
-              <p className="text-red-600 font-semibold mb-4">Error: {error}</p>
+            <div className={`text-center rounded-lg p-6 border transition-all duration-300 ${
+              isDarkMode 
+                ? 'bg-red-900 border-red-600' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <p className={`font-semibold mb-4 font-mono ${
+                isDarkMode ? 'text-red-300' : 'text-red-600'
+              }`}>
+                Error: {error}
+              </p>
               <button 
                 onClick={fetchProjects}
-                className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                className={`px-6 py-2 rounded-lg transition-colors font-mono font-bold ${
+                  isDarkMode
+                    ? 'bg-green-400 text-black hover:bg-green-300'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               >
                 Try Again
               </button>
@@ -222,7 +325,11 @@ const Dashboard = () => {
             <div className="space-y-6">
               {projects.length > 0 ? (
                 projects.map((project) => (
-                  <div key={project._id} className="bg-slate-50 border-l-4 border-primary-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div key={project._id} className={`border-l-4 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-900 border-green-400 hover:bg-gray-800' 
+                      : 'bg-slate-50 border-blue-600'
+                  }`}>
                     
                     {/* Project Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -230,33 +337,53 @@ const Dashboard = () => {
                         <div className="flex items-center gap-3 mb-2">
                           
                           {/* Project Title */}
-                          <h4 className="text-xl font-semibold text-slate-800">{project.title}</h4>
+                          <h4 className={`text-xl font-semibold font-mono ${
+                            isDarkMode ? 'text-green-400' : 'text-slate-800'
+                          }`}>
+                            {project.title}
+                          </h4>
                           
                           {/* Status Badge */}
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(project.status)}`}>
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium border font-mono ${getStatusColor(project.status)}`}>
                             {project.status}
                           </span>
                           
                           {/* Featured Badge */}
                           {project.featured && (
-                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium border font-mono ${
+                              isDarkMode 
+                                ? 'bg-purple-900 text-purple-300 border-purple-600' 
+                                : 'bg-purple-100 text-purple-800 border-purple-200'
+                            }`}>
                               ⭐ Featured
                             </span>
                           )}
                         </div>
                         
                         {/* Project Description */}
-                        <p className="text-slate-600 mb-4">{project.description}</p>
+                        <p className={`mb-4 font-mono text-sm ${
+                          isDarkMode ? 'text-green-100' : 'text-slate-600'
+                        }`}>
+                          {project.description}
+                        </p>
                         
                         {/* Technologies Section */}
                         {project.technologies && project.technologies.length > 0 && (
                           <div className="mb-4">
-                            <h5 className="text-sm font-medium text-slate-700 mb-2">Technologies:</h5>
+                            <h5 className={`text-sm font-medium mb-2 font-mono ${
+                              isDarkMode ? 'text-green-300' : 'text-slate-700'
+                            }`}>
+                              Technologies:
+                            </h5>
                             <div className="flex flex-wrap gap-2">
                               {project.technologies.map((tech, index) => (
                                 <span
                                   key={index}
-                                  className="inline-block px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                                  className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                                    isDarkMode
+                                      ? 'bg-green-400 text-black'
+                                      : 'bg-blue-100 text-blue-800'
+                                  }`}
                                 >
                                   {tech}
                                 </span>
@@ -273,7 +400,11 @@ const Dashboard = () => {
                               href={project.githubUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+                              className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
+                                isDarkMode
+                                  ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
+                                  : 'bg-gray-800 text-white hover:bg-gray-900'
+                              }`}
                             >
                               {/* GitHub Icon SVG */}
                               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -288,7 +419,11 @@ const Dashboard = () => {
                               href={project.demoUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                              className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
+                                isDarkMode
+                                  ? 'bg-green-400 text-black hover:bg-green-300'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
                             >
                               {/* External Link Icon SVG */}
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -305,7 +440,11 @@ const Dashboard = () => {
                         {/* Edit Project Button */}
                         <button
                           onClick={() => handleEditProject(project)}
-                          className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-colors"
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? 'text-green-400 hover:text-green-300 hover:bg-gray-800'
+                              : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                          }`}
                           title="Edit project"
                         >
                           {/* Edit Icon SVG */}
@@ -317,7 +456,11 @@ const Dashboard = () => {
                         {/* Delete Project Button */}
                         <button
                           onClick={() => project._id && handleDeleteProject(project._id)}
-                          className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? 'text-red-400 hover:text-red-300 hover:bg-red-900'
+                              : 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                          }`}
                           title="Delete project"
                         >
                           {/* Delete Icon SVG */}
@@ -333,14 +476,24 @@ const Dashboard = () => {
                 
                 /* Empty State - No Projects */
                 <div className="text-center py-12">
-                  <div className="text-slate-400 mb-4">
+                  <div className={`mb-4 ${
+                    isDarkMode ? 'text-green-400' : 'text-slate-400'
+                  }`}>
                     {/* Empty Projects Icon SVG */}
                     <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <p className="text-slate-600 text-lg">No projects yet!</p>
-                  <p className="text-slate-500 mt-2">Create your first project using the form above.</p>
+                  <p className={`text-lg font-mono ${
+                    isDarkMode ? 'text-green-300' : 'text-slate-600'
+                  }`}>
+                    No projects yet!
+                  </p>
+                  <p className={`mt-2 font-mono ${
+                    isDarkMode ? 'text-green-200' : 'text-slate-500'
+                  }`}>
+                    Create your first project using the form above.
+                  </p>
                 </div>
               )}
             </div>
@@ -355,6 +508,7 @@ const Dashboard = () => {
           isOpen={isEditModalOpen}
           onProjectUpdated={handleProjectUpdated}
           onClose={handleCloseEditModal}
+          isDarkMode={isDarkMode}
         />
       )}
     </div>
