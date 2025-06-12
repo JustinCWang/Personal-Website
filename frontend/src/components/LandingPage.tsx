@@ -11,7 +11,8 @@ const PERSONAL_INFO = {
     "📚 Anime & Manga", 
     "🎴 Pokémon TCG",
     "🎾 Tennis & Ping Pong",
-    "⛸️ Rollerskating & Ice Skating"
+    "⛸️ Rollerskating & Ice Skating",
+    "🎮 Video Games"
   ],
   skills: [
     "React", "TypeScript", "Node.js", "Express", "MongoDB", 
@@ -76,10 +77,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </h1>
               
               {/* Navigation Links */}
-              <nav className="hidden md:flex items-center gap-8">
+              <nav className="hidden md:flex items-center gap-12">
                 <a
                   href="#about"
-                  className={`font-medium transition-colors hover:scale-105 font-mono ${
+                  className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
                       ? 'text-green-300 hover:text-green-400'
                       : 'text-slate-600 hover:text-slate-800'
@@ -89,7 +90,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 </a>
                 <a
                   href="#projects"
-                  className={`font-medium transition-colors hover:scale-105 font-mono ${
+                  className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
                       ? 'text-green-300 hover:text-green-400'
                       : 'text-slate-600 hover:text-slate-800'
@@ -99,7 +100,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 </a>
                 <a
                   href="#contact"
-                  className={`font-medium transition-colors hover:scale-105 font-mono ${
+                  className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
                       ? 'text-green-300 hover:text-green-400'
                       : 'text-slate-600 hover:text-slate-800'
@@ -132,30 +133,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     </svg>
                   )}
                 </button>
-
-                {isAuthenticated ? (
-                  <button
-                    onClick={onGoToDashboard}
-                    className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide ${
-                      isDarkMode
-                        ? 'bg-black text-green-400 hover:bg-green-400 hover:text-black font-mono font-bold border-2 border-green-400'
-                        : 'bg-white text-slate-800 hover:bg-slate-800 hover:text-white font-mono font-bold border-2 border-slate-800'
-                    }`}
-                  >
-                    Go to Dashboard
-                  </button>
-                ) : (
-                  <button
-                    onClick={onLogin}
-                    className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide ${
-                      isDarkMode
-                        ? 'bg-black text-green-400 hover:bg-green-400 hover:text-black font-mono font-bold border-2 border-green-400'
-                        : 'bg-white text-slate-800 hover:bg-slate-800 hover:text-white font-mono font-bold border-2 border-slate-800'
-                    }`}
-                  >
-                    Admin Login
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -202,7 +179,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           : 'bg-white border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className={`text-4xl font-bold text-center mb-16 font-mono ${
+          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
               : 'text-slate-800'
@@ -230,7 +207,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                      ? 'bg-black hacker-glow border-2 border-green-500'
                      : 'bg-white shadow-lg border-2 border-slate-300'
                  }`}>
-                   <div className="w-6 h-6 bg-green-500 rounded-lg animate-pulse"></div>
+                   <div className="w-6 h-6 flex items-center justify-center">
+                     <button
+                       onClick={isAuthenticated ? onGoToDashboard : onLogin}
+                       className="w-full h-full bg-green-500 rounded-lg animate-pulse hover:animate-none hover:bg-green-400 transition-colors cursor-pointer"
+                       title={isAuthenticated ? 'Go to Dashboard' : 'Admin Access'}
+                     ></button>
+                   </div>
                  </div>
                </div>
              </div>
@@ -270,7 +253,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           : 'bg-white border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className={`text-3xl font-bold mb-12 text-center tracking-wide font-mono ${
+          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
               : 'text-slate-800'
@@ -301,7 +284,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className={`text-3xl font-bold mb-12 text-center tracking-wide font-mono ${
+          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
               : 'text-slate-800'
@@ -438,7 +421,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           : 'bg-white border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className={`text-3xl font-bold mb-12 text-center tracking-wide font-mono ${
+          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
               : 'text-slate-800'
@@ -470,7 +453,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           : 'bg-white border-t border-slate-200'
       }`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-3xl font-bold mb-12 tracking-wide font-mono ${
+          <h2 className={`text-6xl font-bold mb-12 tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
               : 'text-slate-800'
@@ -579,6 +562,38 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className={`py-6 px-6 border-t transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-black border-green-500' 
+          : 'bg-white border-slate-200'
+      }`}>
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          {/* Copyright */}
+          <p className={`text-sm font-mono ${
+            isDarkMode ? 'text-green-300' : 'text-slate-600'
+          }`}>
+            © 2025 Justin Wang
+          </p>
+          
+          {/* Back to Top */}
+          <a 
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`text-sm font-mono transition-colors hover:scale-105 ${
+              isDarkMode 
+                ? 'text-green-300 hover:text-green-400' 
+                : 'text-slate-600 hover:text-slate-800'
+            }`}
+          >
+            Back To The Top ↑
+          </a>
+        </div>
+      </footer>
     </div>
   )
 
