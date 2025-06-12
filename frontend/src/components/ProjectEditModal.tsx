@@ -95,7 +95,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className={`rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
         isDarkMode 
           ? 'bg-black border border-green-500' 
@@ -209,13 +209,17 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 <button
                   type="button"
                   onClick={addTechnology}
-                  className={`px-4 py-2 rounded-lg transition-colors font-mono font-bold ${
+                  className={`p-2 rounded-lg transition-all duration-300 border-2 ${
                     isDarkMode
-                      ? 'bg-green-400 text-black hover:bg-green-300'
-                      : 'bg-slate-600 text-white hover:bg-slate-700'
+                      ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
                   }`}
+                  title="Add Technology"
                 >
-                  Add
+                  {/* Plus Icon */}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -336,10 +340,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               <button
                 type="button"
                 onClick={handleClose}
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors font-mono font-bold text-sm uppercase tracking-wide ${
+                className={`flex-1 py-3 px-6 rounded-lg transition-all duration-300 font-mono font-bold text-sm uppercase tracking-wide border-2 ${
                   isDarkMode
-                    ? 'bg-gray-700 text-green-300 hover:bg-gray-600 border border-green-500'
-                    : 'bg-gray-200 text-slate-700 hover:bg-gray-300'
+                    ? 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300 hover:bg-gray-800'
+                    : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 Cancel
@@ -347,14 +351,14 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors font-mono font-bold text-sm uppercase tracking-wide ${
+                className={`flex-1 py-3 px-6 rounded-lg transition-all duration-300 font-mono font-bold text-sm uppercase tracking-wide border-2 ${
                   loading
                     ? isDarkMode
-                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      ? 'border-gray-600 text-gray-400 cursor-not-allowed bg-gray-800'
+                      : 'border-gray-300 text-gray-500 cursor-not-allowed bg-gray-100'
                     : isDarkMode
-                      ? 'bg-green-400 text-black hover:bg-green-300'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 {loading ? 'Updating...' : 'Update Project'}

@@ -11,6 +11,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 // Import authentication context and components
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { useAuth } from './hooks/useAuth.ts'
+import { useDarkMode } from './hooks/useDarkMode.ts'
 import Login from './components/Login.tsx'
 import ProjectForm from './components/ProjectForm.tsx'
 import ProjectEditModal from './components/ProjectEditModal.tsx'
@@ -31,18 +32,11 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null)          // Error state for displaying errors
   const [editingProject, setEditingProject] = useState<Project | null>(null)  // Project being edited
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)    // Modal visibility state
-  const [isDarkMode, setIsDarkMode] = useState(false)              // Dark mode state
   
   // Authentication context and navigation
   const { user, logout } = useAuth()  // Get current user and logout function
   const navigate = useNavigate()      // Navigation function for routing
-
-  /**
-   * Toggle dark mode
-   */
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-  }
+  const { isDarkMode, toggleDarkMode } = useDarkMode()             // Persistent dark mode state
 
   /**
    * Fetch projects from backend API
@@ -215,7 +209,7 @@ const Dashboard = () => {
               {/* View Landing Page Button */}
               <button
                 onClick={handleViewLandingPage}
-                className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide font-mono font-bold ${
+                className={`px-6 py-2 rounded-lg transition-colors uppercase tracking-wide font-mono font-bold ${
                   isDarkMode
                     ? 'bg-black text-green-400 hover:bg-green-400 hover:text-black border-2 border-green-400'
                     : 'bg-white text-slate-800 hover:bg-slate-800 hover:text-white border-2 border-slate-800'
@@ -272,13 +266,17 @@ const Dashboard = () => {
             {/* Refresh Button */}
             <button
               onClick={fetchProjects}
-              className={`px-6 py-2 rounded-lg transition-colors font-medium uppercase tracking-wide font-mono font-bold ${
+              className={`p-2 rounded-lg transition-all duration-300 border-2 ${
                 isDarkMode
-                  ? 'bg-green-400 text-black hover:bg-green-300'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                  : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
               }`}
+              title="Refresh Projects"
             >
-              Refresh
+              {/* Refresh Icon */}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
             </button>
           </div>
 
@@ -310,13 +308,17 @@ const Dashboard = () => {
               </p>
               <button 
                 onClick={fetchProjects}
-                className={`px-6 py-2 rounded-lg transition-colors font-mono font-bold ${
+                className={`p-2 rounded-lg transition-all duration-300 border-2 ${
                   isDarkMode
-                    ? 'bg-green-400 text-black hover:bg-green-300'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                    : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
                 }`}
+                title="Try Again"
               >
-                Try Again
+                {/* Refresh Icon */}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
             </div>
           ) : (

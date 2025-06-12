@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, type Project } from '../services/api.ts'
+import { useDarkMode } from '../hooks/useDarkMode.ts'
 
 const PERSONAL_INFO = {
   name: "Justin Wang",
@@ -34,7 +35,7 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = false, onGoToDashboard }) => {
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   useEffect(() => {
     const fetchFeaturedProjects = async () => {
@@ -51,10 +52,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
 
     fetchFeaturedProjects()
   }, [])
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-  }
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${

@@ -238,13 +238,17 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             <button
               type="button"
               onClick={addTechnology}
-              className={`px-4 py-2 rounded-lg transition-colors font-mono font-bold ${
+              className={`p-2 rounded-lg transition-all duration-300 border-2 ${
                 isDarkMode
-                  ? 'bg-green-400 text-black hover:bg-green-300'
-                  : 'bg-slate-600 text-white hover:bg-slate-700'
+                  ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                  : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
               }`}
+              title="Add Technology"
             >
-              Add
+              {/* Plus Icon */}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -376,14 +380,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 px-6 rounded-lg font-medium transition-colors font-mono font-bold text-sm uppercase tracking-wide ${
+            className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-mono font-bold text-sm uppercase tracking-wide border-2 ${
               loading
                 ? isDarkMode
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'border-gray-600 text-gray-400 cursor-not-allowed bg-gray-800'
+                  : 'border-gray-300 text-gray-500 cursor-not-allowed bg-gray-100'
                 : isDarkMode
-                  ? 'bg-green-400 text-black hover:bg-green-300'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                  : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
             }`}
           >
             {loading ? 'Creating Project...' : 'Create Project'}
