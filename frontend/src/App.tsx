@@ -526,6 +526,7 @@ const AppContent = () => {
   // Get authentication state from context
   const { isAuthenticated, loading } = useAuth()
   const navigate = useNavigate()
+  const { isDarkMode } = useDarkMode()
 
   /**
    * Handle successful login
@@ -538,10 +539,18 @@ const AppContent = () => {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-          <p className="text-xl">Loading...</p>
+      <div className={`min-h-screen transition-all duration-300 flex items-center justify-center ${
+        isDarkMode 
+          ? 'bg-gradient-to-br from-black to-gray-900' 
+          : 'bg-gradient-to-br from-slate-50 to-slate-100'
+      }`}>
+        <div className={`text-center ${
+          isDarkMode ? 'text-green-400' : 'text-slate-800'
+        }`}>
+          <div className={`inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4 ${
+            isDarkMode ? 'border-green-400' : 'border-slate-800'
+          }`}></div>
+          <p className="text-xl font-mono">Loading...</p>
         </div>
       </div>
     )
