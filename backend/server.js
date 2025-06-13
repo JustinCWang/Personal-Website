@@ -51,6 +51,9 @@ app.use('/api/projects', require('./routes/projectRoutes'))
 // User routes - handles user authentication and user-related operations
 app.use('/api/users', require('./routes/userRoutes'))
 
+// Skills routes - handles CRUD operations for skills
+app.use('/api/skills', require('./routes/skills'))
+
 /**
  * ERROR HANDLING MIDDLEWARE
  * Must be last middleware - catches and formats all errors
