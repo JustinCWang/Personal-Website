@@ -4,7 +4,7 @@
  * @module controllers/skillController
  */
 
-const Skill = require('../models/Skill');
+const Skill = require('../models/skillModel');
 
 /**
  * Get all skills

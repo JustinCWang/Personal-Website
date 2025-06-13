@@ -1,7 +1,22 @@
+/**
+ * Landing Page Component
+ * Main landing page of the personal website
+ * Displays personal information, skills, projects, and contact details
+ * Features dark mode support and responsive design
+ */
+
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
 
+/**
+ * Personal information configuration object
+ * Contains static data about the user including:
+ * - Basic info (name, title, bio)
+ * - Profile image
+ * - Hobbies and interests
+ * - Social media links
+ */
 const PERSONAL_INFO = {
   name: "Justin Wang",
   title: "CS Student at Boston University", 
@@ -22,18 +37,33 @@ const PERSONAL_INFO = {
   }
 }
 
+/**
+ * Props interface for the LandingPage component
+ */
 interface LandingPageProps {
   onLogin: () => void
   isAuthenticated?: boolean
   onGoToDashboard?: () => void
 }
 
+/**
+ * LandingPage Component
+ * @param {LandingPageProps} props - Component props
+ * @param {Function} props.onLogin - Function to handle login
+ * @param {boolean} [props.isAuthenticated] - Authentication state
+ * @param {Function} [props.onGoToDashboard] - Function to navigate to dashboard
+ */
 const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = false, onGoToDashboard }) => {
+  // State management for projects, skills, and loading state
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
   const [skills, setSkills] = useState<{ name: string; category: string }[]>([])
   const [loading, setLoading] = useState(false)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
+  /**
+   * Fetch featured projects and skills data on component mount
+   * Uses Promise.all for concurrent API calls
+   */
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
@@ -60,17 +90,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         ? 'bg-gradient-to-br from-black to-gray-900' 
         : 'bg-gradient-to-br from-slate-50 to-slate-100'
     }`} style={{ scrollBehavior: 'smooth' }}>
-      {/* Full-Screen Hello Section */}
+      {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
-        {/* Header Navigation - Floating */}
+        {/* Navigation Header */}
         <div className="absolute top-0 left-0 right-0 z-50">
           <div className="max-w-6xl mx-auto px-6 py-4">
             <div className="flex justify-between items-center">
-                          <h1 className={`text-2xl font-bold tracking-wide font-mono ${
-              isDarkMode 
-                ? 'text-green-400' 
-                : 'text-slate-800'
-            }`}>
+              {/* Name/Logo */}
+              <h1 className={`text-2xl font-bold tracking-wide font-mono ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-slate-800'
+              }`}>
                 {PERSONAL_INFO.name}
               </h1>
               
@@ -108,8 +139,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 </a>
               </nav>
               
+              {/* Dark Mode Toggle */}
               <div className="flex items-center gap-4">
-                {/* Dark Mode Toggle */}
                 <button
                   onClick={toggleDarkMode}
                   className={`p-2 rounded-lg transition-all duration-300 ${
@@ -136,7 +167,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           </div>
         </div>
 
-        {/* Main Hello Content */}
+        {/* Hero Content */}
         <div className="max-w-4xl mx-auto">
           <h1 className={`text-6xl md:text-8xl font-bold mb-6 ${
             isDarkMode 
@@ -158,7 +189,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           </p>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <a href="#about" className={`block p-2 ${
             isDarkMode ? 'text-green-400' : 'text-slate-600'
@@ -170,7 +201,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
       </section>
 
-      {/* About Me Section */}
+      {/* About Section */}
       <section id="about" className={`py-20 px-6 transition-all duration-300 ${
         isDarkMode 
           ? 'bg-black border-t border-green-500' 
@@ -186,35 +217,35 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           </h2>
           
           <div className="grid md:grid-cols-2 gap-16 items-center">
-                         {/* Large Profile Image */}
-             <div className="flex justify-center">
-               <div className="relative">
-                 <div className={`w-96 h-96 p-3 rounded-2xl ${
-                   isDarkMode 
-                     ? 'bg-gradient-to-br from-gray-800 to-black border-2 border-green-400' 
-                     : 'bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-slate-400'
-                 } shadow-xl`}>
-                   <img
-                     src={PERSONAL_INFO.image}
-                     alt={PERSONAL_INFO.name}
-                     className="w-full h-full rounded-xl object-cover bg-white"
-                   />
-                 </div>
-                 <div className={`absolute -bottom-4 -right-4 rounded-xl p-4 ${
-                   isDarkMode
-                     ? 'bg-black hacker-glow border-2 border-green-500'
-                     : 'bg-white shadow-lg border-2 border-slate-300'
-                 }`}>
-                   <div className="w-6 h-6 flex items-center justify-center">
-                     <button
-                       onClick={isAuthenticated ? onGoToDashboard : onLogin}
-                       className="w-full h-full bg-green-500 rounded-lg animate-pulse hover:animate-none hover:bg-green-400 transition-colors cursor-pointer"
-                       title={isAuthenticated ? 'Go to Dashboard' : 'Admin Access'}
-                     ></button>
-                   </div>
-                 </div>
-               </div>
-             </div>
+            {/* Profile Image with Admin Access Button */}
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className={`w-96 h-96 p-3 rounded-2xl ${
+                  isDarkMode 
+                    ? 'bg-gradient-to-br from-gray-800 to-black border-2 border-green-400' 
+                    : 'bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-slate-400'
+                } shadow-xl`}>
+                  <img
+                    src={PERSONAL_INFO.image}
+                    alt={PERSONAL_INFO.name}
+                    className="w-full h-full rounded-xl object-cover bg-white"
+                  />
+                </div>
+                <div className={`absolute -bottom-4 -right-4 rounded-xl p-4 ${
+                  isDarkMode
+                    ? 'bg-black hacker-glow border-2 border-green-500'
+                    : 'bg-white shadow-lg border-2 border-slate-300'
+                }`}>
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <button
+                      onClick={isAuthenticated ? onGoToDashboard : onLogin}
+                      className="w-full h-full bg-green-500 rounded-lg animate-pulse hover:animate-none hover:bg-green-400 transition-colors cursor-pointer"
+                      title={isAuthenticated ? 'Go to Dashboard' : 'Admin Access'}
+                    ></button>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             {/* About Text Content */}
             <div className="space-y-6">
@@ -223,21 +254,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   ? 'text-green-100' 
                   : 'text-slate-600'
               }`}>
-                                 <div className="space-y-4">
-                   <p>
-                     Hi, I'm Justin, a BA/MS student pursuing computer science at Boston University!
-                   </p>
-                   
-                   <p>
-                     I'm interested in <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>software development</span>, <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>AI/ML</span>, and <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>cybersecurity</span>! 
-                     I love learning about new technologies, acquiring new skills, and challenging myself through fun and impactful projects.
-                   </p>
-                   
-                   <p>
-                     Outside of coding, I compete in both <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-purple-600 font-semibold'}>Beyblade</span> and <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-purple-600 font-semibold'}>Pokémon tournaments</span>. 
-                     You'll also find me at the gym with friends, playing racket sports, or playing the piano!
-                   </p>
-                 </div>
+                <div className="space-y-4">
+                  <p>
+                    Hi, I'm Justin, a BA/MS student pursuing computer science at Boston University!
+                  </p>
+                  
+                  <p>
+                    I'm interested in <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>software development</span>, <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>AI/ML</span>, and <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-blue-600 font-semibold'}>cybersecurity</span>! 
+                    I love learning about new technologies, acquiring new skills, and challenging myself through fun and impactful projects.
+                  </p>
+                  
+                  <p>
+                    Outside of coding, I compete in both <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-purple-600 font-semibold'}>Beyblade</span> and <span className={isDarkMode ? 'text-green-400 font-semibold' : 'text-purple-600 font-semibold'}>Pokémon tournaments</span>. 
+                    You'll also find me at the gym with friends, playing racket sports, or playing the piano!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -258,6 +289,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           }`}>
             Skills & Technologies
           </h2>
+          {/* Skills Grid */}
           <div className="flex flex-wrap justify-center gap-4">
             {skills.map((skill, index) => (
               <span
@@ -275,7 +307,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
       </section>
 
-      {/* Featured Projects Section */}
+      {/* Projects Section */}
       <section id="projects" className={`py-16 px-6 transition-all duration-300 ${
         isDarkMode 
           ? 'bg-gray-900 border-t border-green-500' 
@@ -290,6 +322,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             Featured Projects
           </h2>
           
+          {/* Loading State */}
           {loading ? (
             <div className="text-center py-12">
               <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
@@ -302,6 +335,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </p>
             </div>
           ) : featuredProjects.length > 0 ? (
+            // Projects Grid
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredProjects.map((project) => (
                 <div key={project._id} className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
@@ -310,18 +344,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     : 'bg-white hover:shadow-xl'
                 }`}>
                   <div className="p-6">
+                    {/* Project Title */}
                     <h3 className={`text-xl font-semibold mb-3 font-mono ${
                       isDarkMode ? 'text-green-400' : 'text-slate-800'
                     }`}>
                       {project.title}
                     </h3>
+                    {/* Project Description */}
                     <p className={`mb-4 line-clamp-3 font-mono text-sm ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}>
                       {project.description}
                     </p>
                     
-                    {/* Technologies */}
+                    {/* Project Technologies */}
                     {project.technologies && project.technologies.length > 0 && (
                       <div className="mb-4">
                         <div className="flex flex-wrap gap-2">
@@ -401,6 +437,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               ))}
             </div>
           ) : (
+            // No Projects State
             <div className="text-center py-12">
               <p className={`text-lg font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-600'
@@ -426,6 +463,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           }`}>
             When I'm Not Coding
           </h2>
+          {/* Hobbies Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {PERSONAL_INFO.hobbies.map((hobby, index) => (
               <div key={index} className={`p-6 rounded-lg transition-all duration-300 ${
@@ -468,9 +506,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             Whether you have a project in mind or just want to chat, feel free to reach out!
           </p>
 
-          {/* Contact Methods */}
+          {/* Contact Methods Grid */}
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {/* Email */}
+            {/* Email Contact */}
             <a
               href={`mailto:${PERSONAL_INFO.social.email}`}
               className={`block p-6 rounded-lg transition-all duration-300 cursor-pointer ${
@@ -498,7 +536,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </p>
             </a>
 
-            {/* LinkedIn */}
+            {/* LinkedIn Contact */}
             <a
               href={PERSONAL_INFO.social.linkedin}
               target="_blank"
@@ -528,7 +566,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </p>
             </a>
 
-            {/* GitHub */}
+            {/* GitHub Contact */}
             <a
               href={PERSONAL_INFO.social.github}
               target="_blank"
@@ -575,7 +613,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             © 2025 Justin Wang
           </p>
           
-          {/* Back to Top */}
+          {/* Back to Top Link */}
           <a 
             href="#"
             onClick={(e) => {
@@ -595,7 +633,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
     </div>
   )
 
-  // Helper function for project status colors (only used in light mode)
+  /**
+   * Helper function to get status color classes based on project status
+   * @param {string} status - Project status
+   * @returns {string} Tailwind CSS classes for the status badge
+   */
   function getStatusColor(status: string) {
     switch (status) {
       case 'Planning': return 'bg-yellow-100 text-yellow-800 border-yellow-200'

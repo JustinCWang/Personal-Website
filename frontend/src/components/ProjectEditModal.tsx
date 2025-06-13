@@ -1,7 +1,26 @@
+/**
+ * Project Edit Modal Component
+ * A modal dialog for editing project details
+ * Provides a form interface for updating project information including:
+ * - Basic details (title, description)
+ * - Technologies used
+ * - Project URLs (GitHub, demo)
+ * - Project status and featured status
+ * Supports dark mode and responsive design
+ */
+
 import React, { useState, useEffect } from 'react'
 import type { Project } from '../services/api.ts'
 import { projectsAPI, handleAPIError } from '../services/api.ts'
 
+/**
+ * Props interface for the ProjectEditModal component
+ * @property {Project} project - The project to be edited
+ * @property {boolean} isOpen - Controls modal visibility
+ * @property {Function} onClose - Callback when modal is closed
+ * @property {Function} onProjectUpdated - Callback when project is updated
+ * @property {boolean} [isDarkMode] - Optional dark mode state
+ */
 interface ProjectEditModalProps {
   project: Project
   isOpen: boolean
@@ -17,6 +36,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   onProjectUpdated,
   isDarkMode = false
 }) => {
+  // Form state management
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -30,7 +50,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Populate form with project data when modal opens
+  /**
+   * Initialize form data when modal opens
+   * Populates form fields with existing project data
+   */
   useEffect(() => {
     if (isOpen && project) {
       setFormData({
@@ -45,6 +68,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     }
   }, [isOpen, project])
 
+  /**
+   * Handle input changes for form fields
+   * Updates form state with new values
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -52,6 +79,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     })
   }
 
+  /**
+   * Add a new technology to the project
+   * Prevents duplicate technologies and trims whitespace
+   */
   const addTechnology = () => {
     if (techInput.trim() && !formData.technologies.includes(techInput.trim())) {
       setFormData({
@@ -62,6 +93,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     }
   }
 
+  /**
+   * Remove a technology from the project
+   * @param {string} tech - Technology to remove
+   */
   const removeTechnology = (tech: string) => {
     setFormData({
       ...formData,
@@ -69,6 +104,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     })
   }
 
+  /**
+   * Handle form submission
+   * Updates project data through API and closes modal on success
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!project._id) return
@@ -87,6 +126,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     }
   }
 
+  /**
+   * Handle modal close
+   * Clears error state and calls onClose callback
+   */
   const handleClose = () => {
     setError(null)
     onClose()
@@ -95,12 +138,15 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   if (!isOpen) return null
 
   return (
+    // Modal Backdrop
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      {/* Modal Container */}
       <div className={`rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
         isDarkMode 
           ? 'bg-black border border-green-500' 
           : 'bg-white'
       }`}>
+        {/* Modal Header */}
         <div className={`sticky top-0 border-b p-6 rounded-t-xl transition-all duration-300 ${
           isDarkMode 
             ? 'bg-black border-green-500' 
@@ -112,6 +158,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             }`}>
               Edit Project
             </h2>
+            {/* Close Button */}
             <button
               onClick={handleClose}
               className={`p-2 rounded-full transition-colors ${
@@ -127,7 +174,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
           </div>
         </div>
 
+        {/* Modal Content */}
         <div className="p-6">
+          {/* Error Message Display */}
           {error && (
             <div className={`border rounded-lg p-4 mb-6 transition-all duration-300 ${
               isDarkMode 
@@ -142,7 +191,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             </div>
           )}
 
+          {/* Edit Project Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Project Title Input */}
             <div>
               <label htmlFor="edit-title" className={`block text-sm font-medium mb-2 font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -165,6 +216,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               />
             </div>
 
+            {/* Project Description Input */}
             <div>
               <label htmlFor="edit-description" className={`block text-sm font-medium mb-2 font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -187,12 +239,14 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               />
             </div>
 
+            {/* Technologies Management */}
             <div>
               <label className={`block text-sm font-medium mb-2 font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-700'
               }`}>
                 Technologies
               </label>
+              {/* Technology Input and Add Button */}
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -222,6 +276,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   </svg>
                 </button>
               </div>
+              {/* Technology Tags */}
               <div className="flex flex-wrap gap-2">
                 {formData.technologies.map((tech) => (
                   <span
@@ -247,7 +302,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               </div>
             </div>
 
+            {/* Project URLs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* GitHub URL Input */}
               <div>
                 <label htmlFor="edit-githubUrl" className={`block text-sm font-medium mb-2 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -269,6 +326,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 />
               </div>
 
+              {/* Demo URL Input */}
               <div>
                 <label htmlFor="edit-demoUrl" className={`block text-sm font-medium mb-2 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -291,7 +349,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               </div>
             </div>
 
+            {/* Project Status and Featured Toggle */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Status Select */}
               <div>
                 <label htmlFor="edit-status" className={`block text-sm font-medium mb-2 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -316,6 +376,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 </select>
               </div>
 
+              {/* Featured Toggle */}
               <div className="flex items-center">
                 <label className={`flex items-center space-x-3 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
@@ -336,7 +397,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               </div>
             </div>
 
+            {/* Form Action Buttons */}
             <div className="flex gap-4 pt-4">
+              {/* Cancel Button */}
               <button
                 type="button"
                 onClick={handleClose}
@@ -348,6 +411,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               >
                 Cancel
               </button>
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
