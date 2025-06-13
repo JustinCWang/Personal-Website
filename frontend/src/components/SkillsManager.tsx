@@ -1,16 +1,31 @@
+/**
+ * Skills Manager Component
+ * Manages the display and manipulation of user skills
+ * Provides interface for adding, editing, and deleting skills
+ */
+
 import React, { useState, useEffect } from 'react';
 import { skillsAPI } from '../services/api';
 
+/**
+ * Skill type definition
+ */
 interface Skill {
   _id: string;
   name: string;
   category: string;
 }
 
+/**
+ * Skills Manager Props
+ */
 interface SkillsManagerProps {
   isDarkMode: boolean;
 }
 
+/**
+ * Available skill categories
+ */
 const CATEGORIES = [
   'Frontend',
   'Backend',
@@ -21,6 +36,11 @@ const CATEGORIES = [
   'Other'
 ];
 
+/**
+ * Skills Manager Component
+ * @param {SkillsManagerProps} props - Component props
+ * @param {boolean} props.isDarkMode - Dark mode state
+ */
 const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +52,16 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     category: CATEGORIES[0]
   });
 
+  /**
+   * Fetch all skills on component mount
+   */
   useEffect(() => {
     fetchSkills();
   }, []);
 
+  /**
+   * Fetch all skills from the API
+   */
   const fetchSkills = async () => {
     try {
       setLoading(true);
@@ -50,6 +76,10 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     }
   };
 
+  /**
+   * Add a new skill
+   * @param {React.FormEvent} e - Form submit event
+   */
   const handleAddSkill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSkill.name.trim()) return;
@@ -65,6 +95,10 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     }
   };
 
+  /**
+   * Update an existing skill
+   * @param {React.FormEvent} e - Form submit event
+   */
   const handleUpdateSkill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingSkill) return;
@@ -82,6 +116,10 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     }
   };
 
+  /**
+   * Delete a skill
+   * @param {string} id - Skill ID to delete
+   */
   const handleDeleteSkill = async (id: string) => {
     try {
       await skillsAPI.delete(id);

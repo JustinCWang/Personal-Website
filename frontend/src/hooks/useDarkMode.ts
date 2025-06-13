@@ -1,3 +1,9 @@
+/**
+ * Dark Mode Hook
+ * Manages dark mode state and persistence
+ * Provides dark mode toggle functionality
+ */
+
 import { useState, useEffect } from 'react'
 
 /**

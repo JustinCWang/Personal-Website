@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { projectsAPI, type Project } from '../services/api.ts'
+import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
 
 const PERSONAL_INFO = {
@@ -14,10 +14,6 @@ const PERSONAL_INFO = {
     "🎾 Tennis & Ping Pong",
     "⛸️ Rollerskating & Ice Skating",
     "🎮 Video Games"
-  ],
-  skills: [
-    "React", "TypeScript", "Node.js", "Express", "MongoDB", 
-    "Python", "JavaScript", "HTML/CSS", "Git", "Docker"
   ],
   social: {
     github: "https://github.com/JustinCWang",
@@ -34,23 +30,28 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = false, onGoToDashboard }) => {
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
+  const [skills, setSkills] = useState<{ name: string; category: string }[]>([])
   const [loading, setLoading] = useState(false)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   useEffect(() => {
-    const fetchFeaturedProjects = async () => {
+    const fetchData = async () => {
       setLoading(true)
       try {
-        const projects = await projectsAPI.getFeatured()
+        const [projects, skillsData] = await Promise.all([
+          projectsAPI.getFeatured(),
+          skillsAPI.getAll()
+        ])
         setFeaturedProjects(projects)
+        setSkills(skillsData)
       } catch (error) {
-        console.error('Error fetching featured projects:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchFeaturedProjects()
+    fetchData()
   }, [])
 
   return (
@@ -258,7 +259,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             Skills & Technologies
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
-            {PERSONAL_INFO.skills.map((skill, index) => (
+            {skills.map((skill, index) => (
               <span
                 key={index}
                 className={`px-6 py-3 rounded-full font-medium transition-all duration-300 font-mono uppercase tracking-wide ${
@@ -267,7 +268,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     : 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-200 hover:text-blue-800 hover:scale-105'
                 }`}
               >
-                {skill}
+                {skill.name}
               </span>
             ))}
           </div>
