@@ -27,13 +27,12 @@ interface SkillsManagerProps {
  * Available skill categories
  */
 const CATEGORIES = [
+  'Programming Languages',
   'Frontend',
   'Backend',
-  'Database',
-  'DevOps',
-  'Tools',
-  'Languages',
-  'Other'
+  'AI/ML',
+  'DevOps & Tools',
+  'Additional Tools'
 ];
 
 /**
