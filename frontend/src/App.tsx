@@ -20,6 +20,9 @@ import LandingPage from './components/LandingPage.tsx'
 // Import API services and types
 import { projectsAPI, handleAPIError, type Project } from './services/api'
 
+// Import SkillsManager component
+import SkillsManager from './components/SkillsManager'
+
 /**
  * Dashboard Component
  * @desc Main dashboard for authenticated users to manage their projects
@@ -249,6 +252,11 @@ const Dashboard = () => {
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Project Creation Form */}
         <ProjectForm onProjectCreated={handleProjectCreated} isDarkMode={isDarkMode} />
+
+        {/* Skills Management Section */}
+        <div className="mb-8">
+          <SkillsManager isDarkMode={isDarkMode} />
+        </div>
 
         {/* Projects Display Section */}
         <div className={`rounded-xl shadow-lg p-6 transition-all duration-300 ${
@@ -552,7 +560,7 @@ const AppContent = () => {
           }`}></div>
           <p className="text-xl font-mono">Loading...</p>
         </div>
-      </div>
+      </div>  
     )
   }
 

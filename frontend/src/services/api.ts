@@ -288,4 +288,56 @@ export const handleAPIError = (error: unknown): string => {
     return error.message
   }
   return 'An unexpected error occurred'
-} 
+}
+
+// Skills API
+export const skillsAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/skills`);
+    if (!response.ok) throw new Error('Failed to fetch skills');
+    return response.json();
+  },
+
+  getByCategory: async (category: string) => {
+    const response = await fetch(`${API_BASE_URL}/skills/category/${category}`);
+    if (!response.ok) throw new Error('Failed to fetch skills by category');
+    return response.json();
+  },
+
+  add: async (skill: { name: string; category: string }) => {
+    const response = await fetch(`${API_BASE_URL}/skills`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(skill)
+    });
+    if (!response.ok) throw new Error('Failed to add skill');
+    return response.json();
+  },
+
+  update: async (id: string, skill: { name: string; category: string }) => {
+    const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(skill)
+    });
+    if (!response.ok) throw new Error('Failed to update skill');
+    return response.json();
+  },
+
+  delete: async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error('Failed to delete skill');
+    return response.json();
+  }
+}; 
