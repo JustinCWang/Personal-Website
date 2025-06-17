@@ -52,7 +52,7 @@ app.use('/api/projects', require('./routes/projectRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
 
 // Skills routes - handles CRUD operations for skills
-app.use('/api/skills', require('./routes/skills'))
+app.use('/api/skills', require('./routes/skillRoutes'))
 
 /**
  * ERROR HANDLING MIDDLEWARE

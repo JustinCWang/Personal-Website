@@ -290,54 +290,112 @@ export const handleAPIError = (error: unknown): string => {
   return 'An unexpected error occurred'
 }
 
-// Skills API
+/**
+ * Skills API Functions
+ * Handle all skill-related HTTP requests to the backend
+ */
 export const skillsAPI = {
+  /**
+   * Get all skills
+   * @desc Fetches all skills for display
+   * @returns {Promise<Array<{name: string, category: string}>>} Array of skills
+   * @access Public - no authentication required
+   */
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/skills`);
-    if (!response.ok) throw new Error('Failed to fetch skills');
+    const response = await fetch(`${API_BASE_URL}/skills`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch skills:', response.status, errorText);
+      throw new Error(`Failed to fetch skills: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
+  /**
+   * Get skills by category
+   * @desc Fetches all skills in a specific category
+   * @param {string} category - Category to filter skills by
+   * @returns {Promise<Array<{name: string, category: string}>>} Array of skills in category
+   * @access Public - no authentication required
+   */
   getByCategory: async (category: string) => {
-    const response = await fetch(`${API_BASE_URL}/skills/category/${category}`);
-    if (!response.ok) throw new Error('Failed to fetch skills by category');
+    const response = await fetch(`${API_BASE_URL}/skills/category/${category}`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch skills by category:', response.status, errorText);
+      throw new Error(`Failed to fetch skills by category: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
+  /**
+   * Add a new skill
+   * @desc Creates a new skill for the authenticated user
+   * @param {object} skill - Skill data
+   * @param {string} skill.name - Name of the skill
+   * @param {string} skill.category - Category of the skill
+   * @returns {Promise<{name: string, category: string}>} Created skill
+   * @access Private - requires authentication
+   */
   add: async (skill: { name: string; category: string }) => {
     const response = await fetch(`${API_BASE_URL}/skills`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(skill)
     });
-    if (!response.ok) throw new Error('Failed to add skill');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to add skill:', response.status, errorText);
+      throw new Error(`Failed to add skill: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
+  /**
+   * Update an existing skill
+   * @desc Updates a skill if the user owns it
+   * @param {string} id - Skill ID to update
+   * @param {object} skill - Skill data to update
+   * @param {string} skill.name - New name of the skill
+   * @param {string} skill.category - New category of the skill
+   * @returns {Promise<{name: string, category: string}>} Updated skill
+   * @access Private - requires authentication and ownership
+   */
   update: async (id: string, skill: { name: string; category: string }) => {
     const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(skill)
     });
-    if (!response.ok) throw new Error('Failed to update skill');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to update skill:', response.status, errorText);
+      throw new Error(`Failed to update skill: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
+  /**
+   * Delete a skill
+   * @desc Deletes a skill if the user owns it
+   * @param {string} id - Skill ID to delete
+   * @returns {Promise<void>} Promise that resolves when deletion is complete
+   * @access Private - requires authentication and ownership
+   */
   delete: async (id: string) => {
     const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+      headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error('Failed to delete skill');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to delete skill:', response.status, errorText);
+      throw new Error(`Failed to delete skill: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   }
 }; 

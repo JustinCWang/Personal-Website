@@ -45,8 +45,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
-  const [newSkill, setNewSkill] = useState<Skill>({
-    _id: '',
+  const [newSkill, setNewSkill] = useState<Omit<Skill, '_id'>>({
     name: '',
     category: CATEGORIES[0]
   });
@@ -85,8 +84,8 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
 
     try {
       const addedSkill = await skillsAPI.add(newSkill);
-      setSkills([...skills, addedSkill]);
-      setNewSkill({ ...newSkill, name: '' });
+      setSkills(prevSkills => [...prevSkills, addedSkill]);
+      setNewSkill({ name: '', category: CATEGORIES[0] });
       setError(null);
     } catch (err) {
       setError('Failed to add skill');
@@ -103,8 +102,11 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     if (!editingSkill) return;
 
     try {
-      const updatedSkill = await skillsAPI.update(editingSkill._id, editingSkill);
-      setSkills(skills.map(skill => 
+      const updatedSkill = await skillsAPI.update(editingSkill._id, {
+        name: editingSkill.name,
+        category: editingSkill.category
+      });
+      setSkills(prevSkills => prevSkills.map(skill => 
         skill._id === editingSkill._id ? updatedSkill : skill
       ));
       setEditingSkill(null);
@@ -122,7 +124,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   const handleDeleteSkill = async (id: string) => {
     try {
       await skillsAPI.delete(id);
-      setSkills(skills.filter(skill => skill._id !== id));
+      setSkills(prevSkills => prevSkills.filter(skill => skill._id !== id));
       setError(null);
     } catch (err) {
       setError('Failed to delete skill');
