@@ -128,7 +128,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         : 'bg-white'
     }`}>
       {/* Form Header */}
-      <h3 className={`text-xl font-semibold mb-4 font-mono ${
+      <h3 className={`text-5xl font-semibold mb-4 font-mono ${
         isDarkMode ? 'text-green-400' : 'text-slate-800'
       }`}>
         Add New Project
