@@ -275,38 +275,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section className={`py-16 px-6 transition-all duration-300 ${
-        isDarkMode 
-          ? 'bg-black border-t border-green-500' 
-          : 'bg-white border-t border-slate-200'
-      }`}>
-        <div className="max-w-6xl mx-auto">
-          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
-          }`}>
-            Skills & Technologies
-          </h2>
-          {/* Skills Grid */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 font-mono uppercase tracking-wide ${
-                  isDarkMode
-                    ? 'bg-gradient-to-r from-gray-900 to-black text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-white hover:scale-105'
-                    : 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-200 hover:text-blue-800 hover:scale-105'
-                }`}
-              >
-                {skill.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Projects Section */}
       <section id="projects" className={`py-16 px-6 transition-all duration-300 ${
         isDarkMode 
@@ -449,11 +417,43 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
       </section>
 
-      {/* Hobbies Section */}
+      {/* Skills Section */}
       <section className={`py-16 px-6 transition-all duration-300 ${
         isDarkMode 
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
+      }`}>
+        <div className="max-w-6xl mx-auto">
+          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
+            isDarkMode 
+              ? 'text-green-400' 
+              : 'text-slate-800'
+          }`}>
+            Skills & Technologies
+          </h2>
+          {/* Skills Grid */}
+          <div className="flex flex-wrap justify-center gap-4">
+            {skills.map((skill, index) => (
+              <span
+                key={index}
+                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 font-mono uppercase tracking-wide ${
+                  isDarkMode
+                    ? 'bg-gradient-to-r from-gray-900 to-black text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-white hover:scale-105'
+                    : 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-200 hover:text-blue-800 hover:scale-105'
+                }`}
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hobbies Section */}
+      <section className={`py-16 px-6 transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-black border-t border-green-500' 
+          : 'bg-slate-50 border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
           <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
@@ -469,7 +469,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               <div key={index} className={`p-6 rounded-lg transition-all duration-300 ${
                 isDarkMode
                   ? 'bg-gray-900 border border-green-500 hover:border-green-400'
-                  : 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
+                  : 'bg-white hover:bg-slate-100 border border-slate-200'
               }`}>
                 <p className={`text-lg font-medium font-mono ${
                   isDarkMode ? 'text-green-400' : 'text-slate-700'
