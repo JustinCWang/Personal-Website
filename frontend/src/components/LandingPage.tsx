@@ -431,20 +431,67 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           }`}>
             Skills & Technologies
           </h2>
-          {/* Skills Grid */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 font-mono uppercase tracking-wide ${
-                  isDarkMode
-                    ? 'bg-gradient-to-r from-gray-900 to-black text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-white hover:scale-105'
-                    : 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-200 hover:text-blue-800 hover:scale-105'
-                }`}
-              >
-                {skill.name}
-              </span>
-            ))}
+          
+          {/* Skills organized by categories */}
+          <div className="space-y-8">
+            {(() => {
+              // Group skills by category
+              const skillsByCategory = skills.reduce((acc, skill) => {
+                if (!acc[skill.category]) {
+                  acc[skill.category] = [];
+                }
+                acc[skill.category].push(skill);
+                return acc;
+              }, {} as Record<string, typeof skills>);
+
+              // Define category order and display names
+              const categoryOrder = [
+                'Programming Languages',
+                'Frontend',
+                'Backend', 
+                'AI/ML',
+                'DevOps & Tools',
+                'Additional Tools'
+              ];
+
+              const categoryDisplayNames: Record<string, string> = {
+                'Programming Languages': 'Programming Languages',
+                'Frontend': 'Frontend Development',
+                'Backend': 'Backend Development',
+                'AI/ML': 'AI & Machine Learning',
+                'DevOps & Tools': 'DevOps & Tools',
+                'Additional Tools': 'Additional Tools'
+              };
+
+              return categoryOrder.map(category => {
+                const categorySkills = skillsByCategory[category];
+                if (!categorySkills || categorySkills.length === 0) return null;
+
+                return (
+                  <div key={category} className="mb-8">
+                    <h3 className={`text-2xl font-semibold mb-4 font-mono ${
+                      isDarkMode ? 'text-green-300' : 'text-slate-700'
+                    }`}>
+                      {categoryDisplayNames[category]}
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {categorySkills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm ${
+                            isDarkMode
+                              ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-green-400 hover:text-black'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'
+                          }`}
+                        >
+                          {skill.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </section>
@@ -452,7 +499,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
       {/* Hobbies Section */}
       <section className={`py-16 px-6 transition-all duration-300 ${
         isDarkMode 
-          ? 'bg-black border-t border-green-500' 
+          ? 'bg-gray-900 border-t border-green-500' 
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
         <div className="max-w-6xl mx-auto">
@@ -468,7 +515,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             {PERSONAL_INFO.hobbies.map((hobby, index) => (
               <div key={index} className={`p-6 rounded-lg transition-all duration-300 ${
                 isDarkMode
-                  ? 'bg-gray-900 border border-green-500 hover:border-green-400'
+                  ? 'bg-black border border-green-500 hover:border-green-400'
                   : 'bg-white hover:bg-slate-100 border border-slate-200'
               }`}>
                 <p className={`text-lg font-medium font-mono ${
