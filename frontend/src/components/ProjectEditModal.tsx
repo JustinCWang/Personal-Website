@@ -276,7 +276,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
                       : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                   }`}
                 />
@@ -297,7 +297,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   onChange={handleChange}
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
                       : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                   }`}
                 />
@@ -451,10 +451,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                     name="featured"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className={`w-4 h-4 rounded transition-colors ${
+                    className={`w-4 h-4 rounded transition-colors border-2 ${
                       isDarkMode
-                        ? 'bg-gray-900 border-green-500 text-green-400 focus:ring-green-400'
-                        : 'bg-white border-slate-300 text-blue-600 focus:ring-blue-500'
+                        ? 'bg-gray-900 text-green-400 focus:ring-green-400 focus:ring-2 checkbox-green-border'
+                        : 'bg-white text-blue-600 focus:ring-blue-500 focus:ring-2 checkbox-blue-border'
                     }`}
                   />
                   <span className="text-sm font-medium">Featured Project</span>

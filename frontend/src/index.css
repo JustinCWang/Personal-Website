@@ -27,4 +27,79 @@
       transform: translateY(0);
     }
   }
+  
+  /* Custom calendar icon styling for dark mode */
+  .calendar-icon-green::-webkit-calendar-picker-indicator {
+    filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+  }
+  
+  /* Custom checkbox styling for dark mode */
+  .checkbox-green-border {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 2px solid #10b981 !important; /* green-500 */
+    border-radius: 4px !important;
+    background-color: #111827 !important; /* gray-900 */
+    cursor: pointer !important;
+    position: relative !important;
+  }
+  
+  .checkbox-green-border:checked {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+  }
+  
+  .checkbox-green-border:checked::after {
+    content: '✓' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 1px !important;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+  }
+  
+  .checkbox-green-border:focus {
+    outline: none !important;
+    border-color: #34d399 !important; /* green-400 */
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2) !important;
+  }
+  
+  /* Custom checkbox styling for light mode */
+  .checkbox-blue-border {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 2px solid #3b82f6 !important; /* blue-500 */
+    border-radius: 4px !important;
+    background-color: white !important;
+    cursor: pointer !important;
+    position: relative !important;
+  }
+  
+  .checkbox-blue-border:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+  }
+  
+  .checkbox-blue-border:checked::after {
+    content: '✓' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 1px !important;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+  }
+  
+  .checkbox-blue-border:focus {
+    outline: none !important;
+    border-color: #60a5fa !important; /* blue-400 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  }
 } 
