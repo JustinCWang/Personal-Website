@@ -61,6 +61,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   /**
+   * Format date for display
+   * @param {string} dateString - ISO date string
+   * @param {boolean} short - Whether to use short month format
+   * @returns {string} Formatted date string
+   */
+  const formatDate = (dateString: string | undefined, short: boolean = false) => {
+    if (!dateString) return 'Not specified';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: short ? 'short' : 'long' 
+    });
+  };
+
+  /**
    * Fetch featured projects and skills data on component mount
    * Uses Promise.all for concurrent API calls
    */
@@ -324,6 +339,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     }`}>
                       {project.description}
                     </p>
+                    
+                    {/* Project Time Frame */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className={`font-mono ${
+                          isDarkMode ? 'text-green-200' : 'text-slate-600'
+                        }`}>
+                          {formatDate(project.startDate)}
+                        </span>
+                        {project.endDate && (
+                          <>
+                            <span className={`font-mono ${
+                              isDarkMode ? 'text-green-300' : 'text-slate-500'
+                            }`}>
+                              →
+                            </span>
+                            <span className={`font-mono ${
+                              isDarkMode ? 'text-green-200' : 'text-slate-600'
+                            }`}>
+                              {formatDate(project.endDate)}
+                            </span>
+                          </>
+                        )}
+                        {!project.endDate && (
+                          <span className={`font-mono px-2 py-1 rounded-full text-xs ${
+                            isDarkMode 
+                              ? 'bg-green-900 text-green-300 border border-green-500' 
+                              : 'bg-green-100 text-green-800 border border-green-200'
+                          }`}>
+                            Ongoing
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     
                     {/* Project Technologies */}
                     {project.technologies && project.technologies.length > 0 && (

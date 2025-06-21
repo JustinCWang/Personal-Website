@@ -48,9 +48,9 @@ const getProjects = asyncHandler(async (req, res) => {
  */
 const setProject = asyncHandler(async (req, res) => {
     // Validate required fields
-    if (!req.body || !req.body.title || !req.body.description) {
+    if (!req.body || !req.body.title || !req.body.description || !req.body.startDate) {
         res.status(400)
-        throw new Error('Please add title and description fields')
+        throw new Error('Please add title, description, and start date fields')
     }
 
     // Create new project with provided data and authenticated user ID
@@ -62,6 +62,8 @@ const setProject = asyncHandler(async (req, res) => {
         demoUrl: req.body.demoUrl || '',              // Default to empty string if not provided
         status: req.body.status || 'Planning',        // Default to 'Planning' status
         featured: req.body.featured || false,         // Default to not featured
+        startDate: req.body.startDate,                // Project start date
+        endDate: req.body.endDate || null,            // Project end date (optional)
         user: req.user.id                             // Associate with authenticated user
     })
 

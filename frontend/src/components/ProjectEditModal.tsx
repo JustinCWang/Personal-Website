@@ -44,7 +44,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     githubUrl: '',
     demoUrl: '',
     status: 'Planning' as 'Planning' | 'In Progress' | 'Completed' | 'On Hold',
-    featured: false
+    featured: false,
+    startDate: '',
+    endDate: ''
   })
   const [techInput, setTechInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -56,6 +58,13 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
    */
   useEffect(() => {
     if (isOpen && project) {
+      // Convert ISO date strings to YYYY-MM format for month inputs
+      const formatDateForInput = (dateString: string | undefined) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().slice(0, 7); // YYYY-MM format
+      };
+
       setFormData({
         title: project.title || '',
         description: project.description || '',
@@ -63,7 +72,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         githubUrl: project.githubUrl || '',
         demoUrl: project.demoUrl || '',
         status: project.status || 'Planning',
-        featured: project.featured || false
+        featured: project.featured || false,
+        startDate: formatDateForInput(project.startDate),
+        endDate: formatDateForInput(project.endDate)
       })
     }
   }, [isOpen, project])
@@ -116,7 +127,14 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     setLoading(true)
 
     try {
-      const updatedProject = await projectsAPI.update(project._id, formData)
+      // Convert month inputs to proper date strings
+      const projectData = {
+        ...formData,
+        startDate: formData.startDate ? new Date(formData.startDate + '-01').toISOString() : '',
+        endDate: formData.endDate ? new Date(formData.endDate + '-01').toISOString() : ''
+      }
+      
+      const updatedProject = await projectsAPI.update(project._id, projectData)
       onProjectUpdated(updatedProject)
       onClose()
     } catch (error) {
@@ -237,6 +255,53 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 }`}
                 placeholder="Describe your project in detail"
               />
+            </div>
+
+            {/* Project Time Frame Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Start Date Field */}
+              <div>
+                <label htmlFor="edit-startDate" className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Start Date
+                </label>
+                <input
+                  type="month"
+                  id="edit-startDate"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  required
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                />
+              </div>
+
+              {/* End Date Field */}
+              <div>
+                <label htmlFor="edit-endDate" className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  End Date (optional)
+                </label>
+                <input
+                  type="month"
+                  id="edit-endDate"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                />
+              </div>
             </div>
 
             {/* Technologies Management */}

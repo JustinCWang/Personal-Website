@@ -1,7 +1,7 @@
 /**
  * Project Model for the Personal Website backend
  * Defines the MongoDB schema for project documents
- * Includes fields for project details, technologies, and user relationships
+ * Includes fields for project details, technologies, time frame, and user relationships
  */
 
 const mongoose = require('mongoose')
@@ -9,7 +9,7 @@ const mongoose = require('mongoose')
 /**
  * Project Schema Definition
  * @desc Defines the structure of project documents in MongoDB
- * @fields user, title, description, technologies, githubUrl, demoUrl, status, featured
+ * @fields user, title, description, technologies, githubUrl, demoUrl, status, featured, startDate, endDate
  */
 const projectSchema = mongoose.Schema({
     // Reference to the user who owns this project
@@ -60,6 +60,18 @@ const projectSchema = mongoose.Schema({
     featured: {
         type: Boolean,
         default: false     // Default to not featured
+    },
+    
+    // Project start date (month and year)
+    startDate: {
+        type: Date,
+        required: [true, 'Please add a start date']
+    },
+    
+    // Project end date (month and year) - optional for ongoing projects
+    endDate: {
+        type: Date,
+        default: null      // Default to null for ongoing projects
     }
 }, {
     timestamps: true  // Automatically add createdAt and updatedAt fields

@@ -17,6 +17,8 @@ export interface Project {
   demoUrl: string
   status: 'Planning' | 'In Progress' | 'Completed' | 'On Hold'
   featured: boolean
+  startDate: string  // ISO date string
+  endDate?: string   // Optional ISO date string for ongoing projects
 }
 
 /**

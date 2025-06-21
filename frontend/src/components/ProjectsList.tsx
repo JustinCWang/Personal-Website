@@ -26,6 +26,20 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)    // Modal visibility state
 
   /**
+   * Format date for display
+   * @param {string} dateString - ISO date string
+   * @returns {string} Formatted date string
+   */
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Not specified';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long' 
+    });
+  };
+
+  /**
    * Fetch projects from backend API
    * @desc Retrieves all projects belonging to the authenticated user
    */
@@ -244,6 +258,45 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                     }`}>
                       {project.description}
                     </p>
+                    
+                    {/* Project Time Frame */}
+                    <div className="mb-4">
+                      <h5 className={`text-sm font-medium mb-2 font-mono ${
+                        isDarkMode ? 'text-green-300' : 'text-slate-700'
+                      }`}>
+                        Time Frame:
+                      </h5>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-mono ${
+                          isDarkMode ? 'text-green-200' : 'text-slate-600'
+                        }`}>
+                          {formatDate(project.startDate)}
+                        </span>
+                        {project.endDate && (
+                          <>
+                            <span className={`text-sm font-mono ${
+                              isDarkMode ? 'text-green-300' : 'text-slate-500'
+                            }`}>
+                              →
+                            </span>
+                            <span className={`text-sm font-mono ${
+                              isDarkMode ? 'text-green-200' : 'text-slate-600'
+                            }`}>
+                              {formatDate(project.endDate)}
+                            </span>
+                          </>
+                        )}
+                        {!project.endDate && (
+                          <span className={`text-sm font-mono px-2 py-1 rounded-full ${
+                            isDarkMode 
+                              ? 'bg-green-900 text-green-300 border border-green-500' 
+                              : 'bg-green-100 text-green-800 border border-green-200'
+                          }`}>
+                            Ongoing
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     
                     {/* Technologies Section */}
                     {project.technologies && project.technologies.length > 0 && (
