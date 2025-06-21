@@ -12,6 +12,7 @@
 import React, { useState, useEffect } from 'react'
 import type { Project } from '../services/api.ts'
 import { projectsAPI, handleAPIError } from '../services/api.ts'
+import CustomMonthPicker from './CustomMonthPicker'
 
 /**
  * Props interface for the ProjectEditModal component
@@ -267,18 +268,12 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 }`}>
                   Start Date
                 </label>
-                <input
-                  type="month"
+                <CustomMonthPicker
+                  value={formData.startDate}
+                  onChange={(value) => setFormData({ ...formData, startDate: value })}
+                  isDarkMode={isDarkMode}
                   id="edit-startDate"
                   name="startDate"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
-                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  }`}
                 />
               </div>
 
@@ -289,17 +284,12 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 }`}>
                   End Date (optional)
                 </label>
-                <input
-                  type="month"
+                <CustomMonthPicker
+                  value={formData.endDate}
+                  onChange={(value) => setFormData({ ...formData, endDate: value })}
+                  isDarkMode={isDarkMode}
                   id="edit-endDate"
                   name="endDate"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
-                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  }`}
                 />
               </div>
             </div>

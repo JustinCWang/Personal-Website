@@ -9,6 +9,7 @@
 import React, { useState } from 'react'
 import type { Project } from '../services/api.ts'                    // Project type definition
 import { projectsAPI, handleAPIError } from '../services/api.ts'     // API functions and error handling
+import CustomMonthPicker from './CustomMonthPicker'
 
 /**
  * Props interface for ProjectForm component
@@ -234,18 +235,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             }`}>
               Start Date
             </label>
-            <input
-              type="month"
+            <CustomMonthPicker
+              value={formData.startDate}
+              onChange={(date) => setFormData({ ...formData, startDate: date })}
+              isDarkMode={isDarkMode}
               id="startDate"
               name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              required
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
-                  : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              }`}
             />
           </div>
 
@@ -256,17 +251,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             }`}>
               End Date (optional)
             </label>
-            <input
-              type="month"
+            <CustomMonthPicker
+              value={formData.endDate}
+              onChange={(date) => setFormData({ ...formData, endDate: date })}
+              isDarkMode={isDarkMode}
               id="endDate"
               name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400 calendar-icon-green'
-                  : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              }`}
             />
           </div>
         </div>
