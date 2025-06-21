@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { skillsAPI } from '../services/api';
+import SkillCategoryDropdown from './SkillCategoryDropdown';
 
 /**
  * Skill type definition
@@ -220,118 +221,19 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
             if (categorySkills.length === 0) return null;
 
             return (
-              <div key={category} className="mb-6">
-                <h3 className={`text-xl font-semibold mb-3 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  {category}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categorySkills.map(skill => (
-                    <div
-                      key={skill._id}
-                      className={`border-l-4 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
-                        isDarkMode 
-                          ? 'bg-gray-900 border-green-400 hover:bg-gray-800' 
-                          : 'bg-slate-50 border-blue-600'
-                      }`}
-                    >
-                      {editingSkill?._id === skill._id ? (
-                        <form onSubmit={handleUpdateSkill} className="space-y-3">
-                          <input
-                            type="text"
-                            value={editingSkill.name}
-                            onChange={(e) => setEditingSkill({
-                              ...editingSkill,
-                              name: e.target.value
-                            })}
-                            className={`w-full p-2 rounded-lg border font-mono ${
-                              isDarkMode 
-                                ? 'bg-gray-700 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400' 
-                                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                            }`}
-                          />
-                          <select
-                            value={editingSkill.category}
-                            onChange={(e) => setEditingSkill({
-                              ...editingSkill,
-                              category: e.target.value
-                            })}
-                            className={`w-full p-2 rounded-lg border font-mono ${
-                              isDarkMode 
-                                ? 'bg-gray-700 border-green-500 text-white focus:ring-2 focus:ring-green-400 focus:border-green-400' 
-                                : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                            }`}
-                          >
-                            {CATEGORIES.map(cat => (
-                              <option key={cat} value={cat}>
-                                {cat}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="flex gap-2">
-                            <button
-                              type="submit"
-                              className={`flex-1 px-3 py-1 rounded-lg font-mono ${
-                                isDarkMode
-                                  ? 'bg-green-500 text-black hover:bg-green-400'
-                                  : 'bg-blue-600 text-white hover:bg-blue-700'
-                              }`}
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingSkill(null)}
-                              className={`flex-1 px-3 py-1 rounded-lg font-mono ${
-                                isDarkMode
-                                  ? 'bg-gray-700 text-white hover:bg-gray-600'
-                                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                              }`}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </form>
-                      ) : (
-                        <div className="flex justify-between items-center">
-                          <span className={`font-mono ${
-                            isDarkMode ? 'text-green-400' : 'text-slate-800'
-                          }`}>
-                            {skill.name}
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => setEditingSkill(skill)}
-                              className={`p-2 rounded-lg transition-all duration-300 ${
-                                isDarkMode
-                                  ? 'text-green-400 hover:bg-gray-700'
-                                  : 'text-slate-600 hover:bg-slate-100'
-                              }`}
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSkill(skill._id)}
-                              className={`p-2 rounded-lg transition-all duration-300 ${
-                                isDarkMode
-                                  ? 'text-red-400 hover:bg-gray-700'
-                                  : 'text-red-600 hover:bg-red-50'
-                              }`}
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <SkillCategoryDropdown
+                key={category}
+                category={category}
+                skills={categorySkills}
+                editingSkill={editingSkill}
+                setEditingSkill={setEditingSkill}
+                handleDeleteSkill={handleDeleteSkill}
+                handleUpdateSkill={handleUpdateSkill}
+                categories={CATEGORIES}
+                isDarkMode={isDarkMode}
+                centered={false}
+                compact={true}
+              />
             );
           })}
         </div>

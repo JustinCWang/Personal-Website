@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
+import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
 
 /**
  * Personal information configuration object
@@ -481,8 +482,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             Skills & Technologies
           </h2>
           
-          {/* Skills organized by categories */}
-          <div className="space-y-8">
+          {/* Skills organized by categories with dropdowns */}
+          <div className="space-y-4">
             {(() => {
               // Group skills by category
               const skillsByCategory = skills.reduce((acc, skill) => {
@@ -517,27 +518,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 if (!categorySkills || categorySkills.length === 0) return null;
 
                 return (
-                  <div key={category} className="mb-8">
-                    <h3 className={`text-2xl font-semibold mb-4 font-mono ${
-                      isDarkMode ? 'text-green-300' : 'text-slate-700'
-                    }`}>
-                      {categoryDisplayNames[category]}
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                      {categorySkills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm ${
-                            isDarkMode
-                              ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-green-400 hover:text-black'
-                              : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'
-                          }`}
-                        >
-                          {skill.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <SkillCategoryDropdown
+                    key={category}
+                    category={categoryDisplayNames[category]}
+                    skills={categorySkills}
+                    isDarkMode={isDarkMode}
+                  />
                 );
               });
             })()}
