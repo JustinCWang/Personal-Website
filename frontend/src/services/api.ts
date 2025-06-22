@@ -125,6 +125,56 @@ export const projectsAPI = {
   },
 
   /**
+   * Get filtered projects for authenticated user
+   * @desc Fetches projects with advanced filtering and sorting options
+   * @param {object} filters - Filter criteria
+   * @param {string} filters.search - Search term for title, description, or technologies
+   * @param {string} filters.status - Filter by project status
+   * @param {string} filters.technologies - Comma-separated list of technologies to filter by
+   * @param {string} filters.startDate - Filter by start year (e.g., "2024")
+   * @param {string} filters.endDate - Filter by end year (e.g., "2025")
+   * @param {string} filters.sortBy - Field to sort by (title, startDate, endDate, status, createdAt, updatedAt)
+   * @param {string} filters.sortOrder - Sort order (asc, desc)
+   * @returns {Promise<Project[]>} Array of filtered and sorted projects
+   * @access Private - requires authentication
+   */
+  getFiltered: async (filters: {
+    search?: string
+    status?: string
+    technologies?: string
+    startDate?: string
+    endDate?: string
+    sortBy?: string
+    sortOrder?: string
+  } = {}): Promise<Project[]> => {
+    // Build query string from filters
+    const params = new URLSearchParams()
+    
+    if (filters.search) params.append('search', filters.search)
+    if (filters.status) params.append('status', filters.status)
+    if (filters.technologies) params.append('technologies', filters.technologies)
+    if (filters.startDate) params.append('startDate', filters.startDate)
+    if (filters.endDate) params.append('endDate', filters.endDate)
+    if (filters.sortBy) params.append('sortBy', filters.sortBy)
+    if (filters.sortOrder) params.append('sortOrder', filters.sortOrder)
+    
+    const queryString = params.toString()
+    const url = queryString ? `${API_BASE_URL}/projects?${queryString}` : `${API_BASE_URL}/projects`
+    
+    const response = await fetch(url, {
+      headers: getAuthHeaders()
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Failed to fetch filtered projects:', response.status, errorText)
+      throw new Error(`Failed to fetch filtered projects: ${response.status} ${response.statusText}`)
+    }
+    
+    return response.json()
+  },
+
+  /**
    * Create a new project
    * @desc Creates a new project for the authenticated user
    * @param {Omit<Project, '_id'>} project - Project data without ID

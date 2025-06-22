@@ -1,11 +1,11 @@
 /**
  * ProjectsList Component
- * @desc Displays and manages the user's projects with full CRUD functionality
+ * @desc Displays and manages the user's projects with advanced filtering and CRUD functionality
  * @returns {JSX.Element} Projects list interface with management features
  */
 
 // Import React dependencies and hooks
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 // Import API services and types
 import { projectsAPI, handleAPIError, type Project } from '../services/api'
@@ -17,13 +17,37 @@ interface ProjectsListProps {
   isDarkMode: boolean
 }
 
+// Filter interface for type safety
+interface ProjectFilters {
+  search: string
+  status: string
+  technologies: string
+  startDate: string
+  endDate: string
+  sortBy: string
+  sortOrder: string
+}
+
 const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
   // State management for projects and UI
   const [projects, setProjects] = useState<Project[]>([])          // Array of user's projects
   const [loading, setLoading] = useState(false)                    // Loading state for API calls
+  const [filterLoading, setFilterLoading] = useState(false)        // Loading state for filter changes
   const [error, setError] = useState<string | null>(null)          // Error state for displaying errors
   const [editingProject, setEditingProject] = useState<Project | null>(null)  // Project being edited
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)    // Modal visibility state
+  const [hasLoaded, setHasLoaded] = useState(false)                // Track if we've loaded projects initially
+  
+  // Filter state
+  const [filters, setFilters] = useState<ProjectFilters>({
+    search: '',
+    status: '',
+    technologies: '',
+    startDate: '',
+    endDate: '',
+    sortBy: 'startDate',
+    sortOrder: 'desc'
+  })
 
   /**
    * Format date for display
@@ -47,30 +71,137 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
   };
 
   /**
-   * Fetch projects from backend API
-   * @desc Retrieves all projects belonging to the authenticated user
+   * Fetch projects with current filters
+   * @desc Retrieves projects from backend with applied filters
    */
-  const fetchProjects = async () => {
-    setLoading(true)     // Show loading state
-    setError(null)       // Clear any previous errors
+  const fetchProjects = useCallback(async (isFilterChange = false) => {
+    if (isFilterChange) {
+      setFilterLoading(true)  // Use filter loading for smoother UX
+    } else {
+      setLoading(true)        // Use full loading for initial load
+    }
+    setError(null)            // Clear any previous errors
     
     try {
-      const data = await projectsAPI.getAll()  // Fetch projects from API
+      // Only include non-empty filters
+      const activeFilters: Partial<ProjectFilters> = {}
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value.trim()) {
+          activeFilters[key as keyof ProjectFilters] = value.trim()
+        }
+      })
+      
+      const data = await projectsAPI.getFiltered(activeFilters)  // Fetch filtered projects from API
       setProjects(data)    // Update projects state
+      setHasLoaded(true)   // Mark that projects have been loaded
     } catch (error) {
       setError(handleAPIError(error))           // Handle and display error
       console.error('Error fetching projects:', error)
     } finally {
-      setLoading(false)    // Hide loading state
+      if (isFilterChange) {
+        setFilterLoading(false)  // Clear filter loading
+      } else {
+        setLoading(false)        // Clear full loading
+      }
     }
+  }, [filters])
+
+  /**
+   * Fetch projects when component mounts or filters change
+   */
+  useEffect(() => {
+    // Add a small delay to avoid too many API calls when typing
+    const timeoutId = setTimeout(() => {
+      fetchProjects(true) // Use filter loading for smoother UX
+    }, 200) // 200ms delay for more responsive filtering
+
+    return () => clearTimeout(timeoutId)
+  }, [fetchProjects])
+
+  /**
+   * Refresh projects (for refresh button)
+   * @desc Manually refresh projects with current filters
+   */
+  const handleRefresh = () => {
+    fetchProjects(false) // Use full loading for manual refresh
   }
 
   /**
-   * Fetch projects when component mounts
+   * Handle filter changes
+   * @desc Updates filter state and triggers new API call
+   * @param {keyof ProjectFilters} field - Filter field to update
+   * @param {string} value - New filter value
    */
-  useEffect(() => {
-    fetchProjects()
-  }, [])
+  const handleFilterChange = (field: keyof ProjectFilters, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  /**
+   * Clear all filters
+   * @desc Resets all filters to default values
+   */
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      technologies: '',
+      startDate: '',
+      endDate: '',
+      sortBy: 'startDate',
+      sortOrder: 'desc'
+    })
+  }
+
+  /**
+   * Handle sort field change
+   * @desc Updates the sort field and maintains sort direction
+   * @param {string} field - New field to sort by
+   */
+  const handleSortChange = (field: string) => {
+    setFilters(prev => ({
+      ...prev,
+      sortBy: field,
+      sortOrder: prev.sortBy === field && prev.sortOrder === 'asc' ? 'desc' : 'asc'
+    }))
+  }
+
+  /**
+   * Get sort indicator for a column header
+   * @desc Returns the appropriate sort indicator icon and styling
+   * @param {string} field - Field to check sort status for
+   * @returns {JSX.Element} Sort indicator component
+   */
+  const getSortIndicator = (field: string) => {
+    if (filters.sortBy !== field) {
+      return (
+        <svg className="w-4 h-4 ml-1 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      )
+    }
+    
+    return filters.sortOrder === 'asc' ? (
+      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    )
+  }
+
+  /**
+   * Check if any filters are active
+   * @desc Returns true if any filter has a value
+   * @returns {boolean} True if any filter is active
+   */
+  const hasActiveFilters = () => {
+    return filters.search || filters.status || filters.technologies || filters.startDate || filters.endDate
+  }
 
   /**
    * Handle project updates
@@ -162,7 +293,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
         
         {/* Refresh Button */}
         <button
-          onClick={fetchProjects}
+          onClick={handleRefresh}
           className={`p-2 rounded-lg transition-all duration-300 border-2 ${
             isDarkMode
               ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
@@ -176,6 +307,208 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
           </svg>
         </button>
       </div>
+
+      {/* Advanced Filtering Controls */}
+      {!loading && !error && (
+        <div className={`mb-6 p-4 rounded-lg border transition-all duration-300 ${
+          isDarkMode 
+            ? 'bg-gray-900 border-green-500' 
+            : 'bg-slate-50 border-slate-200'
+        }`}>
+          <div className="space-y-4">
+            
+            {/* Search Input */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Search Projects:
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  placeholder="Search by title, description, or technologies..."
+                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                />
+                {filterLoading && filters.search && (
+                  <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${
+                    isDarkMode ? 'text-green-400' : 'text-blue-600'
+                  }`}>
+                    <div className={`inline-block animate-spin rounded-full h-4 w-4 border-b-2 ${
+                      isDarkMode ? 'border-green-400' : 'border-blue-600'
+                    }`}></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Filter Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              {/* Status Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Status:
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-green-100 focus:border-green-400 focus:ring-green-400'
+                      : 'bg-white border-slate-300 text-slate-800 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="Planning">Planning</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+
+              {/* Technologies Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Technologies:
+                </label>
+                <input
+                  type="text"
+                  value={filters.technologies}
+                  onChange={(e) => handleFilterChange('technologies', e.target.value)}
+                  placeholder="e.g., React, Node.js, MongoDB"
+                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                />
+              </div>
+
+              {/* Start Date Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Start Year:
+                </label>
+                <input
+                  type="number"
+                  value={filters.startDate}
+                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                  placeholder="e.g., 2023"
+                  min="2000"
+                  max="2030"
+                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                />
+              </div>
+
+              {/* End Date Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  End Year:
+                </label>
+                <input
+                  type="number"
+                  value={filters.endDate}
+                  onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                  placeholder="e.g., 2024"
+                  min="2000"
+                  max="2030"
+                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Sort Controls and Clear Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              
+              {/* Sort Controls */}
+              <div className="flex flex-wrap gap-2">
+                <label className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Sort by:
+                </label>
+                
+                {/* Sort Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  {/* Date Sort */}
+                  <button
+                    onClick={() => handleSortChange('startDate')}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 border ${
+                      filters.sortBy === 'startDate'
+                        ? isDarkMode
+                          ? 'bg-green-500 text-black border-green-500'
+                          : 'bg-blue-500 text-white border-blue-500'
+                        : isDarkMode
+                          ? 'bg-gray-800 text-green-300 border-green-500 hover:bg-gray-700'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      Time Frame
+                      {getSortIndicator('startDate')}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters() && (
+                <button
+                  onClick={clearFilters}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 border ${
+                    isDarkMode
+                      ? 'bg-red-900 text-red-300 border-red-600 hover:bg-red-800 hover:text-red-200'
+                      : 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100'
+                  }`}
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+
+            {/* Results Count */}
+            <div className={`text-sm font-mono ${
+              isDarkMode ? 'text-green-200' : 'text-slate-600'
+            }`}>
+              Showing {projects.length} projects
+              {hasActiveFilters() && ' with active filters'}
+              {filterLoading && (
+                <span className={`ml-2 inline-flex items-center ${
+                  isDarkMode ? 'text-green-300' : 'text-blue-600'
+                }`}>
+                  <div className={`inline-block animate-spin rounded-full h-3 w-3 border-b-2 mr-1 ${
+                    isDarkMode ? 'border-green-400' : 'border-blue-600'
+                  }`}></div>
+                  Updating...
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {loading ? (
@@ -204,7 +537,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
             Error: {error}
           </p>
           <button 
-            onClick={fetchProjects}
+            onClick={handleRefresh}
             className={`p-2 rounded-lg transition-all duration-300 border-2 ${
               isDarkMode
                 ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
@@ -221,7 +554,9 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
       ) : (
         
         /* Projects List */
-        <div className="space-y-6">
+        <div className={`space-y-6 transition-opacity duration-200 ${
+          filterLoading ? 'opacity-75' : 'opacity-100'
+        }`}>
           {projects.length > 0 ? (
             projects.map((project) => (
               <div key={project._id} className={`border-l-4 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
@@ -425,12 +760,22 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
               <p className={`text-lg font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-600'
               }`}>
-                No projects yet!
+                {!hasLoaded 
+                  ? 'No projects yet!' 
+                  : hasActiveFilters()
+                    ? 'No projects match your filters'
+                    : 'No projects found'
+                }
               </p>
               <p className={`mt-2 font-mono ${
                 isDarkMode ? 'text-green-200' : 'text-slate-500'
               }`}>
-                Create your first project using the form above.
+                {!hasLoaded 
+                  ? 'Create your first project using the form above.'
+                  : hasActiveFilters()
+                    ? 'Try adjusting your search terms or filters.'
+                    : 'Something went wrong while loading projects.'
+                }
               </p>
             </div>
           )}

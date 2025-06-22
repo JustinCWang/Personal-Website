@@ -27,16 +27,78 @@ const getFeaturedProjects = asyncHandler(async (req, res) => {
 })
 
 /**
- * Get all projects for authenticated user
- * @desc Retrieves all projects belonging to the authenticated user
- * @route GET /api/projects
+ * Get all projects for authenticated user with advanced filtering
+ * @desc Retrieves all projects belonging to the authenticated user with optional filtering
+ * @route GET /api/projects?search=keyword&status=Completed&technologies=React&startDate=2024&endDate=2025
  * @access Private (requires authentication)
  */
 const getProjects = asyncHandler(async (req, res) => {
-    // Find all projects belonging to the authenticated user
-    const projects = await Project.find({ user: req.user.id })
-
-    // Return user's projects
+    // Extract query parameters for filtering
+    const { search, status, technologies, startDate, endDate, sortBy = 'startDate', sortOrder = 'desc' } = req.query
+    
+    // Build the base filter for user's projects
+    let filter = { user: req.user.id }
+    
+    // Add search filter (case-insensitive search across title, description, and technologies)
+    if (search && search.trim()) {
+        const searchRegex = new RegExp(search.trim(), 'i') // Case-insensitive regex
+        filter.$or = [
+            { title: searchRegex },
+            { description: searchRegex },
+            { technologies: { $in: [searchRegex] } }
+        ]
+    }
+    
+    // Add status filter
+    if (status && status.trim()) {
+        filter.status = status.trim()
+    }
+    
+    // Add technologies filter (search for projects containing any of the specified technologies)
+    if (technologies && technologies.trim()) {
+        const techArray = technologies.split(',').map(tech => tech.trim()).filter(tech => tech)
+        if (techArray.length > 0) {
+            filter.technologies = { $in: techArray.map(tech => new RegExp(tech, 'i')) }
+        }
+    }
+    
+    // Add date range filters
+    if (startDate && startDate.trim()) {
+        const startYear = parseInt(startDate.trim())
+        if (!isNaN(startYear)) {
+            filter.startDate = {
+                $gte: new Date(startYear, 0, 1),    // Start of the year
+                $lt: new Date(startYear + 1, 0, 1)  // Start of next year
+            }
+        }
+    }
+    
+    if (endDate && endDate.trim()) {
+        const endYear = parseInt(endDate.trim())
+        if (!isNaN(endYear)) {
+            filter.endDate = {
+                $gte: new Date(endYear, 0, 1),      // Start of the year
+                $lt: new Date(endYear + 1, 0, 1)    // Start of next year
+            }
+        }
+    }
+    
+    // Build sort object
+    let sort = {}
+    const validSortFields = ['title', 'startDate', 'endDate', 'status', 'createdAt', 'updatedAt']
+    const validSortOrders = ['asc', 'desc']
+    
+    if (validSortFields.includes(sortBy) && validSortOrders.includes(sortOrder)) {
+        sort[sortBy] = sortOrder === 'asc' ? 1 : -1
+    } else {
+        // Default sorting by start date descending
+        sort.startDate = -1
+    }
+    
+    // Execute the query with filters and sorting
+    const projects = await Project.find(filter).sort(sort)
+    
+    // Return filtered and sorted projects
     res.status(200).json(projects)
 })
 
