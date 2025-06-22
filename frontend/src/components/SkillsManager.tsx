@@ -168,6 +168,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
             value={newSkill.name}
             onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
             placeholder="Skill name"
+            autoComplete="off"
             className={`flex-1 p-2 rounded-lg border font-mono ${
               isDarkMode 
                 ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400' 

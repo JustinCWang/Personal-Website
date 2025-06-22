@@ -98,8 +98,16 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
       // Convert month inputs to proper date strings
       const projectData = {
         ...formData,
-        startDate: formData.startDate ? new Date(formData.startDate + '-01').toISOString() : '',
-        endDate: formData.endDate ? new Date(formData.endDate + '-01').toISOString() : ''
+        startDate: formData.startDate ? (() => {
+          const [year, month] = formData.startDate.split('-');
+          // Create UTC date directly to avoid timezone issues
+          return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1)).toISOString();
+        })() : '',
+        endDate: formData.endDate ? (() => {
+          const [year, month] = formData.endDate.split('-');
+          // Create UTC date directly to avoid timezone issues
+          return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1)).toISOString();
+        })() : ''
       }
       
       console.log('Submitting project data:', projectData)
@@ -193,6 +201,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             value={formData.title}
             onChange={handleChange}
             required
+            autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
@@ -216,6 +225,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             required
             rows={4}
+            autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
@@ -275,7 +285,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               type="text"
               value={techInput}
               onChange={(e) => setTechInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}  // Add on Enter key
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}  // Add on Enter key
+              autoComplete="off"
               className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
@@ -342,6 +353,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               name="githubUrl"
               value={formData.githubUrl}
               onChange={handleChange}
+              autoComplete="off"
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
@@ -364,12 +376,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               name="demoUrl"
               value={formData.demoUrl}
               onChange={handleChange}
+              autoComplete="off"
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               }`}
-              placeholder="https://yourproject.com"
+              placeholder="https://your-demo-url.com"
             />
           </div>
         </div>

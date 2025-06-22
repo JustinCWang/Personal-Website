@@ -48,6 +48,15 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync state when value prop changes
+  useEffect(() => {
+    if (value) {
+      const [year, month] = value.split('-');
+      setSelectedYear(parseInt(year));
+      setSelectedMonth(parseInt(month) - 1);
+    }
+  }, [value]);
+
   // Constants
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -77,7 +86,8 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
   const updateDate = (month: number, year: number) => {
     const monthStr = (month + 1).toString().padStart(2, '0');
     const yearStr = year.toString();
-    onChange(`${yearStr}-${monthStr}`);
+    const result = `${yearStr}-${monthStr}`;
+    onChange(result);
     setSelectedMonth(month);
     setSelectedYear(year);
   };
@@ -304,6 +314,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
+          autoComplete="off"
           placeholder="Type month or year, or click dropdown..."
           className={`w-full px-4 py-3 pr-16 border rounded-lg transition-colors font-mono ${
             isDarkMode

@@ -32,11 +32,18 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
    */
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'Not specified';
+    
+    // Extract year and month directly from ISO string to avoid timezone issues
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
-    });
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return `${months[month]} ${year}`;
   };
 
   /**

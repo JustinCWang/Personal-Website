@@ -69,11 +69,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
    */
   const formatDate = (dateString: string | undefined, short: boolean = false) => {
     if (!dateString) return 'Not specified';
+    
+    // Extract year and month directly from ISO string to avoid timezone issues
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: short ? 'short' : 'long' 
-    });
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    
+    const months = short ? [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ] : [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return `${months[month]} ${year}`;
   };
 
   /**

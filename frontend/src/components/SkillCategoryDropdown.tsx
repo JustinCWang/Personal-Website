@@ -124,6 +124,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                             ...editingSkill,
                             name: e.target.value
                           })}
+                          autoComplete="off"
                           className={`w-full p-2 rounded-lg border font-mono ${
                             isDarkMode 
                               ? 'bg-gray-700 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400' 
