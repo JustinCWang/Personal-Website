@@ -59,7 +59,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
   const [skills, setSkills] = useState<{ name: string; category: string }[]>([])
   const [loading, setLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
+
+  // Pagination configuration
+  const projectsPerPage = 3 // Show 3 projects per row
+  const totalPages = Math.ceil(featuredProjects.length / projectsPerPage)
+  const startIndex = currentPage * projectsPerPage
+  const endIndex = startIndex + projectsPerPage
+  const currentProjects = featuredProjects.slice(startIndex, endIndex)
+
+  // Navigation functions
+  const goToNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))
+  }
+
+  const goToPrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 0))
+  }
 
   /**
    * Format date for display
@@ -329,140 +346,212 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </p>
             </div>
           ) : featuredProjects.length > 0 ? (
-            // Projects Grid
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProjects.map((project) => (
-                <div key={project._id} className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
-                  isDarkMode 
-                    ? 'bg-black border border-green-500 hover:border-green-400' 
-                    : 'bg-white hover:shadow-xl'
-                }`}>
-                  <div className="p-6">
-                    {/* Project Title */}
-                    <h3 className={`text-xl font-semibold mb-3 font-mono ${
-                      isDarkMode ? 'text-green-400' : 'text-slate-800'
-                    }`}>
-                      {project.title}
-                    </h3>
-                    {/* Project Description */}
-                    <p className={`mb-4 line-clamp-3 font-mono text-sm ${
-                      isDarkMode ? 'text-green-100' : 'text-slate-600'
-                    }`}>
-                      {project.description}
-                    </p>
-                    
-                    {/* Project Time Frame */}
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className={`font-mono ${
-                          isDarkMode ? 'text-green-200' : 'text-slate-600'
-                        }`}>
-                          {formatDate(project.startDate)}
-                        </span>
-                        {project.endDate && (
-                          <>
-                            <span className={`font-mono ${
-                              isDarkMode ? 'text-green-300' : 'text-slate-500'
-                            }`}>
-                              →
-                            </span>
-                            <span className={`font-mono ${
-                              isDarkMode ? 'text-green-200' : 'text-slate-600'
-                            }`}>
-                              {formatDate(project.endDate)}
-                            </span>
-                          </>
-                        )}
-                        {!project.endDate && (
-                          <span className={`font-mono px-2 py-1 rounded-full text-xs ${
-                            isDarkMode 
-                              ? 'bg-green-900 text-green-300 border border-green-500' 
-                              : 'bg-green-100 text-green-800 border border-green-200'
-                          }`}>
-                            Ongoing
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Project Technologies */}
-                    {project.technologies && project.technologies.length > 0 && (
+            // Projects with Pagination
+            <div className="relative">
+              {/* Navigation Arrows */}
+              {totalPages > 1 && (
+                <>
+                  {/* Left Arrow */}
+                  <button
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 0}
+                    className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                      currentPage === 0
+                        ? isDarkMode
+                          ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : isDarkMode
+                          ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
+                          : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                    }`}
+                    title="Previous projects"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages - 1}
+                    className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                      currentPage === totalPages - 1
+                        ? isDarkMode
+                          ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : isDarkMode
+                          ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
+                          : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                    }`}
+                    title="Next projects"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+
+              {/* Projects Grid */}
+              <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 ${
+                totalPages > 1 ? 'mx-16' : ''
+              }`}>
+                {currentProjects.map((project) => (
+                  <div key={project._id} className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+                    isDarkMode 
+                      ? 'bg-black border border-green-500 hover:border-green-400' 
+                      : 'bg-white hover:shadow-xl'
+                  }`}>
+                    <div className="p-6">
+                      {/* Project Title */}
+                      <h3 className={`text-xl font-semibold mb-3 font-mono ${
+                        isDarkMode ? 'text-green-400' : 'text-slate-800'
+                      }`}>
+                        {project.title}
+                      </h3>
+                      {/* Project Description */}
+                      <p className={`mb-4 line-clamp-3 font-mono text-sm ${
+                        isDarkMode ? 'text-green-100' : 'text-slate-600'
+                      }`}>
+                        {project.description}
+                      </p>
+                      
+                      {/* Project Time Frame */}
                       <div className="mb-4">
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.slice(0, 3).map((tech, index) => (
-                            <span
-                              key={index}
-                              className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
-                                isDarkMode
-                                  ? 'bg-green-400 text-black'
-                                  : 'bg-blue-100 text-blue-800'
-                              }`}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                          {project.technologies.length > 3 && (
-                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-mono ${
-                              isDarkMode
-                                ? 'bg-gray-700 text-green-300 border border-green-500'
-                                : 'bg-slate-100 text-slate-600'
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className={`font-mono ${
+                            isDarkMode ? 'text-green-200' : 'text-slate-600'
+                          }`}>
+                            {formatDate(project.startDate)}
+                          </span>
+                          {project.endDate && (
+                            <>
+                              <span className={`font-mono ${
+                                isDarkMode ? 'text-green-300' : 'text-slate-500'
+                              }`}>
+                                →
+                              </span>
+                              <span className={`font-mono ${
+                                isDarkMode ? 'text-green-200' : 'text-slate-600'
+                              }`}>
+                                {formatDate(project.endDate)}
+                              </span>
+                            </>
+                          )}
+                          {!project.endDate && (
+                            <span className={`font-mono px-2 py-1 rounded-full text-xs ${
+                              isDarkMode 
+                                ? 'bg-green-900 text-green-300 border border-green-500' 
+                                : 'bg-green-100 text-green-800 border border-green-200'
                             }`}>
-                              +{project.technologies.length - 3} more
+                              Ongoing
                             </span>
                           )}
                         </div>
                       </div>
-                    )}
+                      
+                      {/* Project Technologies */}
+                      {project.technologies && project.technologies.length > 0 && (
+                        <div className="mb-4">
+                          <div className="flex flex-wrap gap-2">
+                            {project.technologies.slice(0, 3).map((tech, index) => (
+                              <span
+                                key={index}
+                                className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                                  isDarkMode
+                                    ? 'bg-green-400 text-black'
+                                    : 'bg-blue-100 text-blue-800'
+                                }`}
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                            {project.technologies.length > 3 && (
+                              <span className={`inline-block px-3 py-1 rounded-full text-sm font-mono ${
+                                isDarkMode
+                                  ? 'bg-gray-700 text-green-300 border border-green-500'
+                                  : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                +{project.technologies.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
-                    {/* Project Status */}
-                    {project.status && (
-                      <div className="mb-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium font-mono ${
-                          isDarkMode
-                            ? 'bg-black text-green-400 border border-green-400'
-                            : getStatusColor(project.status)
-                        }`}>
-                          {project.status}
-                        </span>
-                      </div>
-                    )}
+                      {/* Project Status */}
+                      {project.status && (
+                        <div className="mb-4">
+                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium font-mono ${
+                            isDarkMode
+                              ? 'bg-black text-green-400 border border-green-400'
+                              : getStatusColor(project.status)
+                          }`}>
+                            {project.status}
+                          </span>
+                        </div>
+                      )}
 
-                    {/* Project Links */}
-                    {(project.demoUrl || project.githubUrl) && (
-                      <div className="flex gap-3">
-                        {project.demoUrl && (
-                          <a
-                            href={project.demoUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
-                              isDarkMode
-                                ? 'bg-green-400 text-black hover:bg-green-300'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
-                            }`}
-                          >
-                            Live Demo
-                          </a>
-                        )}
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
-                              isDarkMode
-                                ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
-                                : 'bg-gray-800 text-white hover:bg-gray-900'
-                            }`}
-                          >
-                            GitHub
-                          </a>
-                        )}
-                      </div>
-                    )}
+                      {/* Project Links */}
+                      {(project.demoUrl || project.githubUrl) && (
+                        <div className="flex gap-3">
+                          {project.demoUrl && (
+                            <a
+                              href={project.demoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
+                                isDarkMode
+                                  ? 'bg-green-400 text-black hover:bg-green-300'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
+                            >
+                              Live Demo
+                            </a>
+                          )}
+                          {project.githubUrl && (
+                            <a
+                              href={project.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
+                                isDarkMode
+                                  ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
+                                  : 'bg-gray-800 text-white hover:bg-gray-900'
+                              }`}
+                            >
+                              GitHub
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Pagination Indicators */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        index === currentPage
+                          ? isDarkMode
+                            ? 'bg-green-400'
+                            : 'bg-blue-600'
+                          : isDarkMode
+                            ? 'bg-gray-600 hover:bg-gray-500'
+                            : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      title={`Go to page ${index + 1}`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             // No Projects State

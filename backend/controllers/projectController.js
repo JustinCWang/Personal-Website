@@ -20,7 +20,7 @@ const getFeaturedProjects = asyncHandler(async (req, res) => {
     const featuredProjects = await Project.find({ featured: true })
         .populate('user', 'name')    // Populate user field with only the name
         .select('-user')             // Remove user field from response for security
-        .sort({ updatedAt: -1 })     // Sort by most recently updated first
+        .sort({ startDate: -1 })     // Sort by start date descending (newest first)
 
     // Return the featured projects array
     res.status(200).json(featuredProjects)
