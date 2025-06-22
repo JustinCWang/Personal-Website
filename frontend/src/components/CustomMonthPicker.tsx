@@ -34,6 +34,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
   // State management
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [isUserTyping, setIsUserTyping] = useState(false);
   
   // Parse current value to get selected year and month
   const [selectedYear, setSelectedYear] = useState(() => {
@@ -96,6 +97,10 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
    * Filter months based on input text
    */
   const getFilteredMonths = () => {
+    // If user is not actively typing, show all months
+    if (!isUserTyping) {
+      return months;
+    }
     if (!inputValue) return months;
     return months.filter(month => 
       month.toLowerCase().startsWith(inputValue.toLowerCase())
@@ -106,6 +111,10 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
    * Filter years based on input text
    */
   const getFilteredYears = () => {
+    // If user is not actively typing, show all years
+    if (!isUserTyping) {
+      return years;
+    }
     if (!inputValue) return years;
     return years.filter(year => 
       year.toString().startsWith(inputValue)
@@ -118,6 +127,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
+    setIsUserTyping(true);
     
     // Clear selection if input is empty
     if (!value.trim()) {
@@ -125,6 +135,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
       setSelectedMonth(new Date().getMonth());
       setSelectedYear(new Date().getFullYear());
       setIsOpen(false);
+      setIsUserTyping(false);
       return;
     }
 
@@ -246,7 +257,15 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
    * Handle dropdown button click
    */
   const handleDropdownClick = () => {
-    setIsOpen(!isOpen);
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    setIsUserTyping(false);
+    
+    // When opening the dropdown, clear inputValue to show all options
+    if (newIsOpen) {
+      setInputValue('');
+    }
+    
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -257,7 +276,6 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
    */
   const handleMonthSelect = (monthIndex: number) => {
     updateDate(monthIndex, selectedYear);
-    setIsOpen(false);
     setInputValue('');
   };
 
@@ -391,6 +409,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
               {getFilteredYears().map((year) => (
                 <button
                   key={year}
+                  type="button"
                   onClick={() => handleYearSelect(year)}
                   className={`px-2 py-1 rounded text-sm transition-colors ${
                     selectedYear === year
@@ -420,6 +439,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
               {getFilteredMonths().map((month, index) => (
                 <button
                   key={month}
+                  type="button"
                   onClick={() => handleMonthSelect(index)}
                   className={`px-2 py-1 rounded text-sm transition-colors ${
                     selectedMonth === index
