@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
 import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
+import ProjectDetailModal from './ProjectDetailModal.tsx'
 
 /**
  * Personal information configuration object
@@ -61,6 +62,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
+
+  // Modal state management
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   // Pagination configuration
   const projectsPerPage = 3 // Show 3 projects per row
@@ -126,6 +131,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
 
     fetchData()
   }, [])
+
+  /**
+   * Handle project card click to open detail modal
+   * @param {Project} project - The project to display
+   */
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project)
+    setIsDetailModalOpen(true)
+  }
+
+  /**
+   * Close the detail modal
+   */
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false)
+    setSelectedProject(null)
+  }
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${
@@ -398,11 +420,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 totalPages > 1 ? 'mx-16' : ''
               }`}>
                 {currentProjects.map((project) => (
-                  <div key={project._id} className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
-                    isDarkMode 
-                      ? 'bg-black border border-green-500 hover:border-green-400' 
-                      : 'bg-white hover:shadow-xl'
-                  }`}>
+                  <div 
+                    key={project._id} 
+                    onClick={() => handleProjectClick(project)}
+                    className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer group ${
+                      isDarkMode 
+                        ? 'bg-black border border-green-500 hover:border-green-400 hover:scale-105' 
+                        : 'bg-white hover:shadow-xl hover:scale-105'
+                    }`}
+                  >
                     <div className="p-6">
                       {/* Project Title */}
                       <h3 className={`text-xl font-semibold mb-3 font-mono ${
@@ -501,6 +527,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                               href={project.demoUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
                                 isDarkMode
                                   ? 'bg-green-400 text-black hover:bg-green-300'
@@ -515,6 +542,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                               href={project.githubUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors font-mono ${
                                 isDarkMode
                                   ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
@@ -526,6 +554,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                           )}
                         </div>
                       )}
+
+                      {/* Click indicator */}
+                      <div className={`mt-4 text-center ${
+                        isDarkMode ? 'text-green-300' : 'text-slate-500'
+                      }`}>
+                        <span className="text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          Click to view details →
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -811,6 +848,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           </a>
         </div>
       </footer>
+
+      {/* Project Detail Modal */}
+      {selectedProject && (
+        <ProjectDetailModal
+          project={selectedProject}
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseDetailModal}
+          isDarkMode={isDarkMode}
+        />
+      )}
     </div>
   )
 
