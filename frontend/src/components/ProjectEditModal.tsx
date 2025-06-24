@@ -1,11 +1,14 @@
 /**
  * Project Edit Modal Component
- * A modal dialog for editing project details
- * Provides a form interface for updating project information including:
+ * A modal dialog for editing project details with blog-like features
+ * Provides a comprehensive form interface for updating project information including:
  * - Basic details (title, description)
  * - Technologies used
  * - Project URLs (GitHub, demo)
  * - Project status and featured status
+ * - Blog-like content (detailed content, images, challenges, learnings, future plans)
+ * - Project metadata (complexity, time estimates, team size)
+ * - Tags for categorization
  * Supports dark mode and responsive design
  */
 
@@ -47,11 +50,24 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     status: 'Planning' as 'Planning' | 'In Progress' | 'Completed' | 'On Hold',
     featured: false,
     startDate: '',
-    endDate: ''
+    endDate: '',
+    // Blog-like fields
+    detailedContent: '',
+    images: [] as string[],
+    challenges: '',
+    learnings: '',
+    futurePlans: '',
+    tags: [] as string[],
+    complexity: 'Intermediate' as 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert',
+    estimatedHours: '',
+    teamSize: 1
   })
   const [techInput, setTechInput] = useState('')
+  const [tagInput, setTagInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imageInput, setImageInput] = useState('')
+  const [imageError, setImageError] = useState<string | null>(null)
 
   /**
    * Initialize form data when modal opens
@@ -77,7 +93,16 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         status: project.status || 'Planning',
         featured: project.featured || false,
         startDate: formatDateForInput(project.startDate),
-        endDate: formatDateForInput(project.endDate)
+        endDate: formatDateForInput(project.endDate),
+        detailedContent: project.detailedContent || '',
+        images: project.images || [],
+        challenges: project.challenges || '',
+        learnings: project.learnings || '',
+        futurePlans: project.futurePlans || '',
+        tags: project.tags || [],
+        complexity: project.complexity || 'Intermediate',
+        estimatedHours: project.estimatedHours ? project.estimatedHours.toString() : '',
+        teamSize: project.teamSize || 1
       })
     }
   }, [isOpen, project])
@@ -119,6 +144,44 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   }
 
   /**
+   * Remove image URL from the images array
+   * @desc Removes a specific image URL from the list
+   * @param {string} image - Image URL to remove
+   */
+  const removeImage = (image: string) => {
+    setFormData({
+      ...formData,
+      images: formData.images.filter(i => i !== image)
+    })
+  }
+
+  /**
+   * Add tag to the tags array
+   * @desc Adds a new tag if it's valid and not already present
+   */
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, tagInput.trim()]
+      })
+      setTagInput('')
+    }
+  }
+
+  /**
+   * Remove tag from the tags array
+   * @desc Removes a specific tag from the list
+   * @param {string} tag - Tag to remove
+   */
+  const removeTag = (tag: string) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter(t => t !== tag)
+    })
+  }
+
+  /**
    * Handle form submission
    * Updates project data through API and closes modal on success
    */
@@ -142,7 +205,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
           const [year, month] = formData.endDate.split('-');
           // Create UTC date directly to avoid timezone issues
           return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1)).toISOString();
-        })() : ''
+        })() : '',
+        estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined
       }
       
       const updatedProject = await projectsAPI.update(project._id, projectData)
@@ -164,6 +228,29 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     onClose()
   }
 
+  /**
+   * Add a new image to the images array
+   * @desc Adds a new image URL to the list
+   */
+  const addImage = () => {
+    setImageError(null)
+    if (!imageInput.trim() || formData.images.includes(imageInput.trim())) return
+    // Validate image URL by attempting to load it
+    const img = new window.Image()
+    img.onload = () => {
+      setFormData({
+        ...formData,
+        images: [...formData.images, imageInput.trim()]
+      })
+      setImageInput('')
+      setImageError(null)
+    }
+    img.onerror = () => {
+      setImageError('Could not load image from this URL.')
+    }
+    img.src = imageInput.trim()
+  }
+
   if (!isOpen) return null
 
   return (
@@ -176,7 +263,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
           : 'bg-white'
       }`}>
         {/* Modal Header */}
-        <div className={`sticky top-0 border-b p-6 rounded-t-xl transition-all duration-300 ${
+        <div className={`sticky top-0 border-b p-6 rounded-t-xl transition-all duration-300 z-10 ${
           isDarkMode 
             ? 'bg-black border-green-500' 
             : 'bg-white border-slate-200'
@@ -204,7 +291,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6">
+        <div className="p-6 relative z-0">
           {/* Error Message Display */}
           {error && (
             <div className={`border rounded-lg p-4 mb-6 transition-all duration-300 ${
@@ -414,7 +501,317 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                       ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
                       : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                   }`}
-                  placeholder="https://your-demo-url.com"
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
+
+            {/* Blog-like Fields */}
+            <div>
+              <label htmlFor="edit-detailedContent" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Detailed Content
+              </label>
+              <textarea
+                id="edit-detailedContent"
+                name="detailedContent"
+                value={formData.detailedContent}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Write detailed content about your project"
+              />
+            </div>
+
+            {/* Images Management */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Project Images
+              </label>
+              
+              {/* Image URLs Display */}
+              <div className="flex flex-wrap gap-2 relative z-0">
+                {formData.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`relative inline-block rounded-lg overflow-hidden border-2 ${
+                      isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`Project image ${index + 1}`}
+                      className="w-20 h-20 object-cover"
+                      onError={(e) => {
+                        // Fallback for broken images
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(image)}
+                      className={`absolute top-1 right-1 p-1 rounded-full text-xs font-bold transition-all duration-300 z-20 ${
+                        isDarkMode
+                          ? 'bg-red-600 text-white hover:bg-red-500'
+                          : 'bg-red-500 text-white hover:bg-red-600'
+                      }`}
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Image Input and Add Button */}
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={imageInput}
+                  onChange={(e) => setImageInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
+                  autoComplete="off"
+                  className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                  placeholder="Add an image URL (e.g. https://...)"
+                />
+                <button
+                  type="button"
+                  onClick={addImage}
+                  className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+                    isDarkMode
+                      ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                  }`}
+                  title="Add Image"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
+              {imageError && (
+                <div className={`text-sm font-mono mb-2 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{imageError}</div>
+              )}
+            </div>
+
+            {/* Challenges */}
+            <div>
+              <label htmlFor="edit-challenges" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Challenges & Solutions
+              </label>
+              <textarea
+                id="edit-challenges"
+                name="challenges"
+                value={formData.challenges}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Describe the challenges and solutions"
+              />
+            </div>
+
+            {/* Learnings */}
+            <div>
+              <label htmlFor="edit-learnings" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Key Learnings
+              </label>
+              <textarea
+                id="edit-learnings"
+                name="learnings"
+                value={formData.learnings}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Write down key learnings from the project"
+              />
+            </div>
+
+            {/* Future Plans */}
+            <div>
+              <label htmlFor="edit-futurePlans" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Future Plans
+              </label>
+              <textarea
+                id="edit-futurePlans"
+                name="futurePlans"
+                value={formData.futurePlans}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Describe future development plans"
+              />
+            </div>
+
+            {/* Tags Management */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Tags
+              </label>
+              
+              {/* Tag Input and Add Button */}
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  autoComplete="off"
+                  className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                  placeholder="Add a tag"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+                    isDarkMode
+                      ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                  }`}
+                  title="Add Tag"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Tags Display */}
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                      isDarkMode
+                        ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                        : 'bg-gray-100 text-gray-700 border border-gray-300'
+                    }`}
+                  >
+                    #{tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className={`ml-2 hover:opacity-70 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Project Metadata */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Complexity */}
+              <div>
+                <label htmlFor="edit-complexity" className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Complexity
+                </label>
+                <select
+                  id="edit-complexity"
+                  name="complexity"
+                  value={formData.complexity}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Expert">Expert</option>
+                </select>
+              </div>
+
+              {/* Estimated Hours */}
+              <div>
+                <label htmlFor="edit-estimatedHours" className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Estimated Hours
+                </label>
+                <input
+                  type="number"
+                  id="edit-estimatedHours"
+                  name="estimatedHours"
+                  value={formData.estimatedHours}
+                  onChange={handleChange}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                  placeholder="Hours"
+                />
+              </div>
+
+              {/* Team Size */}
+              <div>
+                <label htmlFor="edit-teamSize" className={`block text-sm font-medium mb-2 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Team Size
+                </label>
+                <input
+                  type="number"
+                  id="edit-teamSize"
+                  name="teamSize"
+                  value={formData.teamSize}
+                  onChange={(e) => setFormData({ ...formData, teamSize: parseInt(e.target.value) || 1 })}
+                  autoComplete="off"
+                  min="1"
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+                    isDarkMode
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
+                  placeholder="Team size"
                 />
               </div>
             </div>

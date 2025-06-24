@@ -1,16 +1,21 @@
 /**
  * Project Detail Modal Component
- * A modal dialog for displaying detailed project information
+ * A blog-like modal dialog for displaying detailed project information
  * Provides a comprehensive view of project details including:
  * - Project title and description
  * - Technologies used
  * - Project URLs (GitHub, demo)
  * - Project status and time frame
  * - Featured status
+ * - Detailed blog-like content sections
+ * - Project images gallery
+ * - Challenges and solutions
+ * - Key learnings
+ * - Future plans
  * Supports dark mode and responsive design with smooth animations
  */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { Project } from '../services/api.ts'
 
 /**
@@ -33,6 +38,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onClose, 
   isDarkMode = false
 }) => {
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
+
   /**
    * Format date for display
    * @param {string} dateString - ISO date string
@@ -84,6 +91,31 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   /**
+   * Get CSS classes for complexity badges
+   * @param {string} complexity - Project complexity
+   * @returns {string} CSS classes for complexity styling
+   */
+  const getComplexityColor = (complexity: string) => {
+    if (isDarkMode) {
+      switch (complexity) {
+        case 'Beginner': return 'bg-green-900 text-green-300 border-green-600'
+        case 'Intermediate': return 'bg-blue-900 text-blue-300 border-blue-600'
+        case 'Advanced': return 'bg-purple-900 text-purple-300 border-purple-600'
+        case 'Expert': return 'bg-red-900 text-red-300 border-red-600'
+        default: return 'bg-gray-700 text-gray-300 border-gray-600'
+      }
+    } else {
+      switch (complexity) {
+        case 'Beginner': return 'bg-green-100 text-green-800 border-green-200'
+        case 'Intermediate': return 'bg-blue-100 text-blue-800 border-blue-200'
+        case 'Advanced': return 'bg-purple-100 text-purple-800 border-purple-200'
+        case 'Expert': return 'bg-red-100 text-red-800 border-red-200'
+        default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
+    }
+  };
+
+  /**
    * Handle escape key press to close modal
    */
   useEffect(() => {
@@ -97,6 +129,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       document.addEventListener('keydown', handleEscape);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
+      // Reset image index when modal opens
+      setActiveImageIndex(0);
     }
 
     return () => {
@@ -130,7 +164,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+            className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 ${
               isDarkMode
                 ? 'bg-gray-800 text-green-400 hover:bg-gray-700 hover:text-green-300'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
@@ -147,11 +181,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Project Header */}
             <div className="mb-8">
               <div className="flex items-start justify-between mb-4">
-                <h2 className={`text-3xl font-bold font-mono ${
+                <h1 className={`text-4xl font-bold font-mono ${
                   isDarkMode ? 'text-green-400' : 'text-slate-800'
                 }`}>
                   {project.title}
-                </h2>
+                </h1>
                 
                 {/* Featured Badge */}
                 {project.featured && (
@@ -165,50 +199,36 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 )}
               </div>
 
-              {/* Status Badge */}
-              {project.status && (
-                <div className="mb-4">
+              {/* Status and Complexity Badges */}
+              <div className="flex flex-wrap gap-3 mb-4">
+                {project.status && (
                   <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium font-mono border ${
                     getStatusColor(project.status)
                   }`}>
                     {project.status}
                   </span>
-                </div>
-              )}
-            </div>
+                )}
+                {project.complexity && (
+                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium font-mono border ${
+                    getComplexityColor(project.complexity)
+                  }`}>
+                    {project.complexity}
+                  </span>
+                )}
+              </div>
 
-            {/* Project Description */}
-            <div className="mb-8">
-              <h3 className={`text-xl font-semibold mb-3 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Description
-              </h3>
-              <p className={`text-lg leading-relaxed font-mono ${
-                isDarkMode ? 'text-green-100' : 'text-slate-600'
-              }`}>
-                {project.description}
-              </p>
-            </div>
-
-            {/* Project Time Frame */}
-            <div className="mb-8">
-              <h3 className={`text-xl font-semibold mb-3 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Time Frame
-              </h3>
+              {/* Project Metadata */}
               <div className={`p-4 rounded-lg ${
                 isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
               }`}>
-                <div className="flex items-center gap-4 flex-wrap">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className={`text-sm font-mono ${
+                    <span className={`font-mono ${
                       isDarkMode ? 'text-green-200' : 'text-slate-500'
                     }`}>
                       Started:
                     </span>
-                    <p className={`font-mono ${
+                    <p className={`font-mono font-medium ${
                       isDarkMode ? 'text-green-100' : 'text-slate-700'
                     }`}>
                       {formatDate(project.startDate)}
@@ -217,12 +237,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   
                   {project.endDate ? (
                     <div>
-                      <span className={`text-sm font-mono ${
+                      <span className={`font-mono ${
                         isDarkMode ? 'text-green-200' : 'text-slate-500'
                       }`}>
                         Completed:
                       </span>
-                      <p className={`font-mono ${
+                      <p className={`font-mono font-medium ${
                         isDarkMode ? 'text-green-100' : 'text-slate-700'
                       }`}>
                         {formatDate(project.endDate)}
@@ -239,18 +259,136 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       </span>
                     </div>
                   )}
+
+                  {project.estimatedHours && (
+                    <div>
+                      <span className={`font-mono ${
+                        isDarkMode ? 'text-green-200' : 'text-slate-500'
+                      }`}>
+                        Time Spent:
+                      </span>
+                      <p className={`font-mono font-medium ${
+                        isDarkMode ? 'text-green-100' : 'text-slate-700'
+                      }`}>
+                        {project.estimatedHours} hours
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Project Images Gallery */}
+            {project.images && project.images.length > 0 && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Project Gallery
+                </h2>
+                <div className="relative">
+                  {/* Main Image */}
+                  <div className="relative h-96 rounded-lg overflow-hidden mb-4">
+                    <img
+                      src={project.images[activeImageIndex]}
+                      alt={`${project.title} - Image ${activeImageIndex + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Image Navigation */}
+                    {project.images.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setActiveImageIndex(prev => prev === 0 ? project.images!.length - 1 : prev - 1)}
+                          className={`absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full ${
+                            isDarkMode ? 'bg-black/50 text-white' : 'bg-white/50 text-black'
+                          }`}
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setActiveImageIndex(prev => prev === project.images!.length - 1 ? 0 : prev + 1)}
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full ${
+                            isDarkMode ? 'bg-black/50 text-white' : 'bg-white/50 text-black'
+                          }`}
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {/* Thumbnail Navigation */}
+                  {project.images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto">
+                      {project.images.map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setActiveImageIndex(index)}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
+                            index === activeImageIndex
+                              ? isDarkMode ? 'border-green-400' : 'border-blue-500'
+                              : isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                          }`}
+                        >
+                          <img
+                            src={image}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Project Description */}
+            <div className="mb-8">
+              <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Overview
+              </h2>
+              <p className={`text-lg leading-relaxed font-mono ${
+                isDarkMode ? 'text-green-100' : 'text-slate-600'
+              }`}>
+                {project.description}
+              </p>
+            </div>
+
+            {/* Detailed Content */}
+            {project.detailedContent && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Detailed Story
+                </h2>
+                <div className={`prose prose-lg max-w-none ${
+                  isDarkMode ? 'prose-invert' : ''
+                }`}>
+                  <div 
+                    className={`font-mono leading-relaxed ${
+                      isDarkMode ? 'text-green-100' : 'text-slate-600'
+                    }`}
+                    dangerouslySetInnerHTML={{ __html: project.detailedContent }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Technologies */}
             {project.technologies && project.technologies.length > 0 && (
               <div className="mb-8">
-                <h3 className={`text-xl font-semibold mb-3 font-mono ${
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
                 }`}>
                   Technologies Used
-                </h3>
+                </h2>
                 <div className="flex flex-wrap gap-3">
                   {project.technologies.map((tech, index) => (
                     <span
@@ -268,14 +406,99 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               </div>
             )}
 
+            {/* Challenges */}
+            {project.challenges && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Challenges & Solutions
+                </h2>
+                <div className={`p-6 rounded-lg ${
+                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
+                }`}>
+                  <p className={`font-mono leading-relaxed ${
+                    isDarkMode ? 'text-green-100' : 'text-slate-600'
+                  }`}>
+                    {project.challenges}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Learnings */}
+            {project.learnings && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Key Learnings
+                </h2>
+                <div className={`p-6 rounded-lg ${
+                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
+                }`}>
+                  <p className={`font-mono leading-relaxed ${
+                    isDarkMode ? 'text-green-100' : 'text-slate-600'
+                  }`}>
+                    {project.learnings}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Future Plans */}
+            {project.futurePlans && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Future Plans
+                </h2>
+                <div className={`p-6 rounded-lg ${
+                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
+                }`}>
+                  <p className={`font-mono leading-relaxed ${
+                    isDarkMode ? 'text-green-100' : 'text-slate-600'
+                  }`}>
+                    {project.futurePlans}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Tags */}
+            {project.tags && project.tags.length > 0 && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Tags
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className={`px-3 py-1 rounded-full text-sm font-mono ${
+                        isDarkMode
+                          ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                          : 'bg-gray-100 text-gray-700 border border-gray-300'
+                      }`}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Project Links */}
             {(project.demoUrl || project.githubUrl) && (
               <div className="mb-8">
-                <h3 className={`text-xl font-semibold mb-3 font-mono ${
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
                 }`}>
                   Project Links
-                </h3>
+                </h2>
                 <div className="flex gap-4 flex-wrap">
                   {project.demoUrl && (
                     <a

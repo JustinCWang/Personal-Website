@@ -38,14 +38,21 @@ const getProjects = asyncHandler(async (req, res) => {
     
     // Build the base filter for user's projects
     let filter = { user: req.user.id }
+    let searchConditions = []
+    let techConditions = []
     
     // Add search filter (case-insensitive search across title, description, and technologies)
     if (search && search.trim()) {
         const searchRegex = new RegExp(search.trim(), 'i') // Case-insensitive regex
-        filter.$or = [
+        searchConditions = [
             { title: searchRegex },
             { description: searchRegex },
-            { technologies: { $in: [searchRegex] } }
+            { technologies: { $in: [searchRegex] } },
+            { detailedContent: searchRegex },
+            { challenges: searchRegex },
+            { learnings: searchRegex },
+            { futurePlans: searchRegex },
+            { tags: { $in: [searchRegex] } }
         ]
     }
     
@@ -58,7 +65,31 @@ const getProjects = asyncHandler(async (req, res) => {
     if (technologies && technologies.trim()) {
         const techArray = technologies.split(',').map(tech => tech.trim()).filter(tech => tech)
         if (techArray.length > 0) {
-            filter.technologies = { $in: techArray.map(tech => new RegExp(tech, 'i')) }
+            const techRegexArray = techArray.map(tech => new RegExp(tech, 'i'))
+            techConditions = [
+                { technologies: { $in: techRegexArray } },
+                { tags: { $in: techRegexArray } }
+            ]
+        }
+    }
+    
+    // Combine search and tech conditions
+    if (searchConditions.length > 0) {
+        filter.$or = searchConditions
+    }
+    
+    if (techConditions.length > 0) {
+        if (filter.$or) {
+            // If we already have $or for search, we need to use $and
+            filter = { 
+                $and: [
+                    { user: req.user.id },
+                    { $or: searchConditions },
+                    { $or: techConditions }
+                ]
+            }
+        } else {
+            filter.$or = techConditions
         }
     }
     
@@ -126,6 +157,16 @@ const setProject = asyncHandler(async (req, res) => {
         featured: req.body.featured || false,         // Default to not featured
         startDate: req.body.startDate,                // Project start date
         endDate: req.body.endDate || null,            // Project end date (optional)
+        // Blog-like fields
+        detailedContent: req.body.detailedContent || '',
+        images: req.body.images || [],
+        challenges: req.body.challenges || '',
+        learnings: req.body.learnings || '',
+        futurePlans: req.body.futurePlans || '',
+        tags: req.body.tags || [],
+        complexity: req.body.complexity || 'Intermediate',
+        estimatedHours: req.body.estimatedHours || null,
+        teamSize: req.body.teamSize || 1,
         user: req.user.id                             // Associate with authenticated user
     })
 
