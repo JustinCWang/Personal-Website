@@ -147,9 +147,9 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
   return (
     <>
-      {/* Backdrop with blur effect */}
+      {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-300"
+        className="fixed inset-0 bg-black/50 z-40 transition-all duration-300"
         onClick={onClose}
       />
       
@@ -186,17 +186,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 }`}>
                   {project.title}
                 </h1>
-                
-                {/* Featured Badge */}
-                {project.featured && (
-                  <span className={`px-3 py-1 rounded-full text-sm font-bold font-mono ${
-                    isDarkMode
-                      ? 'bg-green-400 text-black'
-                      : 'bg-blue-600 text-white'
-                  }`}>
-                    ⭐ Featured
-                  </span>
-                )}
               </div>
 
               {/* Status and Complexity Badges */}
@@ -287,21 +276,44 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   Project Gallery
                 </h2>
                 <div className="relative">
-                  {/* Main Image */}
-                  <div className="relative h-96 rounded-lg overflow-hidden mb-4">
-                    <img
-                      src={project.images[activeImageIndex]}
-                      alt={`${project.title} - Image ${activeImageIndex + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* Image Navigation */}
+                  {/* Horizontal Image Slider */}
+                  <div className="relative overflow-hidden rounded-lg">
+                    <div 
+                      className="flex"
+                      style={{ 
+                        transform: `translateX(-${activeImageIndex * 100}%)`
+                      }}
+                    >
+                      {project.images?.map((image, index) => (
+                        <div 
+                          key={index}
+                          className="w-full flex-shrink-0 flex justify-center items-center"
+                          style={{ minWidth: '100%' }}
+                        >
+                          <img
+                            src={image}
+                            alt={`${project.title} - Image ${index + 1}`}
+                            className={`max-w-full max-h-96 object-contain rounded-lg shadow-lg ${
+                              isDarkMode 
+                                ? 'border-2 border-green-500/30 bg-gray-800' 
+                                : 'border-2 border-slate-200 bg-white'
+                            }`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Navigation Arrows */}
                     {project.images.length > 1 && (
                       <>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === 0 ? project.images!.length - 1 : prev - 1)}
-                          className={`absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full ${
-                            isDarkMode ? 'bg-black/50 text-white' : 'bg-white/50 text-black'
-                          }`}
+                          className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 ${
+                            isDarkMode 
+                              ? 'bg-black/50 text-white hover:bg-black/90' 
+                              : 'bg-white/50 text-black hover:bg-white/90'
+                          } shadow-lg z-10`}
+                          title="Previous image"
                         >
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -309,9 +321,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         </button>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === project.images!.length - 1 ? 0 : prev + 1)}
-                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full ${
-                            isDarkMode ? 'bg-black/50 text-white' : 'bg-white/50 text-black'
-                          }`}
+                          className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 ${
+                            isDarkMode 
+                              ? 'bg-black/50 text-white hover:bg-black/90' 
+                              : 'bg-white/50 text-black hover:bg-white/90'
+                          } shadow-lg z-10`}
+                          title="Next image"
                         >
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -320,26 +335,36 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       </>
                     )}
                   </div>
-                  {/* Thumbnail Navigation */}
+                  
+                  {/* Image Counter and Dots */}
                   {project.images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto">
-                      {project.images.map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setActiveImageIndex(index)}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                            index === activeImageIndex
-                              ? isDarkMode ? 'border-green-400' : 'border-blue-500'
-                              : isDarkMode ? 'border-gray-600' : 'border-gray-300'
-                          }`}
-                        >
-                          <img
-                            src={image}
-                            alt={`Thumbnail ${index + 1}`}
-                            className="w-full h-full object-cover"
+                    <div className="flex items-center justify-center mt-4 gap-4">
+                      {/* Image Counter */}
+                      <span className={`text-sm font-mono ${
+                        isDarkMode ? 'text-green-200' : 'text-slate-600'
+                      }`}>
+                        {activeImageIndex + 1} of {project.images.length}
+                      </span>
+                      
+                      {/* Dot Indicators */}
+                      <div className="flex gap-2">
+                        {project.images.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setActiveImageIndex(index)}
+                            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                              index === activeImageIndex
+                                ? isDarkMode 
+                                  ? 'bg-green-400' 
+                                  : 'bg-blue-600'
+                                : isDarkMode 
+                                  ? 'bg-gray-600 hover:bg-gray-500' 
+                                  : 'bg-gray-300 hover:bg-gray-400'
+                            }`}
+                            title={`Go to image ${index + 1}`}
                           />
-                        </button>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
