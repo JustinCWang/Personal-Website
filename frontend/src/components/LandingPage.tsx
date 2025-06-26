@@ -146,7 +146,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
    */
   const handleCloseDetailModal = () => {
     setIsDetailModalOpen(false)
-    setSelectedProject(null)
+    // Delay clearing selectedProject to allow closing animation to complete
+    setTimeout(() => {
+      setSelectedProject(null)
+    }, 350) // Match the animation duration in ProjectDetailModal
   }
 
   return (

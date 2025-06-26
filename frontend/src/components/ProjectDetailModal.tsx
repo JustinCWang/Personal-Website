@@ -39,6 +39,22 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   isDarkMode = false
 }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [shouldRender, setShouldRender] = useState(false)
+
+  // Handle animation states
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+      // Small delay to ensure DOM is ready
+      setTimeout(() => setIsAnimating(true), 10)
+    } else {
+      // Start closing animation
+      setIsAnimating(false)
+      // Wait for animation to complete before removing from DOM
+      setTimeout(() => setShouldRender(false), 350) // Increased from 300ms to 350ms
+    }
+  }, [isOpen])
 
   /**
    * Format date for display
@@ -90,8 +106,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Don't render if modal is not open or no project
-  if (!isOpen || !project) {
+  // Don't render if no project or not ready to render
+  if (!project || !shouldRender) {
     return null;
   }
 
@@ -99,16 +115,22 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 z-40 transition-all duration-300"
+        className={`fixed inset-0 bg-black/50 z-40 transition-all duration-300 ${
+          isAnimating ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={onClose}
       />
       
       {/* Modal */}
       <div className="fixed inset-0 z-50 p-2">
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ${
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ease-out ${
           isDarkMode 
             ? 'bg-gray-900 border-2 border-green-500' 
             : 'bg-white border-2 border-slate-200'
+        } ${
+          isAnimating 
+            ? 'opacity-100 scale-100' 
+            : 'opacity-0 scale-90'
         }`}>
           
           {/* Close Button */}
