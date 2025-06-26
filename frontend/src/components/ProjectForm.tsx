@@ -37,15 +37,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
     featured: false,                             // Whether project is featured
     startDate: '',                               // Project start date
     endDate: '',                                 // Project end date (optional)
-    // Blog-like fields
-    detailedContent: '',                         // Detailed project content
+    // Generic content sections
+    body1: '',                                  // First content section
+    body2: '',                                  // Second content section
+    body3: '',                                  // Third content section
     images: [] as string[],                      // Array of image URLs
-    challenges: '',                              // Project challenges and solutions
-    learnings: '',                               // Key learnings from the project
-    futurePlans: '',                             // Future development plans
     tags: [] as string[],                        // Additional tags for categorization
-    complexity: 'Intermediate' as const,         // Project complexity level
-    estimatedHours: '',                          // Estimated time to complete
     teamSize: 1                                  // Team size (1 for solo projects)
   })
   
@@ -147,7 +144,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           // Create UTC date directly to avoid timezone issues
           return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1)).toISOString();
         })() : '',
-        estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined
       }
       
       console.log('Submitting project data:', projectData)
@@ -167,14 +163,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         featured: false,
         startDate: '',
         endDate: '',
-        detailedContent: '',
+        body1: '',
+        body2: '',
+        body3: '',
         images: [],
-        challenges: '',
-        learnings: '',
-        futurePlans: '',
         tags: [],
-        complexity: 'Intermediate',
-        estimatedHours: '',
         teamSize: 1
       })
       setTechInput('')
@@ -356,6 +349,75 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </div>
         </div>
 
+        {/* Body 1 */}
+        <div>
+          <label className={`block text-sm font-medium mb-2 font-mono ${
+            isDarkMode ? 'text-green-300' : 'text-slate-700'
+          }`}>
+            Body 1
+          </label>
+          <textarea
+            id="body1"
+            name="body1"
+            value={formData.body1}
+            onChange={handleChange}
+            rows={4}
+            autoComplete="off"
+            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+              isDarkMode
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            }`}
+            placeholder="First content section"
+          />
+        </div>
+
+        {/* Body 2 */}
+        <div>
+          <label className={`block text-sm font-medium mb-2 font-mono ${
+            isDarkMode ? 'text-green-300' : 'text-slate-700'
+          }`}>
+            Body 2
+          </label>
+          <textarea
+            id="body2"
+            name="body2"
+            value={formData.body2}
+            onChange={handleChange}
+            rows={4}
+            autoComplete="off"
+            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+              isDarkMode
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            }`}
+            placeholder="Second content section (optional)"
+          />
+        </div>
+
+        {/* Body 3 */}
+        <div>
+          <label className={`block text-sm font-medium mb-2 font-mono ${
+            isDarkMode ? 'text-green-300' : 'text-slate-700'
+          }`}>
+            Body 3
+          </label>
+          <textarea
+            id="body3"
+            name="body3"
+            value={formData.body3}
+            onChange={handleChange}
+            rows={4}
+            autoComplete="off"
+            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+              isDarkMode
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            }`}
+            placeholder="Third content section (optional)"
+          />
+        </div>
+
         {/* Technologies Section */}
         <div>
           <label className={`block text-sm font-medium mb-2 font-mono ${
@@ -521,30 +583,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </div>
         </div>
 
-        {/* Blog-like Fields */}
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
-            Detailed Content
-          </label>
-          <textarea
-            id="detailedContent"
-            name="detailedContent"
-            value={formData.detailedContent}
-            onChange={handleChange}
-            required
-            rows={4}
-            autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-            placeholder="Write detailed content about your project"
-          />
-        </div>
-
         {/* Images Management */}
         <div>
           <label className={`block text-sm font-medium mb-2 font-mono ${
@@ -625,75 +663,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           <label className={`block text-sm font-medium mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
-            Challenges
-          </label>
-          <textarea
-            id="challenges"
-            name="challenges"
-            value={formData.challenges}
-            onChange={handleChange}
-            required
-            rows={4}
-            autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-            placeholder="Describe the challenges and solutions"
-          />
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
-            Learnings
-          </label>
-          <textarea
-            id="learnings"
-            name="learnings"
-            value={formData.learnings}
-            onChange={handleChange}
-            required
-            rows={4}
-            autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-            placeholder="Write down key learnings from the project"
-          />
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
-            Future Plans
-          </label>
-          <textarea
-            id="futurePlans"
-            name="futurePlans"
-            value={formData.futurePlans}
-            onChange={handleChange}
-            required
-            rows={4}
-            autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-            placeholder="Describe future development plans"
-          />
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
             Tags
           </label>
           
@@ -752,51 +721,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               </span>
             ))}
           </div>
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
-            Complexity
-          </label>
-          <select
-            id="complexity"
-            name="complexity"
-            value={formData.complexity}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-          >
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-          </select>
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-700'
-          }`}>
-            Estimated Hours
-          </label>
-          <input
-            type="text"
-            id="estimatedHours"
-            name="estimatedHours"
-            value={formData.estimatedHours}
-            onChange={handleChange}
-            autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-              isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            }`}
-            placeholder="Estimated time to complete"
-          />
         </div>
 
         <div>

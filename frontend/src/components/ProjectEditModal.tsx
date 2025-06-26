@@ -51,15 +51,12 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     featured: false,
     startDate: '',
     endDate: '',
-    // Blog-like fields
-    detailedContent: '',
+    // Generic content sections
+    body1: '',
+    body2: '',
+    body3: '',
     images: [] as string[],
-    challenges: '',
-    learnings: '',
-    futurePlans: '',
     tags: [] as string[],
-    complexity: 'Intermediate' as 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert',
-    estimatedHours: '',
     teamSize: 1
   })
   const [techInput, setTechInput] = useState('')
@@ -94,14 +91,11 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         featured: project.featured || false,
         startDate: formatDateForInput(project.startDate),
         endDate: formatDateForInput(project.endDate),
-        detailedContent: project.detailedContent || '',
+        body1: project.body1 || '',
+        body2: project.body2 || '',
+        body3: project.body3 || '',
         images: project.images || [],
-        challenges: project.challenges || '',
-        learnings: project.learnings || '',
-        futurePlans: project.futurePlans || '',
         tags: project.tags || [],
-        complexity: project.complexity || 'Intermediate',
-        estimatedHours: project.estimatedHours ? project.estimatedHours.toString() : '',
         teamSize: project.teamSize || 1
       })
     }
@@ -206,7 +200,6 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
           // Create UTC date directly to avoid timezone issues
           return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1)).toISOString();
         })() : '',
-        estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined
       }
       
       const updatedProject = await projectsAPI.update(project._id, projectData)
@@ -508,15 +501,15 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
 
             {/* Blog-like Fields */}
             <div>
-              <label htmlFor="edit-detailedContent" className={`block text-sm font-medium mb-2 font-mono ${
+              <label htmlFor="edit-body1" className={`block text-sm font-medium mb-2 font-mono ${
                 isDarkMode ? 'text-green-300' : 'text-slate-700'
               }`}>
-                Detailed Content
+                Body 1
               </label>
               <textarea
-                id="edit-detailedContent"
-                name="detailedContent"
-                value={formData.detailedContent}
+                id="edit-body1"
+                name="body1"
+                value={formData.body1}
                 onChange={handleChange}
                 rows={4}
                 autoComplete="off"
@@ -525,7 +518,51 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                     ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
                     : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                 }`}
-                placeholder="Write detailed content about your project"
+                placeholder="Write body 1 content about your project"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="edit-body2" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Body 2
+              </label>
+              <textarea
+                id="edit-body2"
+                name="body2"
+                value={formData.body2}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Write body 2 content about your project"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="edit-body3" className={`block text-sm font-medium mb-2 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Body 3
+              </label>
+              <textarea
+                id="edit-body3"
+                name="body3"
+                value={formData.body3}
+                onChange={handleChange}
+                rows={4}
+                autoComplete="off"
+                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Write body 3 content about your project"
               />
             </div>
 
@@ -607,75 +644,6 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               )}
             </div>
 
-            {/* Challenges */}
-            <div>
-              <label htmlFor="edit-challenges" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Challenges & Solutions
-              </label>
-              <textarea
-                id="edit-challenges"
-                name="challenges"
-                value={formData.challenges}
-                onChange={handleChange}
-                rows={4}
-                autoComplete="off"
-                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                }`}
-                placeholder="Describe the challenges and solutions"
-              />
-            </div>
-
-            {/* Learnings */}
-            <div>
-              <label htmlFor="edit-learnings" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Key Learnings
-              </label>
-              <textarea
-                id="edit-learnings"
-                name="learnings"
-                value={formData.learnings}
-                onChange={handleChange}
-                rows={4}
-                autoComplete="off"
-                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                }`}
-                placeholder="Write down key learnings from the project"
-              />
-            </div>
-
-            {/* Future Plans */}
-            <div>
-              <label htmlFor="edit-futurePlans" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Future Plans
-              </label>
-              <textarea
-                id="edit-futurePlans"
-                name="futurePlans"
-                value={formData.futurePlans}
-                onChange={handleChange}
-                rows={4}
-                autoComplete="off"
-                className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                }`}
-                placeholder="Describe future development plans"
-              />
-            </div>
-
             {/* Tags Management */}
             <div>
               <label className={`block text-sm font-medium mb-2 font-mono ${
@@ -743,54 +711,6 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
 
             {/* Project Metadata */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Complexity */}
-              <div>
-                <label htmlFor="edit-complexity" className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Complexity
-                </label>
-                <select
-                  id="edit-complexity"
-                  name="complexity"
-                  value={formData.complexity}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  }`}
-                >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="Expert">Expert</option>
-                </select>
-              </div>
-
-              {/* Estimated Hours */}
-              <div>
-                <label htmlFor="edit-estimatedHours" className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Estimated Hours
-                </label>
-                <input
-                  type="number"
-                  id="edit-estimatedHours"
-                  name="estimatedHours"
-                  value={formData.estimatedHours}
-                  onChange={handleChange}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  }`}
-                  placeholder="Hours"
-                />
-              </div>
-
               {/* Team Size */}
               <div>
                 <label htmlFor="edit-teamSize" className={`block text-sm font-medium mb-2 font-mono ${

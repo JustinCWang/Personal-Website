@@ -19,15 +19,12 @@ export interface Project {
   featured: boolean
   startDate: string  // ISO date string
   endDate?: string   // Optional ISO date string for ongoing projects
-  // Blog-like fields
-  detailedContent?: string
+  // Generic content sections
+  body1?: string
+  body2?: string
+  body3?: string
   images?: string[]
-  challenges?: string
-  learnings?: string
-  futurePlans?: string
   tags?: string[]
-  complexity?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
-  estimatedHours?: number
   teamSize?: number
 }
 

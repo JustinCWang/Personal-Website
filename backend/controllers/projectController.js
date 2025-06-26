@@ -157,15 +157,12 @@ const setProject = asyncHandler(async (req, res) => {
         featured: req.body.featured || false,         // Default to not featured
         startDate: req.body.startDate,                // Project start date
         endDate: req.body.endDate || null,            // Project end date (optional)
-        // Blog-like fields
-        detailedContent: req.body.detailedContent || '',
+        // Generic content sections
+        body1: req.body.body1 || '',
+        body2: req.body.body2 || '',
+        body3: req.body.body3 || '',
         images: req.body.images || [],
-        challenges: req.body.challenges || '',
-        learnings: req.body.learnings || '',
-        futurePlans: req.body.futurePlans || '',
         tags: req.body.tags || [],
-        complexity: req.body.complexity || 'Intermediate',
-        estimatedHours: req.body.estimatedHours || null,
         teamSize: req.body.teamSize || 1,
         user: req.user.id                             // Associate with authenticated user
     })

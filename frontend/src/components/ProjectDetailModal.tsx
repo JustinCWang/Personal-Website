@@ -91,31 +91,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   /**
-   * Get CSS classes for complexity badges
-   * @param {string} complexity - Project complexity
-   * @returns {string} CSS classes for complexity styling
-   */
-  const getComplexityColor = (complexity: string) => {
-    if (isDarkMode) {
-      switch (complexity) {
-        case 'Beginner': return 'bg-green-900 text-green-300 border-green-600'
-        case 'Intermediate': return 'bg-blue-900 text-blue-300 border-blue-600'
-        case 'Advanced': return 'bg-purple-900 text-purple-300 border-purple-600'
-        case 'Expert': return 'bg-red-900 text-red-300 border-red-600'
-        default: return 'bg-gray-700 text-gray-300 border-gray-600'
-      }
-    } else {
-      switch (complexity) {
-        case 'Beginner': return 'bg-green-100 text-green-800 border-green-200'
-        case 'Intermediate': return 'bg-blue-100 text-blue-800 border-blue-200'
-        case 'Advanced': return 'bg-purple-100 text-purple-800 border-purple-200'
-        case 'Expert': return 'bg-red-100 text-red-800 border-red-200'
-        default: return 'bg-gray-100 text-gray-800 border-gray-200'
-      }
-    }
-  };
-
-  /**
    * Handle escape key press to close modal
    */
   useEffect(() => {
@@ -197,13 +172,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     {project.status}
                   </span>
                 )}
-                {project.complexity && (
-                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium font-mono border ${
-                    getComplexityColor(project.complexity)
-                  }`}>
-                    {project.complexity}
-                  </span>
-                )}
               </div>
 
               {/* Project Metadata */}
@@ -249,20 +217,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     </div>
                   )}
 
-                  {project.estimatedHours && (
-                    <div>
-                      <span className={`font-mono ${
-                        isDarkMode ? 'text-green-200' : 'text-slate-500'
-                      }`}>
-                        Time Spent:
-                      </span>
-                      <p className={`font-mono font-medium ${
-                        isDarkMode ? 'text-green-100' : 'text-slate-700'
-                      }`}>
-                        {project.estimatedHours} hours
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -385,14 +339,9 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               </p>
             </div>
 
-            {/* Detailed Content */}
-            {project.detailedContent && (
+            {/* Body Content Sections */}
+            {project.body1 && (
               <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Detailed Story
-                </h2>
                 <div className={`prose prose-lg max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
@@ -400,7 +349,37 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     className={`font-mono leading-relaxed ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}
-                    dangerouslySetInnerHTML={{ __html: project.detailedContent }}
+                    dangerouslySetInnerHTML={{ __html: project.body1 }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {project.body2 && (
+              <div className="mb-8">
+                <div className={`prose prose-lg max-w-none ${
+                  isDarkMode ? 'prose-invert' : ''
+                }`}>
+                  <div 
+                    className={`font-mono leading-relaxed ${
+                      isDarkMode ? 'text-green-100' : 'text-slate-600'
+                    }`}
+                    dangerouslySetInnerHTML={{ __html: project.body2 }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {project.body3 && (
+              <div className="mb-8">
+                <div className={`prose prose-lg max-w-none ${
+                  isDarkMode ? 'prose-invert' : ''
+                }`}>
+                  <div 
+                    className={`font-mono leading-relaxed ${
+                      isDarkMode ? 'text-green-100' : 'text-slate-600'
+                    }`}
+                    dangerouslySetInnerHTML={{ __html: project.body3 }}
                   />
                 </div>
               </div>
@@ -427,66 +406,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       {tech}
                     </span>
                   ))}
-                </div>
-              </div>
-            )}
-
-            {/* Challenges */}
-            {project.challenges && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Challenges & Solutions
-                </h2>
-                <div className={`p-6 rounded-lg ${
-                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
-                }`}>
-                  <p className={`font-mono leading-relaxed ${
-                    isDarkMode ? 'text-green-100' : 'text-slate-600'
-                  }`}>
-                    {project.challenges}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Learnings */}
-            {project.learnings && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Key Learnings
-                </h2>
-                <div className={`p-6 rounded-lg ${
-                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
-                }`}>
-                  <p className={`font-mono leading-relaxed ${
-                    isDarkMode ? 'text-green-100' : 'text-slate-600'
-                  }`}>
-                    {project.learnings}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Future Plans */}
-            {project.futurePlans && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Future Plans
-                </h2>
-                <div className={`p-6 rounded-lg ${
-                  isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
-                }`}>
-                  <p className={`font-mono leading-relaxed ${
-                    isDarkMode ? 'text-green-100' : 'text-slate-600'
-                  }`}>
-                    {project.futurePlans}
-                  </p>
                 </div>
               </div>
             )}

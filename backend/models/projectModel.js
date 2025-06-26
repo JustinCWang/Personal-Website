@@ -76,53 +76,32 @@ const projectSchema = mongoose.Schema({
         default: null      // Default to null for ongoing projects
     },
 
-    // Blog-like detailed content fields
-    detailedContent: {
-        type: String,
-        default: ''        // Rich text content for detailed project description
-    },
-
     // Array of image URLs for the project
     images: {
         type: [String],    // Array of image URLs
         default: []        // Default to empty array
     },
 
-    // Project challenges and solutions
-    challenges: {
+    // Generic content sections for flexibility
+    body1: {
         type: String,
-        default: ''        // Text describing challenges faced and how they were solved
+        default: ''        // First content section
     },
 
-    // Key learnings from the project
-    learnings: {
+    body2: {
         type: String,
-        default: ''        // Text describing what was learned from the project
+        default: ''        // Second content section
     },
 
-    // Future plans for the project
-    futurePlans: {
+    body3: {
         type: String,
-        default: ''        // Text describing future development plans
+        default: ''        // Third content section
     },
 
     // Additional tags for categorization
     tags: {
         type: [String],    // Array of tag strings
         default: []        // Default to empty array
-    },
-
-    // Project complexity level
-    complexity: {
-        type: String,
-        enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
-        default: 'Intermediate'
-    },
-
-    // Estimated time to complete (in hours)
-    estimatedHours: {
-        type: Number,
-        default: null
     },
 
     // Team size (1 for solo projects)
