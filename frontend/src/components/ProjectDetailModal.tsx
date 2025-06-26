@@ -66,31 +66,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   /**
-   * Get CSS classes for project status badges
-   * @param {string} status - Project status
-   * @returns {string} CSS classes for status styling
-   */
-  const getStatusColor = (status: string) => {
-    if (isDarkMode) {
-      switch (status) {
-        case 'Planning': return 'bg-yellow-900 text-yellow-300 border-yellow-600'
-        case 'In Progress': return 'bg-blue-900 text-blue-300 border-blue-600'
-        case 'Completed': return 'bg-green-900 text-green-300 border-green-600'
-        case 'On Hold': return 'bg-gray-700 text-gray-300 border-gray-600'
-        default: return 'bg-gray-700 text-gray-300 border-gray-600'
-      }
-    } else {
-      switch (status) {
-        case 'Planning': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-        case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200'
-        case 'Completed': return 'bg-green-100 text-green-800 border-green-200'
-        case 'On Hold': return 'bg-gray-100 text-gray-800 border-gray-200'
-        default: return 'bg-gray-100 text-gray-800 border-gray-200'
-      }
-    }
-  };
-
-  /**
    * Handle escape key press to close modal
    */
   useEffect(() => {
@@ -130,7 +105,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       
       {/* Modal */}
       <div className="fixed inset-0 z-50 p-2">
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ${
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ${
           isDarkMode 
             ? 'bg-gray-900 border-2 border-green-500' 
             : 'bg-white border-2 border-slate-200'
@@ -156,57 +131,26 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Project Header */}
             <div className="mb-8">
               <div className="flex items-start justify-between mb-4">
-                <h1 className={`text-4xl font-bold font-mono ${
-                  isDarkMode ? 'text-green-400' : 'text-slate-800'
-                }`}>
-                  {project.title}
-                </h1>
-              </div>
-
-              {/* Status and Complexity Badges */}
-              <div className="flex flex-wrap gap-3 mb-4">
-                {project.status && (
-                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium font-mono border ${
-                    getStatusColor(project.status)
+                <div className="flex-1">
+                  <h1 className={`text-4xl font-bold font-mono ${
+                    isDarkMode ? 'text-green-400' : 'text-slate-800'
                   }`}>
-                    {project.status}
-                  </span>
-                )}
-              </div>
-
-              {/* Project Metadata */}
-              <div className={`p-4 rounded-lg ${
-                isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-slate-50 border border-slate-200'
-              }`}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className={`font-mono ${
+                    {project.title}
+                  </h1>
+                  <div className="flex items-center gap-4 mt-2">
+                    <span className={`text-sm font-mono ${
                       isDarkMode ? 'text-green-200' : 'text-slate-500'
                     }`}>
-                      Started:
+                      Started: {formatDate(project.startDate)}
                     </span>
-                    <p className={`font-mono font-medium ${
-                      isDarkMode ? 'text-green-100' : 'text-slate-700'
-                    }`}>
-                      {formatDate(project.startDate)}
-                    </p>
-                  </div>
-                  
-                  {project.endDate ? (
-                    <div>
-                      <span className={`font-mono ${
+                    {project.endDate && (
+                      <span className={`text-sm font-mono ${
                         isDarkMode ? 'text-green-200' : 'text-slate-500'
                       }`}>
-                        Completed:
+                        Completed: {formatDate(project.endDate)}
                       </span>
-                      <p className={`font-mono font-medium ${
-                        isDarkMode ? 'text-green-100' : 'text-slate-700'
-                      }`}>
-                        {formatDate(project.endDate)}
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
+                    )}
+                    {!project.endDate && (
                       <span className={`px-3 py-1 rounded-full text-sm font-mono ${
                         isDarkMode 
                           ? 'bg-green-900 text-green-300 border border-green-500' 
@@ -214,11 +158,24 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       }`}>
                         Ongoing Project
                       </span>
-                    </div>
-                  )}
-
+                    )}
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Project Description */}
+            <div className="mb-8">
+              <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                isDarkMode ? 'text-green-300' : 'text-slate-700'
+              }`}>
+                Overview
+              </h2>
+              <p className={`text-lg leading-relaxed font-mono ${
+                isDarkMode ? 'text-green-100' : 'text-slate-600'
+              }`}>
+                {project.description}
+              </p>
             </div>
 
             {/* Project Images Gallery */}
@@ -262,11 +219,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       <>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === 0 ? project.images!.length - 1 : prev - 1)}
-                          className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 ${
-                            isDarkMode 
-                              ? 'bg-black/50 text-white hover:bg-black/90' 
-                              : 'bg-white/50 text-black hover:bg-white/90'
-                          } shadow-lg z-10`}
+                          className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
+                            isDarkMode
+                              ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
+                              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                          } z-10`}
                           title="Previous image"
                         >
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,11 +232,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         </button>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === project.images!.length - 1 ? 0 : prev + 1)}
-                          className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 ${
-                            isDarkMode 
-                              ? 'bg-black/50 text-white hover:bg-black/90' 
-                              : 'bg-white/50 text-black hover:bg-white/90'
-                          } shadow-lg z-10`}
+                          className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
+                            isDarkMode
+                              ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
+                              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                          } z-10`}
                           title="Next image"
                         >
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,20 +281,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Project Description */}
-            <div className="mb-8">
-              <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
-              }`}>
-                Overview
-              </h2>
-              <p className={`text-lg leading-relaxed font-mono ${
-                isDarkMode ? 'text-green-100' : 'text-slate-600'
-              }`}>
-                {project.description}
-              </p>
-            </div>
 
             {/* Body Content Sections */}
             {project.body1 && (
