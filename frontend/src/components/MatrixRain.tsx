@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 
 interface MatrixRainProps {
   isDarkMode: boolean;
@@ -14,8 +14,37 @@ interface RainDrop {
   gridOffset: number; // Random offset for grid alignment
 }
 
+interface Ripple {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  life: number;
+  maxLife: number;
+}
+
 const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ripplesRef = useRef<Ripple[]>([]);
+
+  // Handle click to create ripple
+  const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    console.log('Matrix rain clicked!'); // Debug log
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ripplesRef.current.push({
+      x,
+      y,
+      radius: 0,
+      maxRadius: 100,
+      life: 0,
+      maxLife: 40
+    });
+  }, []);
 
   useEffect(() => {
     if (!isDarkMode || !canvasRef.current) return;
@@ -72,6 +101,13 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
       // Clear canvas completely - no trail effect
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Update ripples (managed inside animation loop)
+      ripplesRef.current = ripplesRef.current.map(ripple => ({
+        ...ripple,
+        radius: ripple.radius + (ripple.maxRadius / ripple.maxLife),
+        life: ripple.life + 1
+      })).filter(ripple => ripple.life < ripple.maxLife);
+
       // Update and draw rain drops
       rainDrops.forEach((drop) => {
         // Update position
@@ -110,6 +146,16 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
         }
       });
 
+      // Draw ripples (visual only - no physics)
+      ripplesRef.current.forEach(ripple => {
+        const alpha = 1 - (ripple.life / ripple.maxLife);
+        ctx.strokeStyle = `rgba(0, 255, 0, ${alpha * 0.4})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, ripple.radius, 0, 2 * Math.PI);
+        ctx.stroke();
+      });
+
       // Add some random sparkles
       if (Math.random() < 0.015) {
         const sparkleX = Math.random() * canvas.width;
@@ -128,15 +174,16 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationId);
     };
-  }, [isDarkMode]);
+  }, [isDarkMode]); // Removed ripples from dependencies
 
   if (!isDarkMode) return null;
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 pointer-events-auto z-10 cursor-crosshair"
       style={{ opacity: 0.25 }}
+      onClick={handleClick}
     />
   );
 };

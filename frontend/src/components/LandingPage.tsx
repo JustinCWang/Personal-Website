@@ -240,7 +240,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-4xl mx-auto relative z-10">
+        <div className="max-w-4xl mx-auto relative z-5">
           <h1 className={`text-6xl md:text-8xl font-bold mb-6 ${
             isDarkMode 
               ? 'text-white' 
