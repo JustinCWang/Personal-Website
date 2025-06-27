@@ -10,6 +10,7 @@ import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
 import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
 import ProjectDetailModal from './ProjectDetailModal.tsx'
+import MatrixRain from './MatrixRain.tsx'
 
 /**
  * Personal information configuration object
@@ -158,6 +159,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         ? 'bg-gradient-to-br from-black to-gray-900' 
         : 'bg-gradient-to-br from-slate-50 to-slate-100'
     }`} style={{ scrollBehavior: 'smooth' }}>
+      {/* Matrix Rain Background */}
+      <MatrixRain isDarkMode={isDarkMode} />
+      
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
         {/* Navigation Header */}
@@ -167,10 +171,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               {/* Name/Logo */}
               <h1 className={`text-2xl font-bold tracking-wide font-mono ${
                 isDarkMode 
-                  ? 'text-green-400' 
+                  ? 'text-green-400 hacker-text-gradient' 
                   : 'text-slate-800'
               }`}>
-                {PERSONAL_INFO.name}
+                {isDarkMode ? '> ' : ''}{PERSONAL_INFO.name}
               </h1>
               
               {/* Navigation Links */}
@@ -179,7 +183,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   href="#about"
                   className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
-                      ? 'text-green-300 hover:text-green-400'
+                      ? 'text-green-300 hover:text-green-400 hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
                       : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
@@ -189,7 +193,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   href="#projects"
                   className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
-                      ? 'text-green-300 hover:text-green-400'
+                      ? 'text-green-300 hover:text-green-400 hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
                       : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
@@ -199,7 +203,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   href="#contact"
                   className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
-                      ? 'text-green-300 hover:text-green-400'
+                      ? 'text-green-300 hover:text-green-400 hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
                       : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
@@ -236,14 +240,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto relative z-10">
           <h1 className={`text-6xl md:text-8xl font-bold mb-6 ${
             isDarkMode 
               ? 'text-white' 
               : 'text-slate-900'
           }`}>
             Hi, I'm{' '}
-            <span className={isDarkMode ? 'hacker-text-gradient' : 'text-slate-900'}>
+            <span className={isDarkMode ? 'hacker-text-gradient hacker-text-glitch' : 'text-slate-900'}>
               Justin
             </span>
           </h1>
@@ -275,7 +279,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative z-20">
           <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
@@ -349,7 +353,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-gray-900 border-t border-green-500' 
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative z-20">
           <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
@@ -612,7 +616,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative z-20">
           <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
@@ -676,7 +680,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-gray-900 border-t border-green-500' 
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative z-20">
           <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
@@ -709,7 +713,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center relative z-20">
           <h2 className={`text-6xl font-bold mb-12 tracking-wide font-mono ${
             isDarkMode 
               ? 'text-green-400' 
