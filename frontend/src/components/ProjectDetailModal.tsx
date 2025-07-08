@@ -182,9 +182,50 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       </span>
                     )}
                   </div>
+                  
+                  {/* Team Size Display */}
+                  {project.teamSize && (
+                    <div className="mt-3">
+                      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-mono ${
+                        isDarkMode
+                          ? 'bg-purple-900 text-purple-300 border border-purple-500'
+                          : 'bg-purple-100 text-purple-800 border border-purple-300'
+                      }`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Team Size: {project.teamSize} {project.teamSize === 1 ? 'person' : 'people'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Tags Section - Moved above Overview */}
+            {project.tags && project.tags.length > 0 && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                }`}>
+                  Tags
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className={`px-3 py-1 rounded-full text-sm font-mono ${
+                        isDarkMode
+                          ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                          : 'bg-gray-100 text-gray-700 border border-gray-300'
+                      }`}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Project Description */}
             <div className="mb-8">
@@ -307,11 +348,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Body Content Sections */}
             {project.body1 && (
               <div className="mb-8">
-                <div className={`prose prose-lg max-w-none ${
+                <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                   <div 
-                    className={`font-mono leading-relaxed ${
+                    className={`text-lg font-mono leading-relaxed ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}
                     dangerouslySetInnerHTML={{ __html: project.body1 }}
@@ -322,11 +363,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {project.body2 && (
               <div className="mb-8">
-                <div className={`prose prose-lg max-w-none ${
+                <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                   <div 
-                    className={`font-mono leading-relaxed ${
+                    className={`text-lg font-mono leading-relaxed ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}
                     dangerouslySetInnerHTML={{ __html: project.body2 }}
@@ -337,11 +378,11 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {project.body3 && (
               <div className="mb-8">
-                <div className={`prose prose-lg max-w-none ${
+                <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                   <div 
-                    className={`font-mono leading-relaxed ${
+                    className={`text-lg font-mono leading-relaxed ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}
                     dangerouslySetInnerHTML={{ __html: project.body3 }}
@@ -369,31 +410,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       }`}
                     >
                       {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tags */}
-            {project.tags && project.tags.length > 0 && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Tags
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className={`px-3 py-1 rounded-full text-sm font-mono ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-300 border border-gray-600'
-                          : 'bg-gray-100 text-gray-700 border border-gray-300'
-                      }`}
-                    >
-                      #{tag}
                     </span>
                   ))}
                 </div>

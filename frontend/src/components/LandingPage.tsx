@@ -8,9 +8,11 @@
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode } from '../hooks/useDarkMode.ts'
+import { useScrollAnimation } from '../hooks/useScrollAnimation.ts'
 import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
 import ProjectDetailModal from './ProjectDetailModal.tsx'
 import MatrixRain from './MatrixRain.tsx'
+import TypewriterText from './TypewriterText.tsx'
 
 /**
  * Personal information configuration object
@@ -63,6 +65,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
+
+  // Scroll animation hooks for different sections
+  const heroAnimation = useScrollAnimation({ threshold: 0.3 })
+  const aboutAnimation = useScrollAnimation({ threshold: 0.2 })
+  const projectsAnimation = useScrollAnimation({ threshold: 0.2 })
+  const skillsAnimation = useScrollAnimation({ threshold: 0.2 })
+  const hobbiesAnimation = useScrollAnimation({ threshold: 0.2 })
+  const contactAnimation = useScrollAnimation({ threshold: 0.2 })
 
   // Modal state management
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -174,7 +184,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   ? 'text-green-400 hacker-text-gradient' 
                   : 'text-slate-800'
               }`}>
-                {isDarkMode ? '> ' : ''}{PERSONAL_INFO.name}
+                {isDarkMode ? '' : ''}{PERSONAL_INFO.name}
               </h1>
               
               {/* Navigation Links */}
@@ -240,25 +250,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-4xl mx-auto relative z-5">
-          <h1 className={`text-6xl md:text-8xl font-bold mb-6 ${
-            isDarkMode 
-              ? 'text-white' 
-              : 'text-slate-900'
-          }`}>
-            Hi, I'm{' '}
-            <span className={isDarkMode ? 'hacker-text-gradient hacker-text-glitch' : 'text-slate-900'}>
-              Justin
-            </span>
-          </h1>
+        <div 
+          ref={heroAnimation.elementRef}
+          className="max-w-4xl mx-auto relative z-5"
+        >
+          {/* Hero text with typewriter effect - separate from scroll animation */}
+          <div className="relative z-10">
+            <h1 className={`text-6xl md:text-8xl font-bold mb-6 ${
+              isDarkMode 
+                ? 'text-white' 
+                : 'text-slate-900'
+            }`}>
+              <TypewriterText
+                text="Hi, I'm Justin"
+                isVisible={true}
+                speed={50}
+              />
+            </h1>
+          </div>
           
-          <p className={`text-xl md:text-2xl font-mono ${
-            isDarkMode 
-              ? 'text-green-300' 
-              : 'text-slate-600'
+          {/* Hero subtitle with scroll animation */}
+          <div className={`transition-all duration-1200 ease-out ${
+            heroAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}>
-            A BA/MS student studying CS @ Boston University
-          </p>
+            <p className={`text-xl md:text-2xl font-mono ${
+              isDarkMode 
+                ? 'text-green-300' 
+                : 'text-slate-600'
+            }`}>
+              A BA/MS student studying CS @ Boston University
+            </p>
+          </div>
         </div>
 
         {/* Scroll Indicator */}
@@ -279,16 +301,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto relative z-20">
-          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
-          }`}>
-            About Me
-          </h2>
+        <div 
+          ref={aboutAnimation.elementRef}
+          className="max-w-6xl mx-auto relative z-20"
+        >
+          {/* Header with typewriter effect - separate from scroll animation */}
+          <div className="relative z-30">
+            <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
+              isDarkMode 
+                ? 'text-green-400' 
+                : 'text-slate-800'
+            }`}>
+              <TypewriterText
+                text="About Me"
+                isVisible={aboutAnimation.isVisible}
+                speed={40}
+              />
+            </h2>
+          </div>
           
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          {/* Content with scroll animation */}
+          <div className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-1200 ease-out ${
+            aboutAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+          }`}>
             {/* Profile Image with Admin Access Button */}
             <div className="flex justify-center">
               <div className="relative">
@@ -342,6 +377,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   </p>
                 </div>
               </div>
+              
+
             </div>
           </div>
         </div>
@@ -353,30 +390,44 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-gray-900 border-t border-green-500' 
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto relative z-20">
-          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
-          }`}>
-            Featured Projects
-          </h2>
+        <div 
+          ref={projectsAnimation.elementRef}
+          className="max-w-6xl mx-auto relative z-20"
+        >
+          {/* Header with typewriter effect - separate from scroll animation */}
+          <div className="relative z-30">
+            <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
+              isDarkMode 
+                ? 'text-green-400' 
+                : 'text-slate-800'
+            }`}>
+              <TypewriterText
+                text="Featured Projects"
+                isVisible={projectsAnimation.isVisible}
+                speed={40}
+              />
+            </h2>
+          </div>
           
-          {/* Loading State */}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
-                isDarkMode ? 'border-green-400' : 'border-blue-600'
-              }`}></div>
-              <p className={`mt-4 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-600'
-              }`}>
-                Loading featured projects...
-              </p>
-            </div>
-          ) : featuredProjects.length > 0 ? (
-            // Projects with Pagination
-            <div className="relative">
+          {/* Content with scroll animation */}
+          <div className={`transition-all duration-1200 ease-out ${
+            projectsAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+          }`}>
+            {/* Loading State */}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
+                  isDarkMode ? 'border-green-400' : 'border-blue-600'
+                }`}></div>
+                <p className={`mt-4 font-mono ${
+                  isDarkMode ? 'text-green-300' : 'text-slate-600'
+                }`}>
+                  Loading featured projects...
+                </p>
+              </div>
+            ) : featuredProjects.length > 0 ? (
+              // Projects with Pagination
+              <div className="relative">
               {/* Navigation Arrows */}
               {totalPages > 1 && (
                 <>
@@ -607,6 +658,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               </p>
             </div>
           )}
+          </div>
         </div>
       </section>
 
@@ -616,17 +668,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto relative z-20">
-          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
-          }`}>
-            Skills & Technologies
-          </h2>
+        <div 
+          ref={skillsAnimation.elementRef}
+          className="max-w-6xl mx-auto relative z-20"
+        >
+          {/* Header with typewriter effect - separate from scroll animation */}
+          <div className="relative z-30">
+            <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
+              isDarkMode 
+                ? 'text-green-400' 
+                : 'text-slate-800'
+            }`}>
+              <TypewriterText
+                text="Skills & Technologies"
+                isVisible={skillsAnimation.isVisible}
+                speed={40}
+              />
+            </h2>
+          </div>
           
-          {/* Skills organized by categories with dropdowns */}
-          <div className="space-y-4">
+          {/* Content with scroll animation */}
+          <div className={`space-y-4 transition-all duration-1200 ease-out ${
+            skillsAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+          }`}>
             {(() => {
               // Group skills by category
               const skillsByCategory = skills.reduce((acc, skill) => {
@@ -680,16 +744,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-gray-900 border-t border-green-500' 
           : 'bg-slate-50 border-t border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto relative z-20">
-          <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
+        <div 
+          ref={hobbiesAnimation.elementRef}
+          className="max-w-6xl mx-auto relative z-20"
+        >
+          {/* Header with typewriter effect - separate from scroll animation */}
+          <div className="relative z-30">
+            <h2 className={`text-6xl font-bold mb-12 text-center tracking-wide font-mono ${
+              isDarkMode 
+                ? 'text-green-400' 
+                : 'text-slate-800'
+            }`}>
+              <TypewriterText
+                text="When I'm Not Coding"
+                isVisible={hobbiesAnimation.isVisible}
+                speed={40}
+              />
+            </h2>
+          </div>
+          {/* Content with scroll animation */}
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-1200 ease-out ${
+            hobbiesAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            When I'm Not Coding
-          </h2>
-          {/* Hobbies Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {PERSONAL_INFO.hobbies.map((hobby, index) => (
               <div key={index} className={`p-6 rounded-lg transition-all duration-300 ${
                 isDarkMode
@@ -713,26 +789,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
           ? 'bg-black border-t border-green-500' 
           : 'bg-white border-t border-slate-200'
       }`}>
-        <div className="max-w-4xl mx-auto text-center relative z-20">
-          <h2 className={`text-6xl font-bold mb-12 tracking-wide font-mono ${
-            isDarkMode 
-              ? 'text-green-400' 
-              : 'text-slate-800'
-          }`}>
-            Contact Me
-          </h2>
+        <div 
+          ref={contactAnimation.elementRef}
+          className="max-w-4xl mx-auto text-center relative z-20"
+        >
+          {/* Header with typewriter effect - separate from scroll animation */}
+          <div className="relative z-30">
+            <h2 className={`text-6xl font-bold mb-12 tracking-wide font-mono ${
+              isDarkMode 
+                ? 'text-green-400' 
+                : 'text-slate-800'
+            }`}>
+              <TypewriterText
+                text="Contact Me"
+                isVisible={contactAnimation.isVisible}
+                speed={40}
+              />
+            </h2>
+          </div>
           
-          <p className={`text-lg mb-8 max-w-2xl mx-auto font-mono ${
-            isDarkMode 
-              ? 'text-green-100' 
-              : 'text-slate-600'
+          {/* Content with scroll animation */}
+          <div className={`transition-all duration-1200 ease-out ${
+            contactAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}>
-            I'm always interested in new opportunities and collaborations. 
-            Whether you have a project in mind or just want to chat, feel free to reach out!
-          </p>
+            <p className={`text-lg mb-8 max-w-2xl mx-auto font-mono ${
+              isDarkMode 
+                ? 'text-green-100' 
+                : 'text-slate-600'
+            }`}>
+              I'm always interested in new opportunities and collaborations. 
+              Whether you have a project in mind or just want to chat, feel free to reach out!
+            </p>
 
-          {/* Contact Methods Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Contact Methods Grid */}
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
             {/* Email Contact */}
             <a
               href={`mailto:${PERSONAL_INFO.social.email}`}
@@ -820,6 +910,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 View my code
               </p>
             </a>
+          </div>
           </div>
         </div>
       </section>
