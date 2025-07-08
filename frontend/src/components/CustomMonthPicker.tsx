@@ -336,8 +336,8 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           placeholder="Type month or year, or click dropdown..."
           className={`w-full px-4 py-3 pr-16 border rounded-lg transition-colors font-mono ${
             isDarkMode
-              ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
           }`}
           id={id}
           name={name}

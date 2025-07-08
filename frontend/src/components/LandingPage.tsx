@@ -817,8 +817,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 ? 'text-green-100' 
                 : 'text-slate-600'
             }`}>
-              I'm always interested in new opportunities and collaborations. 
-              Whether you have a project in mind or just want to chat, feel free to reach out!
+              I'm always interested in new opportunities and meeting new people. 
+              Whether you want to connect or just want to chat, feel free to reach out!
             </p>
 
             {/* Contact Methods Grid */}

@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { skillsAPI } from '../services/api';
 import SkillCategoryDropdown from './SkillCategoryDropdown';
+import CustomDropdown from './CustomDropdown';
 
 /**
  * Skill type definition
@@ -48,7 +49,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [newSkill, setNewSkill] = useState<Omit<Skill, '_id'>>({
     name: '',
-    category: CATEGORIES[0]
+    category: ''
   });
 
   /**
@@ -86,7 +87,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
     try {
       const addedSkill = await skillsAPI.add(newSkill);
       setSkills(prevSkills => [...prevSkills, addedSkill]);
-      setNewSkill({ name: '', category: CATEGORIES[0] });
+      setNewSkill({ name: '', category: '' });
       setError(null);
     } catch (err) {
       setError('Failed to add skill');
@@ -169,30 +170,31 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
             onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
             placeholder="Skill name"
             autoComplete="off"
-            className={`flex-1 p-2 rounded-lg border font-mono ${
+            className={`flex-1 px-4 py-2 h-[40px] rounded-lg border font-mono ${
               isDarkMode 
-                ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400' 
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none' 
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
           />
-          <select
-            value={newSkill.category}
-            onChange={(e) => setNewSkill({ ...newSkill, category: e.target.value })}
-            className={`p-2 rounded-lg border ${
-              isDarkMode
-                ? 'bg-gray-800 border-gray-700 text-green-400 focus:border-green-500'
-                : 'bg-white border-slate-200 text-slate-800 focus:border-slate-400'
-            } focus:outline-none focus:ring-2 focus:ring-green-500/20 font-mono`}
-          >
-            {CATEGORIES.map(category => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          <div className="w-64">
+            <CustomDropdown
+              value={newSkill.category}
+              onChange={(value) => setNewSkill({ ...newSkill, category: value })}
+              options={CATEGORIES.map(category => ({ value: category, label: category }))}
+              placeholder="Select category..."
+              isDarkMode={isDarkMode}
+              className="[&>button]:h-[40px]"
+              backgroundColor={isDarkMode ? 'bg-gray-800' : 'bg-white'}
+              borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
+              borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}
+              textColor={isDarkMode ? 'text-white' : 'text-slate-900'}
+              placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
+              padding="px-4 py-2"
+            />
+          </div>
           <button
             type="submit"
-            className={`px-6 py-2 rounded-lg transition-all duration-300 border-2 font-mono font-bold ${
+            className={`px-6 py-2 h-[40px] rounded-lg transition-all duration-300 border-2 font-mono font-bold whitespace-nowrap flex items-center justify-center ${
               isDarkMode
                 ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                 : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'

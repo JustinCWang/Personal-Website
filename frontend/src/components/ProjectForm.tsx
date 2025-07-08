@@ -10,6 +10,7 @@ import React, { useState } from 'react'
 import type { Project } from '../services/api.ts'                    // Project type definition
 import { projectsAPI, handleAPIError } from '../services/api.ts'     // API functions and error handling
 import CustomMonthPicker from './CustomMonthPicker'
+import CustomDropdown from './CustomDropdown'
 
 /**
  * Props interface for ProjectForm component
@@ -33,7 +34,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
     technologies: [] as string[],                 // Array of technology strings
     githubUrl: '',                               // GitHub repository URL
     demoUrl: '',                                 // Live demo URL
-    status: 'Planning' as const,                 // Project status
+    status: '' as '' | 'Planning' | 'In Progress' | 'Completed' | 'On Hold', // Project status
     featured: false,                             // Whether project is featured
     startDate: '',                               // Project start date
     endDate: '',                                 // Project end date (optional)
@@ -54,6 +55,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
   const [success, setSuccess] = useState<string | null>(null) // Success message state
   const [imageInput, setImageInput] = useState('')               // Temporary input for adding image URLs
   const [imageError, setImageError] = useState<string | null>(null) // Error for invalid image URLs
+  const [teamSizeInput, setTeamSizeInput] = useState('')         // Temporary input for team size
 
   /**
    * Handle form input changes
@@ -134,6 +136,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
       // Convert month inputs to proper date strings
       const projectData = {
         ...formData,
+        status: formData.status || 'Planning', // Default to 'Planning' if empty
         startDate: formData.startDate ? (() => {
           const [year, month] = formData.startDate.split('-');
           // Create UTC date directly to avoid timezone issues
@@ -159,7 +162,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         technologies: [], 
         githubUrl: '', 
         demoUrl: '', 
-        status: 'Planning',
+        status: '',
         featured: false,
         startDate: '',
         endDate: '',
@@ -282,8 +285,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
             placeholder="Enter your project title"
           />
@@ -306,8 +309,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
             placeholder="Describe your project in detail"
           />
@@ -365,8 +368,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
             placeholder="First content section"
           />
@@ -388,8 +391,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
             placeholder="Second content section (optional)"
           />
@@ -411,8 +414,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
             placeholder="Third content section (optional)"
           />
@@ -436,8 +439,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               autoComplete="off"
               className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                 isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
               }`}
               placeholder="Add a technology (e.g., React, Node.js)"
             />
@@ -503,8 +506,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               autoComplete="off"
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                 isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
               }`}
               placeholder="https://github.com/username/repo"
             />
@@ -526,8 +529,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               autoComplete="off"
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                 isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
               }`}
               placeholder="https://your-demo-url.com"
             />
@@ -544,26 +547,29 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             }`}>
               Status
             </label>
-            <select
-              id="status"
-              name="status"
+            <CustomDropdown
+              options={[
+                { value: 'Planning', label: 'Planning' },
+                { value: 'In Progress', label: 'In Progress' },
+                { value: 'Completed', label: 'Completed' },
+                { value: 'On Hold', label: 'On Hold' }
+              ]}
               value={formData.status}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              }`}
-            >
-              <option value="Planning">Planning</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="On Hold">On Hold</option>
-            </select>
+              onChange={(value) => setFormData({ ...formData, status: value as 'Planning' | 'In Progress' | 'Completed' | 'On Hold' })}
+              placeholder="Select status..."
+              isDarkMode={isDarkMode}
+              className="w-full"
+              backgroundColor={isDarkMode ? 'bg-gray-900' : 'bg-white'}
+              borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
+              borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}
+              textColor={isDarkMode ? 'text-green-100' : 'text-slate-900'}
+              placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
+              padding="px-4 py-3"
+            />
           </div>
 
           {/* Featured Checkbox */}
-          <div className="flex items-center">
+          <div className="flex items-end">
             <label className={`flex items-center space-x-3 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
@@ -600,8 +606,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               autoComplete="off"
               className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                 isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
               }`}
               placeholder="Add an image URL (e.g. https://...)"
             />
@@ -676,8 +682,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               autoComplete="off"
               className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                 isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
               }`}
               placeholder="Add a tag"
             />
@@ -733,15 +739,24 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             type="text"
             id="teamSize"
             name="teamSize"
-            value={formData.teamSize.toString()}
-            onChange={(e) => setFormData({ ...formData, teamSize: parseInt(e.target.value) })}
+            value={teamSizeInput || (formData.teamSize === 1 ? '' : formData.teamSize)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTeamSizeInput(value);
+              if (value === '') {
+                setFormData({ ...formData, teamSize: 1 });
+              } else {
+                const parsed = parseInt(value);
+                setFormData({ ...formData, teamSize: isNaN(parsed) ? 1 : parsed });
+              }
+            }}
             autoComplete="off"
             className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
               isDarkMode
-                ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                ? 'bg-gray-900 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
             }`}
-            placeholder="Team size"
+            placeholder="Enter team size (e.g., 1, 3, 5)"
           />
         </div>
 

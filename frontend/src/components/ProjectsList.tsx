@@ -12,6 +12,7 @@ import { projectsAPI, handleAPIError, type Project } from '../services/api'
 
 // Import components
 import ProjectEditModal from './ProjectEditModal.tsx'
+import CustomDropdown from './CustomDropdown.tsx'
 
 interface ProjectsListProps {
   isDarkMode: boolean
@@ -332,8 +333,8 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   placeholder="Search by title, description, or technologies..."
                   className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
                     isDarkMode
-                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
-                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   }`}
                 />
                 {filterLoading && filters.search && (
@@ -353,26 +354,26 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
               
               {/* Status Filter */}
               <div>
-                <label className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Status:
-                </label>
-                <select
+                <CustomDropdown
                   value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
-                    isDarkMode
-                      ? 'bg-gray-800 border-green-500 text-green-100 focus:border-green-400 focus:ring-green-400'
-                      : 'bg-white border-slate-300 text-slate-800 focus:border-blue-500 focus:ring-blue-500'
-                  }`}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="Planning">Planning</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                  <option value="On Hold">On Hold</option>
-                </select>
+                  onChange={(value) => handleFilterChange('status', value)}
+                  options={[
+                    { value: '', label: 'All Statuses' },
+                    { value: 'Planning', label: 'Planning' },
+                    { value: 'In Progress', label: 'In Progress' },
+                    { value: 'Completed', label: 'Completed' },
+                    { value: 'On Hold', label: 'On Hold' }
+                  ]}
+                  placeholder="Select status..."
+                  isDarkMode={isDarkMode}
+                  label="Status:"
+                  backgroundColor={isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                  borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
+                  borderFocusColor={isDarkMode ? 'focus:border-green-400' : 'focus:border-blue-500'}
+                  textColor={isDarkMode ? 'text-green-100' : 'text-slate-800'}
+                  placeholderColor={isDarkMode ? 'placeholder-green-300' : 'placeholder-slate-500'}
+                  padding="px-3 py-2"
+                />
               </div>
 
               {/* Technologies Filter */}
@@ -386,11 +387,11 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   type="text"
                   value={filters.technologies}
                   onChange={(e) => handleFilterChange('technologies', e.target.value)}
-                  placeholder="e.g., React, Node.js, MongoDB"
+                  placeholder="e.g., React, Node.js, Java"
                   className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
                     isDarkMode
-                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
-                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   }`}
                 />
               </div>
@@ -411,8 +412,8 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   max="2030"
                   className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
                     isDarkMode
-                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
-                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   }`}
                 />
               </div>
@@ -433,8 +434,8 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   max="2030"
                   className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
                     isDarkMode
-                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-green-400'
-                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500'
+                      ? 'bg-gray-800 border-green-500 text-green-100 placeholder-green-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-800 placeholder-slate-500 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   }`}
                 />
               </div>

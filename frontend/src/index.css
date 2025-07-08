@@ -148,4 +148,22 @@
 /* Hide scrollbars for Internet Explorer */
 * {
   -ms-overflow-style: none;
+}
+
+/* =============================================================================
+   HIDE NUMBER INPUT SPINNERS
+   Removes the up/down increment buttons from number inputs
+   ============================================================================= */
+
+/* Hide spinner buttons for WebKit browsers (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide spinner buttons for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 } 

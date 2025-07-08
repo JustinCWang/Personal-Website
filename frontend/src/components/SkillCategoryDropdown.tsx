@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react'
+import CustomDropdown from './CustomDropdown'
 
 /**
  * Props interface for the SkillCategoryDropdown component
@@ -92,7 +93,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
       </button>
 
       {/* Skills Content - Animated dropdown */}
-      <div className={`overflow-hidden transition-all duration-300 ${
+      <div className={`overflow-visible transition-all duration-300 ${
         isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
       }`}>
         <div className={`px-6 pb-4 ${
@@ -131,24 +132,16 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                               : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                           }`}
                         />
-                        <select
+                        <CustomDropdown
                           value={editingSkill?.category || ''}
-                          onChange={(e) => editingSkill && setEditingSkill({
+                          onChange={(value) => editingSkill && setEditingSkill({
                             ...editingSkill,
-                            category: e.target.value
+                            category: value
                           })}
-                          className={`w-full p-2 rounded-lg border font-mono ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-green-500 text-white focus:ring-2 focus:ring-green-400 focus:border-green-400' 
-                              : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                          }`}
-                        >
-                          {categories.map(cat => (
-                            <option key={cat} value={cat}>
-                              {cat}
-                            </option>
-                          ))}
-                        </select>
+                          options={categories.map(cat => ({ value: cat, label: cat }))}
+                          placeholder="Select category..."
+                          isDarkMode={isDarkMode}
+                        />
                         <div className="flex gap-2">
                           <button
                             type="submit"
@@ -183,7 +176,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                     key={skill._id}
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm group ${
                       isDarkMode
-                        ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-green-400 hover:text-black'
+                        ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-gray-700 hover:border-green-400'
                         : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -193,7 +186,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                         onClick={() => skill._id && setEditingSkill(skill as { _id: string; name: string; category: string })}
                         className={`p-1 rounded transition-all duration-300 ${
                           isDarkMode
-                            ? 'text-green-400 hover:bg-gray-700'
+                            ? 'text-blue-400 hover:bg-gray-700 hover:text-blue-300'
                             : 'text-slate-600 hover:bg-slate-100'
                         }`}
                         title="Edit skill"
@@ -226,7 +219,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                   key={index}
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm ${
                     isDarkMode
-                      ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-green-400 hover:text-black'
+                      ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-gray-700 hover:border-green-400'
                       : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'
                   }`}
                 >

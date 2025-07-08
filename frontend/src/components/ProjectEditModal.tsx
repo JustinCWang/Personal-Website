@@ -16,6 +16,7 @@ import React, { useState, useEffect } from 'react'
 import type { Project } from '../services/api.ts'
 import { projectsAPI, handleAPIError } from '../services/api.ts'
 import CustomMonthPicker from './CustomMonthPicker'
+import CustomDropdown from './CustomDropdown'
 
 /**
  * Props interface for the ProjectEditModal component
@@ -47,7 +48,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     technologies: [] as string[],
     githubUrl: '',
     demoUrl: '',
-    status: 'Planning' as 'Planning' | 'In Progress' | 'Completed' | 'On Hold',
+    status: '' as '' | 'Planning' | 'In Progress' | 'Completed' | 'On Hold',
     featured: false,
     startDate: '',
     endDate: '',
@@ -65,6 +66,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [imageInput, setImageInput] = useState('')
   const [imageError, setImageError] = useState<string | null>(null)
+  const [teamSizeInput, setTeamSizeInput] = useState('')
 
   /**
    * Initialize form data when modal opens
@@ -190,6 +192,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
       // Convert month inputs to proper date strings
       const projectData = {
         ...formData,
+        status: formData.status || 'Planning', // Default to 'Planning' if empty
         startDate: formData.startDate ? (() => {
           const [year, month] = formData.startDate.split('-');
           // Create UTC date directly to avoid timezone issues
@@ -319,8 +322,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                 }`}
                 placeholder="Enter your project title"
               />
@@ -343,8 +346,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                 }`}
                 placeholder="Describe your project in detail"
               />
@@ -403,8 +406,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
                   placeholder="Add a technology (e.g., React, Node.js)"
                 />
@@ -468,8 +471,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
                   placeholder="https://github.com/username/repo"
                 />
@@ -491,8 +494,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
                   placeholder="https://example.com"
                 />
@@ -515,8 +518,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                 }`}
                 placeholder="Write body 1 content about your project"
               />
@@ -537,8 +540,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                 }`}
                 placeholder="Write body 2 content about your project"
               />
@@ -559,8 +562,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                 }`}
                 placeholder="Write body 3 content about your project"
               />
@@ -619,8 +622,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-green-400 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
                   placeholder="Add an image URL (e.g. https://...)"
                 />
@@ -662,8 +665,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-green-400 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
                   placeholder="Add a tag"
                 />
@@ -710,7 +713,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             </div>
 
             {/* Project Metadata */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
               {/* Team Size */}
               <div>
                 <label htmlFor="edit-teamSize" className={`block text-sm font-medium mb-2 font-mono ${
@@ -722,16 +725,25 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   type="number"
                   id="edit-teamSize"
                   name="teamSize"
-                  value={formData.teamSize}
-                  onChange={(e) => setFormData({ ...formData, teamSize: parseInt(e.target.value) || 1 })}
+                  value={teamSizeInput || (formData.teamSize === 1 ? '' : formData.teamSize)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setTeamSizeInput(value);
+                    if (value === '') {
+                      setFormData({ ...formData, teamSize: 1 });
+                    } else {
+                      const parsed = parseInt(value);
+                      setFormData({ ...formData, teamSize: isNaN(parsed) ? 1 : parsed });
+                    }
+                  }}
                   autoComplete="off"
                   min="1"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                      ? 'bg-gray-900 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
                   }`}
-                  placeholder="Team size"
+                  placeholder="Enter team size (e.g., 1, 3, 5)"
                 />
               </div>
             </div>
@@ -740,27 +752,19 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Status Select */}
               <div>
-                <label htmlFor="edit-status" className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
-                }`}>
-                  Status
-                </label>
-                <select
-                  id="edit-status"
-                  name="status"
+                <CustomDropdown
                   value={formData.status}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                      : 'bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  }`}
-                >
-                  <option value="Planning">Planning</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                  <option value="On Hold">On Hold</option>
-                </select>
+                  onChange={(value) => setFormData({ ...formData, status: value as 'Planning' | 'In Progress' | 'Completed' | 'On Hold' })}
+                  options={[
+                    { value: 'Planning', label: 'Planning' },
+                    { value: 'In Progress', label: 'In Progress' },
+                    { value: 'Completed', label: 'Completed' },
+                    { value: 'On Hold', label: 'On Hold' }
+                  ]}
+                  placeholder="Select status..."
+                  isDarkMode={isDarkMode}
+                  label="Status"
+                />
               </div>
 
               {/* Featured Toggle */}
