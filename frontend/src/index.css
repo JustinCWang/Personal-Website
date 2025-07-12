@@ -166,4 +166,159 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* =============================================================================
+   REUSABLE THEME CLASSES
+   Common patterns used throughout the application
+   ============================================================================= */
+
+/* Page Layout Classes */
+.page-bg-dark {
+  background: linear-gradient(to bottom right, #000000, #111827);
+}
+
+.page-bg-light {
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+}
+
+/* Text Color Classes */
+.text-primary-dark {
+  color: #4ade80;
+}
+
+.text-primary-light {
+  color: #1e293b;
+}
+
+.text-secondary-dark {
+  color: #86efac;
+}
+
+.text-secondary-light {
+  color: #475569;
+}
+
+/* Border Color Classes */
+.border-primary-dark {
+  border-color: #10b981;
+}
+
+.border-primary-light {
+  border-color: #cbd5e1;
+}
+
+/* Loading Spinner Classes */
+.spinner-dark {
+  border-color: #4ade80;
+}
+
+.spinner-light {
+  border-color: #1e293b;
+}
+
+/* Button Classes */
+.btn-primary-dark {
+  border-color: #10b981;
+  color: #4ade80;
+}
+
+.btn-primary-dark:hover {
+  border-color: #4ade80;
+  color: #86efac;
+  background-color: #1f2937;
+}
+
+.btn-primary-light {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.btn-primary-light:hover {
+  border-color: #94a3b8;
+  color: #1e293b;
+  background-color: #f1f5f9;
+}
+
+.btn-secondary-dark {
+  background-color: #000000;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+}
+
+.btn-secondary-dark:hover {
+  background-color: #4ade80;
+  color: #000000;
+}
+
+.btn-secondary-light {
+  background-color: #ffffff;
+  color: #1e293b;
+  border: 1px solid #1e293b;
+}
+
+.btn-secondary-light:hover {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+/* Form Input Classes */
+.input-dark {
+  background-color: #111827;
+  border-color: #10b981;
+  color: #d1fae5;
+}
+
+.input-dark::placeholder {
+  color: #4ade80;
+}
+
+.input-dark:focus {
+  box-shadow: 0 0 0 2px #4ade80;
+  border-color: #4ade80;
+}
+
+.input-light {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.input-light::placeholder {
+  color: #94a3b8;
+}
+
+.input-light:focus {
+  box-shadow: 0 0 0 2px #3b82f6;
+  border-color: #3b82f6;
+}
+
+/* Card Classes */
+.card-dark {
+  background-color: #000000;
+  border: 1px solid #10b981;
+}
+
+.card-light {
+  background-color: #ffffff;
+}
+
+/* Modal Classes */
+.modal-dark {
+  background-color: #1f2937;
+  color: #4ade80;
+}
+
+.modal-dark:hover {
+  background-color: #374151;
+  color: #86efac;
+}
+
+.modal-light {
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+.modal-light:hover {
+  background-color: #f8fafc;
 } 

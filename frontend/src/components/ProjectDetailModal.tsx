@@ -124,9 +124,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 p-2">
         <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ease-out ${
-          isDarkMode 
-            ? 'bg-gray-900 border-2 border-green-500' 
-            : 'bg-white border-2 border-slate-200'
+          isDarkMode ? 'card-dark' : 'card-light'
         } ${
           isAnimating 
             ? 'opacity-100 scale-100' 
@@ -137,9 +135,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           <button
             onClick={onClose}
             className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 ${
-              isDarkMode
-                ? 'bg-gray-800 text-green-400 hover:bg-gray-700 hover:text-green-300'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+              isDarkMode ? 'modal-dark' : 'modal-light'
             }`}
             title="Close modal"
           >
@@ -155,19 +151,19 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <h1 className={`text-4xl font-bold font-mono ${
-                    isDarkMode ? 'text-green-400' : 'text-slate-800'
+                    isDarkMode ? 'text-primary-dark' : 'text-primary-light'
                   }`}>
                     {project.title}
                   </h1>
                   <div className="flex items-center gap-4 mt-2">
                     <span className={`text-sm font-mono ${
-                      isDarkMode ? 'text-green-200' : 'text-slate-500'
+                      isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                     }`}>
                       Started: {formatDate(project.startDate)}
                     </span>
                     {project.endDate && (
                       <span className={`text-sm font-mono ${
-                        isDarkMode ? 'text-green-200' : 'text-slate-500'
+                        isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}>
                         Completed: {formatDate(project.endDate)}
                       </span>
@@ -206,7 +202,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {project.tags && project.tags.length > 0 && (
               <div className="mb-8">
                 <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Tags
                 </h2>
@@ -230,12 +226,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Project Description */}
             <div className="mb-8">
               <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Overview
               </h2>
               <p className={`text-lg leading-relaxed font-mono ${
-                isDarkMode ? 'text-green-100' : 'text-slate-600'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 {project.description}
               </p>
@@ -245,7 +241,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {project.images && project.images.length > 0 && (
               <div className="mb-8">
                 <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Project Gallery
                 </h2>
@@ -315,7 +311,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     <div className="flex items-center justify-center mt-4 gap-4">
                       {/* Image Counter */}
                       <span className={`text-sm font-mono ${
-                        isDarkMode ? 'text-green-200' : 'text-slate-600'
+                        isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}>
                         {activeImageIndex + 1} of {project.images.length}
                       </span>
@@ -351,12 +347,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
-                  <div 
-                    className={`text-lg font-mono leading-relaxed ${
-                      isDarkMode ? 'text-green-100' : 'text-slate-600'
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: project.body1 }}
-                  />
+                                      <div 
+                      className={`text-lg font-mono leading-relaxed ${
+                        isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: project.body1 }}
+                    />
                 </div>
               </div>
             )}
@@ -366,12 +362,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
-                  <div 
-                    className={`text-lg font-mono leading-relaxed ${
-                      isDarkMode ? 'text-green-100' : 'text-slate-600'
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: project.body2 }}
-                  />
+                                      <div 
+                      className={`text-lg font-mono leading-relaxed ${
+                        isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: project.body2 }}
+                    />
                 </div>
               </div>
             )}
@@ -381,12 +377,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <div className={`prose prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
-                  <div 
-                    className={`text-lg font-mono leading-relaxed ${
-                      isDarkMode ? 'text-green-100' : 'text-slate-600'
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: project.body3 }}
-                  />
+                                      <div 
+                      className={`text-lg font-mono leading-relaxed ${
+                        isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: project.body3 }}
+                    />
                 </div>
               </div>
             )}
@@ -395,7 +391,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {project.technologies && project.technologies.length > 0 && (
               <div className="mb-8">
                 <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Technologies Used
                 </h2>
@@ -420,7 +416,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {(project.demoUrl || project.githubUrl) && (
               <div className="mb-8">
                 <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Project Links
                 </h2>
@@ -431,9 +427,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
-                        isDarkMode
-                          ? 'bg-green-400 text-black hover:bg-green-300'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                        isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
                       }`}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -448,9 +442,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
-                        isDarkMode
-                          ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
-                          : 'bg-gray-800 text-white hover:bg-gray-900'
+                        isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
                       }`}
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -468,9 +460,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               <button
                 onClick={onClose}
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-800 text-green-400 hover:bg-gray-700 hover:text-green-300'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                  isDarkMode ? 'modal-dark' : 'modal-light'
                 }`}
               >
                 Close

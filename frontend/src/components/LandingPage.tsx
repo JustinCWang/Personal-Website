@@ -165,9 +165,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${
-      isDarkMode 
-        ? 'bg-gradient-to-br from-black to-gray-900' 
-        : 'bg-gradient-to-br from-slate-50 to-slate-100'
+      isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`} style={{ scrollBehavior: 'smooth' }}>
       {/* Matrix Rain Background */}
       <MatrixRain isDarkMode={isDarkMode} />
@@ -181,8 +179,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               {/* Name/Logo */}
               <h1 className={`text-2xl font-bold tracking-wide font-mono ${
                 isDarkMode 
-                  ? 'text-green-400 hacker-text-gradient' 
-                  : 'text-slate-800'
+                  ? 'text-primary-dark hacker-text-gradient' 
+                  : 'text-primary-light'
               }`}>
                 {isDarkMode ? '' : ''}{PERSONAL_INFO.name}
               </h1>
@@ -193,8 +191,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   href="#about"
                   className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${
                     isDarkMode
-                      ? 'text-green-300 hover:text-green-400 hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
-                      : 'text-slate-600 hover:text-slate-800'
+                      ? 'text-secondary-dark hover:text-primary-dark hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
+                      : 'text-secondary-light hover:text-primary-light'
                   }`}
                 >
                   About

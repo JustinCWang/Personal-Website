@@ -38,15 +38,13 @@ const AppContent = () => {
   if (loading) {
     return (
       <div className={`min-h-screen transition-all duration-300 flex items-center justify-center ${
-        isDarkMode 
-          ? 'bg-gradient-to-br from-black to-gray-900' 
-          : 'bg-gradient-to-br from-slate-50 to-slate-100'
+        isDarkMode ? 'page-bg-dark' : 'page-bg-light'
       }`}>
         <div className={`text-center ${
-          isDarkMode ? 'text-green-400' : 'text-slate-800'
+          isDarkMode ? 'text-primary-dark' : 'text-primary-light'
         }`}>
           <div className={`inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4 ${
-            isDarkMode ? 'border-green-400' : 'border-slate-800'
+            isDarkMode ? 'spinner-dark' : 'spinner-light'
           }`}></div>
           <p className="text-xl font-mono">Loading...</p>
         </div>

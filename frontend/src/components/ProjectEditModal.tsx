@@ -254,9 +254,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       {/* Modal Container */}
       <div className={`rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
-        isDarkMode 
-          ? 'bg-black border border-green-500' 
-          : 'bg-white'
+        isDarkMode ? 'card-dark' : 'card-light'
       }`}>
         {/* Modal Header */}
         <div className={`sticky top-0 border-b p-6 rounded-t-xl transition-all duration-300 z-10 ${
@@ -266,7 +264,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         }`}>
           <div className="flex justify-between items-center">
             <h2 className={`text-2xl font-bold font-mono ${
-              isDarkMode ? 'text-green-400' : 'text-slate-800'
+              isDarkMode ? 'text-primary-dark' : 'text-primary-light'
             }`}>
               Edit Project
             </h2>
@@ -274,9 +272,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             <button
               onClick={handleClose}
               className={`p-2 rounded-full transition-colors ${
-                isDarkMode
-                  ? 'text-green-400 hover:text-green-300 hover:bg-gray-800'
-                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                isDarkMode ? 'modal-dark' : 'modal-light'
               }`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,7 +304,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             {/* Project Title Input */}
             <div>
               <label htmlFor="edit-title" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Project Title
               </label>
@@ -321,9 +317,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 required
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  isDarkMode ? 'input-dark' : 'input-light'
                 }`}
                 placeholder="Enter your project title"
               />
@@ -332,7 +326,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             {/* Project Description Input */}
             <div>
               <label htmlFor="edit-description" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Description
               </label>
@@ -345,9 +339,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 rows={4}
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  isDarkMode ? 'input-dark' : 'input-light'
                 }`}
                 placeholder="Describe your project in detail"
               />
@@ -359,7 +351,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               {/* Start Date Field */}
               <div>
                 <label htmlFor="edit-startDate" className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Start Date
                 </label>
@@ -375,7 +367,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               {/* End Date Field */}
               <div>
                 <label htmlFor="edit-endDate" className={`block text-sm font-medium mb-2 font-mono ${
-                  isDarkMode ? 'text-green-300' : 'text-slate-700'
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   End Date (optional)
                 </label>
@@ -392,7 +384,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
             {/* Technologies Management */}
             <div>
               <label className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Technologies
               </label>
@@ -405,9 +397,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
-                    isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                    isDarkMode ? 'input-dark' : 'input-light'
                   }`}
                   placeholder="Add a technology (e.g., React, Node.js)"
                 />
@@ -415,9 +405,7 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   type="button"
                   onClick={addTechnology}
                   className={`p-2 rounded-lg transition-all duration-300 border-2 ${
-                    isDarkMode
-                      ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                    isDarkMode ? 'btn-primary-dark' : 'btn-primary-light'
                   }`}
                   title="Add Technology"
                 >

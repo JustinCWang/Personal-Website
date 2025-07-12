@@ -102,9 +102,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className={`min-h-screen transition-all duration-300 flex items-center justify-center p-4 ${
-      isDarkMode 
-        ? 'bg-gradient-to-br from-black to-gray-900' 
-        : 'bg-gradient-to-br from-slate-50 to-slate-100'
+      isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`}>
       {/* Dark Mode Toggle - Fixed positioned */}
       <div className="fixed top-6 right-6 z-50">
@@ -133,20 +131,18 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       {/* Main form container with centered layout */}
       <div className={`rounded-2xl shadow-2xl w-full max-w-md p-8 transition-all duration-300 ${
-        isDarkMode 
-          ? 'bg-black border border-green-500' 
-          : 'bg-white'
+        isDarkMode ? 'card-dark' : 'card-light'
       }`}>
         
         {/* Form header */}
         <div className="text-center mb-8">
           <h1 className={`text-3xl font-bold mb-2 font-mono ${
-            isDarkMode ? 'text-green-400' : 'text-slate-800'
+            isDarkMode ? 'text-primary-dark' : 'text-primary-light'
           }`}>
             Welcome {isLogin ? 'Back' : ''}
           </h1>
           <p className={`font-mono ${
-            isDarkMode ? 'text-green-300' : 'text-slate-600'
+            isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
           }`}>
             {isLogin ? 'Sign in to access your projects' : 'Create your account to get started'}
           </p>
@@ -174,7 +170,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {!isLogin && (
             <div>
               <label htmlFor="name" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Full Name
               </label>
@@ -186,9 +182,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
                 className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  isDarkMode ? 'input-dark' : 'input-light'
                 }`}
                 placeholder="Enter your full name"
               />
@@ -198,7 +192,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {/* Email field - always visible */}
           <div>
             <label htmlFor="email" className={`block text-sm font-medium mb-2 font-mono ${
-              isDarkMode ? 'text-green-300' : 'text-slate-700'
+              isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
             }`}>
               Email Address
             </label>
@@ -210,9 +204,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               onChange={handleChange}
               required
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                isDarkMode ? 'input-dark' : 'input-light'
               }`}
               placeholder="Enter your email"
             />
@@ -221,7 +213,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {/* Password field - always visible */}
           <div>
             <label htmlFor="password" className={`block text-sm font-medium mb-2 font-mono ${
-              isDarkMode ? 'text-green-300' : 'text-slate-700'
+              isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
             }`}>
               Password
             </label>
@@ -233,9 +225,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               onChange={handleChange}
               required
               className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode
-                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                isDarkMode ? 'input-dark' : 'input-light'
               }`}
               placeholder="Enter your password"
             />
@@ -245,7 +235,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {!isLogin && (
             <div>
               <label htmlFor="confirmPassword" className={`block text-sm font-medium mb-2 font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-700'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Confirm Password
               </label>
@@ -257,9 +247,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
                 className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                  isDarkMode ? 'input-dark' : 'input-light'
                 }`}
                 placeholder="Confirm your password"
               />

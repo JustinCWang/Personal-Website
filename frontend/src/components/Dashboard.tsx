@@ -54,24 +54,18 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${
-      isDarkMode 
-        ? 'bg-gradient-to-br from-black to-gray-900' 
-        : 'bg-gradient-to-br from-slate-50 to-slate-100'
+      isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`}>
       {/* Header Section */}
       <header className={`shadow-lg border-b transition-all duration-300 ${
-        isDarkMode 
-          ? 'bg-black border-green-500' 
-          : 'bg-white border-slate-200'
+        isDarkMode ? 'card-dark' : 'card-light'
       }`}>
         <nav className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo/Title */}
             <div className="flex items-center">
               <h2 className={`text-2xl font-bold tracking-wide font-mono ${
-                isDarkMode 
-                  ? 'text-green-400' 
-                  : 'text-slate-800'
+                isDarkMode ? 'text-primary-dark' : 'text-primary-light'
               }`}>
                 Dashboard
               </h2>
@@ -106,9 +100,7 @@ const Dashboard = () => {
               <button
                 onClick={handleViewLandingPage}
                 className={`px-6 py-2 rounded-lg transition-colors uppercase tracking-wide font-mono font-bold ${
-                  isDarkMode
-                    ? 'bg-black text-green-400 hover:bg-green-400 hover:text-black border-2 border-green-400'
-                    : 'bg-white text-slate-800 hover:bg-slate-800 hover:text-white border-2 border-slate-800'
+                  isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
                 }`}
               >
                 View Landing Page
@@ -116,7 +108,7 @@ const Dashboard = () => {
               
               {/* User Welcome Message */}
               <span className={`font-mono ${
-                isDarkMode ? 'text-green-300' : 'text-slate-600'
+                isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Welcome, {user?.name}
               </span>
@@ -125,9 +117,7 @@ const Dashboard = () => {
               <button
                 onClick={logout}
                 className={`p-2 rounded-lg transition-all duration-300 border-2 ${
-                  isDarkMode
-                    ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
-                    : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                  isDarkMode ? 'btn-primary-dark' : 'btn-primary-light'
                 }`}
                 title="Logout"
               >
