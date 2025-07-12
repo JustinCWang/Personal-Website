@@ -12,6 +12,7 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation.ts'
 import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
 import ProjectDetailModal from './ProjectDetailModal.tsx'
 import MatrixRain from './MatrixRain.tsx'
+import RippleEffect from './RippleEffect.tsx'
 import TypewriterText from './TypewriterText.tsx'
 
 /**
@@ -167,8 +168,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
     <div className={`min-h-screen transition-all duration-300 ${
       isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`} style={{ scrollBehavior: 'smooth' }}>
-      {/* Matrix Rain Background */}
+      {/* Background Animations */}
       <MatrixRain isDarkMode={isDarkMode} />
+      <RippleEffect isDarkMode={isDarkMode} />
       
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
