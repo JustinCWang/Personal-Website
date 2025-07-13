@@ -50,19 +50,17 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
   const isEditingMode = editingSkill !== undefined && setEditingSkill && handleDeleteSkill && handleUpdateSkill && categories
 
   return (
-    <div className={`border rounded-lg transition-all duration-300 ${
-      isDarkMode 
-        ? 'border-green-500 bg-gray-900' 
-        : 'border-slate-200 bg-white'
-    }`}>
+    <div 
+      onClick={() => setIsOpen(!isOpen)}
+      className={`border rounded-lg transition-all duration-300 cursor-pointer ${
+        isDarkMode 
+          ? 'border-green-500 bg-gray-900 hover:bg-gray-800' 
+          : 'border-slate-200 bg-white hover:bg-slate-50'
+      }`}
+    >
       {/* Category Header - Always clickable to toggle dropdown */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-6 py-4 flex justify-between items-center transition-all duration-300 ${
-          isDarkMode 
-            ? 'hover:bg-gray-800' 
-            : 'hover:bg-slate-50'
-        } cursor-pointer`}
+      <div
+        className={`w-full px-6 py-4 flex justify-between items-center transition-all duration-300`}
       >
         <h3 className={`font-semibold font-mono ${
           compact ? 'text-lg' : 'text-xl'
@@ -90,10 +88,10 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
-      </button>
+      </div>
 
       {/* Skills Content - Animated dropdown */}
-      <div className={`overflow-visible transition-all duration-300 ${
+      <div className={`overflow-hidden transition-all duration-300 ${
         isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
       }`}>
         <div className={`px-6 pb-4 ${
@@ -183,7 +181,12 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                     <span>{skill.name}</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button
-                        onClick={() => skill._id && setEditingSkill(skill as { _id: string; name: string; category: string })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (skill._id) {
+                            setEditingSkill(skill as { _id: string; name: string; category: string });
+                          }
+                        }}
                         className={`p-1 rounded transition-all duration-300 ${
                           isDarkMode
                             ? 'text-blue-400 hover:bg-gray-700 hover:text-blue-300'
@@ -196,7 +199,12 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                         </svg>
                       </button>
                       <button
-                        onClick={() => skill._id && handleDeleteSkill(skill._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (skill._id) {
+                            handleDeleteSkill(skill._id);
+                          }
+                        }}
                         className={`p-1 rounded transition-all duration-300 ${
                           isDarkMode
                             ? 'text-red-400 hover:bg-gray-700'
