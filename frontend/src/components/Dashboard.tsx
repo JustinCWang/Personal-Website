@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 // Import authentication context and components
 import { useAuth } from '../hooks/useAuth.ts'
-import { useDarkMode } from '../hooks/useDarkMode.ts'
+import { useDarkMode, useAnimationFreeze } from '../hooks/useDarkMode.ts'
 import ProjectForm from './ProjectForm.tsx'
 import ProjectsList from './ProjectsList.tsx'
 
@@ -28,6 +28,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth()  // Get current user and logout function
   const navigate = useNavigate()      // Navigation function for routing
   const { isDarkMode, toggleDarkMode } = useDarkMode()             // Persistent dark mode state
+  const { isFrozen, toggleFreeze } = useAnimationFreeze()          // Animation freeze state
 
   // Tab configuration
   const tabs = [
@@ -92,6 +93,31 @@ const Dashboard = () => {
                   // Hacker/terminal icon for dark mode
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Animation Freeze Toggle */}
+              <button
+                onClick={toggleFreeze}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isFrozen
+                    ? 'bg-red-400 text-white hover:bg-red-300'
+                    : isDarkMode
+                      ? 'bg-gray-600 text-gray-200 hover:bg-gray-500'
+                      : 'bg-slate-300 text-slate-600 hover:bg-slate-400'
+                }`}
+                title={isFrozen ? 'Resume Animations' : 'Freeze Animations'}
+              >
+                {isFrozen ? (
+                  // Play icon when frozen
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  // Pause icon when not frozen
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                 )}
               </button>

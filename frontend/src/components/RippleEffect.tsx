@@ -16,6 +16,8 @@ import React, { useEffect, useRef, useCallback } from 'react';
 interface RippleEffectProps {
   /** Whether the app is in dark mode - ripples are hidden in dark mode */
   isDarkMode: boolean;
+  /** Whether animations should be frozen/paused */
+  isFrozen?: boolean;
 }
 
 interface Ripple {
@@ -56,7 +58,7 @@ const RIPPLE_COUNT_MAX = 6; // Maximum ripples per spawn
 const CONTRACTION_THRESHOLD = 0.3; // When to start fade phase
 const AVOID_CENTER_MARGIN = 0.3; // Avoid spawning in center area
 
-const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode }) => {
+const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = false }) => {
   // Canvas and rendering refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -65,6 +67,7 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode }) => {
   const ripplesRef = useRef<Ripple[]>([]);
   const lastFrameTimeRef = useRef(0);
   const lastSpawnTimeRef = useRef(0);
+  const isFrozenRef = useRef(isFrozen);
   
   // Performance optimization: memoized functions
   const getMaxRadius = useCallback(() => {
@@ -280,30 +283,47 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode }) => {
       ctxRef.current.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
     }
 
-    // Update and draw all ripples
-    ripplesRef.current.forEach((ripple) => {
-      updateRipplePhase(ripple);
-      updateRippleRadius(ripple);
-      
-      const alpha = calculateRippleOpacity(ripple);
-      
-      // Only draw if ripple is still visible and large enough
-      if (alpha > 0.01 && ripple.radius > MIN_RIPPLE_RADIUS) {
-        drawRipple(ripple, alpha);
-      }
-    });
+    // If frozen, only draw current ripples without updating them
+    if (isFrozenRef.current) {
+      ripplesRef.current.forEach((ripple) => {
+        const alpha = calculateRippleOpacity(ripple);
+        
+        // Only draw if ripple is still visible and large enough
+        if (alpha > 0.01 && ripple.radius > MIN_RIPPLE_RADIUS) {
+          drawRipple(ripple, alpha);
+        }
+      });
+    } else {
+      // Update and draw all ripples
+      ripplesRef.current.forEach((ripple) => {
+        updateRipplePhase(ripple);
+        updateRippleRadius(ripple);
+        
+        const alpha = calculateRippleOpacity(ripple);
+        
+        // Only draw if ripple is still visible and large enough
+        if (alpha > 0.01 && ripple.radius > MIN_RIPPLE_RADIUS) {
+          drawRipple(ripple, alpha);
+        }
+      });
 
-    // Remove finished ripples
-    ripplesRef.current = ripplesRef.current.filter(
-      (r) => (r.radius > MIN_RIPPLE_RADIUS && r.phase !== 'fade') || 
-              (r.phase === 'fade' && r.radius > MIN_FADE_RADIUS)
-    );
+      // Remove finished ripples
+      ripplesRef.current = ripplesRef.current.filter(
+        (r) => (r.radius > MIN_RIPPLE_RADIUS && r.phase !== 'fade') || 
+                (r.phase === 'fade' && r.radius > MIN_FADE_RADIUS)
+      );
 
-    // Spawn new ripples if needed
-    spawnRipples(currentTime);
+      // Spawn new ripples if needed
+      spawnRipples(currentTime);
+    }
 
     requestAnimationFrame(animate);
   }, [updateRipplePhase, updateRippleRadius, calculateRippleOpacity, drawRipple, spawnRipples]);
+
+  // Update frozen ref when isFrozen changes
+  useEffect(() => {
+    isFrozenRef.current = isFrozen;
+  }, [isFrozen]);
 
   // Main effect for setting up the ripple animation
   useEffect(() => {

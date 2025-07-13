@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
  */
 interface MatrixRainProps {
   isDarkMode: boolean;
+  isFrozen?: boolean;
 }
 
 /**
@@ -48,7 +49,7 @@ interface Ripple {
  * @param {boolean} props.isDarkMode - Whether dark mode is active
  * @returns {JSX.Element | null} Canvas element with Matrix rain animation
  */
-const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
+const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false }) => {
   // Canvas reference for drawing
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -58,6 +59,7 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
   // Performance optimization refs
   const lastTimeRef = useRef(0);      // Last frame timestamp for FPS limiting
   const frameCountRef = useRef(0);    // Frame counter for sparkle timing
+  const isFrozenRef = useRef(isFrozen); // Track frozen state
 
   /**
    * Handle canvas click to create ripple effects
@@ -83,6 +85,11 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
       });
     }
   }, []);
+
+  // Update frozen ref when isFrozen changes
+  useEffect(() => {
+    isFrozenRef.current = isFrozen;
+  }, [isFrozen]);
 
   /**
    * Main animation setup and loop
@@ -174,65 +181,97 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
       // Clear canvas completely for fresh frame
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      /**
-       * Update ripples - expand radius and increment life
-       * Remove ripples that have exceeded their lifetime
-       */
-      ripplesRef.current = ripplesRef.current.map(ripple => ({
-        ...ripple,
-        radius: ripple.radius + (ripple.maxRadius / ripple.maxLife),
-        life: ripple.life + 1
-      })).filter(ripple => ripple.life < ripple.maxLife);
+      // If frozen, only draw current state without updating
+      if (isFrozenRef.current) {
+        // Draw current ripples without updating them
+        ripplesRef.current.forEach(ripple => {
+          const alpha = 1 - (ripple.life / ripple.maxLife);
+          ctx.strokeStyle = `rgba(0, 255, 0, ${alpha * 0.8})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(ripple.x, ripple.y, ripple.radius, 0, 2 * Math.PI);
+          ctx.stroke();
+        });
 
-      /**
-       * Update and draw rain drops
-       * Each drop represents a column of falling 1's and 0's
-       */
-      rainDrops.forEach((drop) => {
-        // Update drop position (falling motion)
-        drop.y += drop.speed;
-        
-        /**
-         * Reset drop when it goes off screen
-         * Creates infinite falling effect
-         */
-        if (drop.y > canvas.height + drop.length * gridSize) {
-          drop.y = -drop.length * gridSize;
-          drop.x = Math.random() * canvas.width;
-          drop.gridOffset = Math.floor(Math.random() * 2); // New random pattern
-          drop.opacity = 0.3 + Math.random() * 0.7;
+        // Draw current rain drops without updating them
+        rainDrops.forEach((drop) => {
+          ctx.font = '18px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           
-          // Regenerate alternating pattern for the reset drop
-          drop.chars = [];
-          for (let j = 0; j < drop.length; j++) {
-            drop.chars.push((drop.gridOffset + j) % 2 === 0 ? '1' : '0');
-          }
-        }
-
-        // Set font properties for character rendering
-        ctx.font = '18px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        /**
-         * Draw each character in the rain drop
-         * Creates the visual effect of connected falling characters
-         */
-        for (let i = 0; i < drop.length; i++) {
-          const charY = drop.y - i * gridSize;
-          
-          // Only draw characters that are visible on screen
-          if (charY >= -gridSize && charY < canvas.height + gridSize) {
-            // Gradient effect - characters get brighter toward the top of the drop
-            const brightness = 1 - (i / drop.length);
-            const greenValue = Math.floor(255 * brightness);
+          for (let i = 0; i < drop.length; i++) {
+            const charY = drop.y - i * gridSize;
             
-            // Draw the character with calculated color and opacity
-            ctx.fillStyle = `rgba(0, ${greenValue}, 0, ${drop.opacity * brightness * 1.2})`;
-            ctx.fillText(drop.chars[i], drop.x, charY);
+            if (charY >= -gridSize && charY < canvas.height + gridSize) {
+              const brightness = 1 - (i / drop.length);
+              const greenValue = Math.floor(255 * brightness);
+              
+              ctx.fillStyle = `rgba(0, ${greenValue}, 0, ${drop.opacity * brightness * 1.2})`;
+              ctx.fillText(drop.chars[i], drop.x, charY);
+            }
           }
-        }
-      });
+        });
+      } else {
+        /**
+         * Update ripples - expand radius and increment life
+         * Remove ripples that have exceeded their lifetime
+         */
+        ripplesRef.current = ripplesRef.current.map(ripple => ({
+          ...ripple,
+          radius: ripple.radius + (ripple.maxRadius / ripple.maxLife),
+          life: ripple.life + 1
+        })).filter(ripple => ripple.life < ripple.maxLife);
+
+        /**
+         * Update and draw rain drops
+         * Each drop represents a column of falling 1's and 0's
+         */
+        rainDrops.forEach((drop) => {
+          // Update drop position (falling motion)
+          drop.y += drop.speed;
+          
+          /**
+           * Reset drop when it goes off screen
+           * Creates infinite falling effect
+           */
+          if (drop.y > canvas.height + drop.length * gridSize) {
+            drop.y = -drop.length * gridSize;
+            drop.x = Math.random() * canvas.width;
+            drop.gridOffset = Math.floor(Math.random() * 2); // New random pattern
+            drop.opacity = 0.3 + Math.random() * 0.7;
+            
+            // Regenerate alternating pattern for the reset drop
+            drop.chars = [];
+            for (let j = 0; j < drop.length; j++) {
+              drop.chars.push((drop.gridOffset + j) % 2 === 0 ? '1' : '0');
+            }
+          }
+
+          // Set font properties for character rendering
+          ctx.font = '18px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          /**
+           * Draw each character in the rain drop
+           * Creates the visual effect of connected falling characters
+           */
+          for (let i = 0; i < drop.length; i++) {
+            const charY = drop.y - i * gridSize;
+            
+            // Only draw characters that are visible on screen
+            if (charY >= -gridSize && charY < canvas.height + gridSize) {
+              // Gradient effect - characters get brighter toward the top of the drop
+              const brightness = 1 - (i / drop.length);
+              const greenValue = Math.floor(255 * brightness);
+              
+              // Draw the character with calculated color and opacity
+              ctx.fillStyle = `rgba(0, ${greenValue}, 0, ${drop.opacity * brightness * 1.2})`;
+              ctx.fillText(drop.chars[i], drop.x, charY);
+            }
+          }
+        });
+      }
 
       /**
        * Draw ripples as expanding green circles
@@ -251,7 +290,7 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode }) => {
        * Add sparkle effects for visual enhancement
        * Optimized to show only every 30 frames using pre-calculated positions
        */
-      if (frameCountRef.current % 30 === 0) {
+      if (!isFrozenRef.current && frameCountRef.current % 30 === 0) {
         const sparkleIndex = Math.floor(Math.random() * sparklePositions.length);
         const sparkle = sparklePositions[sparkleIndex];
         ctx.fillStyle = 'rgba(0, 255, 0, 0.7)';
