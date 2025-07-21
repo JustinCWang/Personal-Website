@@ -58,9 +58,7 @@ const Dashboard = () => {
       isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`}>
       {/* Header Section */}
-      <header className={`shadow-lg border-b transition-all duration-300 ${
-        isDarkMode ? 'card-dark' : 'card-light'
-      }`}>
+      <header className={`transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)]' : 'shadow-lg'}`}>
         <nav className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo/Title */}

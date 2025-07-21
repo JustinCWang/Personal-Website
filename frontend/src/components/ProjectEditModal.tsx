@@ -317,7 +317,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 required
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode ? 'input-dark' : 'input-light'
+                  isDarkMode
+                    ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Enter your project title"
               />
@@ -339,7 +341,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 rows={4}
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
-                  isDarkMode ? 'input-dark' : 'input-light'
+                  isDarkMode
+                    ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Describe your project in detail"
               />
@@ -397,7 +401,9 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
-                    isDarkMode ? 'input-dark' : 'input-light'
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="Add a technology (e.g., React, Node.js)"
                 />
@@ -459,8 +465,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="https://github.com/username/repo"
                 />
@@ -482,8 +488,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="https://example.com"
                 />
@@ -506,8 +512,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                    ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Write body 1 content about your project"
               />
@@ -528,8 +534,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                    ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Write body 2 content about your project"
               />
@@ -550,8 +556,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoComplete="off"
                 className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
                   isDarkMode
-                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                    ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Write body 3 content about your project"
               />
@@ -610,8 +616,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-400 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="Add an image URL (e.g. https://...)"
                 />
@@ -653,8 +659,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   autoComplete="off"
                   className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-green-400 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="Add a tag"
                 />
@@ -728,8 +734,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                   min="1"
                   className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
                     isDarkMode
-                      ? 'bg-gray-900 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                   placeholder="Enter team size (e.g., 1, 3, 5)"
                 />

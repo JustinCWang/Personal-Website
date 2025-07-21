@@ -280,9 +280,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
   }
 
   return (
-    <div className={`rounded-xl shadow-lg p-6 transition-all duration-300 ${
-      isDarkMode ? 'card-dark' : 'card-light'
-    }`}>
+    <div className={`rounded-xl p-6 transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)] bg-black' : 'shadow-lg bg-white'}`}>
       <div className="flex justify-between items-center mb-6">
         <h3 className={`text-5xl font-bold font-mono ${
           isDarkMode ? 'text-primary-dark' : 'text-primary-light'
@@ -327,8 +325,10 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
                   placeholder="Search by title, description, or technologies..."
-                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
-                    isDarkMode ? 'input-dark' : 'input-light'
+                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                 />
                 {filterLoading && filters.search && (
@@ -362,8 +362,8 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   isDarkMode={isDarkMode}
                   label="Status:"
                   backgroundColor={isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                  borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
-                  borderFocusColor={isDarkMode ? 'focus:border-green-400' : 'focus:border-blue-500'}
+                  borderColor={isDarkMode ? 'border-green-500' : 'border-blue-400'}
+                  borderFocusColor={isDarkMode ? 'focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
                   textColor={isDarkMode ? 'text-green-100' : 'text-slate-800'}
                   placeholderColor={isDarkMode ? 'placeholder-green-300' : 'placeholder-slate-500'}
                   padding="px-3 py-2"
@@ -382,8 +382,10 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   value={filters.technologies}
                   onChange={(e) => handleFilterChange('technologies', e.target.value)}
                   placeholder="e.g., React, Node.js, Java"
-                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
-                    isDarkMode ? 'input-dark' : 'input-light'
+                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                 />
               </div>
@@ -402,8 +404,10 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   placeholder="e.g., 2023"
                   min="2000"
                   max="2030"
-                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
-                    isDarkMode ? 'input-dark' : 'input-light'
+                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                 />
               </div>
@@ -422,8 +426,10 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   placeholder="e.g., 2024"
                   min="2000"
                   max="2030"
-                  className={`w-full px-3 py-2 rounded-lg border transition-all duration-300 font-mono text-sm ${
-                    isDarkMode ? 'input-dark' : 'input-light'
+                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                      : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                   }`}
                 />
               </div>
@@ -445,11 +451,11 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   {/* Date Sort */}
                   <button
                     onClick={() => handleSortChange('startDate')}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 border ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 ${
                       filters.sortBy === 'startDate'
                         ? isDarkMode
-                          ? 'bg-green-500 text-black border-green-500'
-                          : 'bg-blue-500 text-white border-blue-500'
+                          ? 'bg-green-500 text-black'
+                          : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                         : isDarkMode
                           ? 'bg-gray-800 text-green-300 border-green-500 hover:bg-gray-700'
                           : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
@@ -551,7 +557,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
               <div key={project._id} className={`border-l-4 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
                 isDarkMode 
                   ? 'bg-gray-900 border-green-400 hover:bg-gray-800' 
-                  : 'bg-slate-50 border-blue-600'
+                  : 'bg-slate-50 border-blue-400'
               }`}>
                 
                 {/* Project Header */}
@@ -665,7 +671,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                           className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
                             isDarkMode
                               ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
-                              : 'bg-gray-800 text-white hover:bg-gray-900'
+                              : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                           }`}
                         >
                           {/* GitHub Icon SVG */}
@@ -684,7 +690,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                           className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300'
-                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                           }`}
                         >
                           {/* External Link Icon SVG */}
@@ -705,7 +711,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode
                           ? 'text-green-400 hover:text-green-300 hover:bg-gray-800'
-                          : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                          : 'text-blue-800 hover:text-blue-900 hover:bg-blue-100'
                       }`}
                       title="Edit project"
                     >

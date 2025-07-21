@@ -281,7 +281,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                           className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
-                              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-lg'
                           } z-10`}
                           title="Previous image"
                         >
@@ -294,7 +294,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                           className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
-                              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-lg'
                           } z-10`}
                           title="Next image"
                         >
@@ -326,10 +326,10 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                               index === activeImageIndex
                                 ? isDarkMode 
                                   ? 'bg-green-400' 
-                                  : 'bg-blue-600'
+                                  : 'bg-blue-100'
                                 : isDarkMode 
                                   ? 'bg-gray-600 hover:bg-gray-500' 
-                                  : 'bg-gray-300 hover:bg-gray-400'
+                                  : 'bg-gray-200 hover:bg-blue-100'
                             }`}
                             title={`Go to image ${index + 1}`}
                           />
@@ -442,7 +442,9 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
-                        isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
+                        isDarkMode
+                          ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
+                          : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                       }`}
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

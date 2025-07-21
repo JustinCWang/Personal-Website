@@ -112,7 +112,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                       className={`border-l-4 rounded-lg p-4 hover:shadow-md transition-all duration-300 ${
                         isDarkMode 
                           ? 'bg-gray-900 border-green-400 hover:bg-gray-800' 
-                          : 'bg-slate-50 border-blue-600'
+                          : 'bg-slate-50 border-blue-400'
                       }`}
                     >
                       <form onSubmit={handleUpdateSkill} className="space-y-3">
@@ -127,7 +127,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                           className={`w-full p-2 rounded-lg border font-mono ${
                             isDarkMode 
                               ? 'bg-gray-700 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400' 
-                              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                              : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
                           }`}
                         />
                         <CustomDropdown
@@ -139,6 +139,11 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                           options={categories.map(cat => ({ value: cat, label: cat }))}
                           placeholder="Select category..."
                           isDarkMode={isDarkMode}
+                          borderColor={isDarkMode ? 'border-green-500' : 'border-blue-400'}
+                          borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
+                          textColor={isDarkMode ? 'text-white' : 'text-slate-900'}
+                          placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
+                          padding="px-4 py-2"
                         />
                         <div className="flex gap-2">
                           <button
@@ -146,7 +151,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                             className={`flex-1 px-3 py-1 rounded-lg font-mono ${
                               isDarkMode
                                 ? 'bg-green-500 text-black hover:bg-green-400'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                             }`}
                           >
                             Save

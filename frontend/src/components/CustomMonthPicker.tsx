@@ -337,7 +337,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           className={`w-full px-4 py-3 pr-16 border rounded-lg transition-colors font-mono ${
             isDarkMode
               ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+              : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
           }`}
           id={id}
           name={name}
@@ -415,10 +415,10 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
                     selectedYear === year
                       ? isDarkMode
                         ? 'bg-green-500 text-white'
-                        : 'bg-blue-500 text-white'
+                        : 'bg-blue-100 text-slate-700'
                       : isDarkMode
                         ? 'text-green-100 hover:bg-gray-800'
-                        : 'text-slate-700 hover:bg-slate-100'
+                        : 'text-slate-700 hover:bg-blue-200'
                   }`}
                 >
                   {year}
@@ -445,10 +445,10 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
                     selectedMonth === index
                       ? isDarkMode
                         ? 'bg-green-500 text-white'
-                        : 'bg-blue-500 text-white'
+                        : 'bg-blue-100 text-slate-700'
                       : isDarkMode
                         ? 'text-green-100 hover:bg-gray-800'
-                        : 'text-slate-700 hover:bg-slate-100'
+                        : 'text-slate-700 hover:bg-blue-200'
                   }`}
                 >
                   {month}

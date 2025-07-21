@@ -173,7 +173,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
             className={`flex-1 px-4 py-2 h-[40px] rounded-lg border font-mono ${
               isDarkMode 
                 ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none' 
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
           />
           <div className="w-64">
@@ -185,8 +185,8 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
               isDarkMode={isDarkMode}
               className="[&>button]:h-[40px]"
               backgroundColor={isDarkMode ? 'bg-gray-800' : 'bg-white'}
-              borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
-              borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}
+              borderColor={isDarkMode ? 'border-green-500' : 'border-blue-400'}
+              borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
               textColor={isDarkMode ? 'text-white' : 'text-slate-900'}
               placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
               padding="px-4 py-2"
