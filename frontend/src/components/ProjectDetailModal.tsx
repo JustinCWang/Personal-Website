@@ -41,6 +41,9 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [shouldRender, setShouldRender] = useState(false)
+  // New state for zoom popout
+  const [zoomedImage, setZoomedImage] = useState<null | { src: string, alt: string }>(null)
+  const [zoomLevel, setZoomLevel] = useState(1)
 
   // Handle animation states
   useEffect(() => {
@@ -55,6 +58,67 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       setTimeout(() => setShouldRender(false), 350) // Increased from 300ms to 350ms
     }
   }, [isOpen])
+
+  // Reset zoom state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setZoomedImage(null)
+      setZoomLevel(1)
+    }
+  }, [isOpen])
+
+  // Zoom controls
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.deltaY < 0) setZoomLevel(z => Math.min(z + 0.25, 3))
+    else if (e.deltaY > 0) setZoomLevel(z => Math.max(z - 0.25, 1))
+  }
+  const handleCloseZoom = () => {
+    setZoomedImage(null)
+    setZoomLevel(1)
+    setPan({ x: 0, y: 0 })
+    setIsDragging(false)
+    setDragStart(null)
+  }
+
+  // Pan state for dragging
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<null | { x: number; y: number; originX: number; originY: number }>(null)
+
+  // Mouse event handlers for drag-to-pan
+  const handleMouseDown = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+    if (zoomLevel <= 1) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+      originX: pan.x,
+      originY: pan.y
+    });
+  };
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!isDragging || !dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    // Limit panning so image cannot be dragged out of view
+    const maxPanX = ((zoomLevel - 1) * 40) * 0.01 * window.innerWidth;
+    const maxPanY = ((zoomLevel - 1) * 40) * 0.01 * window.innerHeight;
+    setPan({
+      x: Math.max(Math.min(dragStart.originX + dx, maxPanX), -maxPanX),
+      y: Math.max(Math.min(dragStart.originY + dy, maxPanY), -maxPanY)
+    });
+  };
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDragStart(null);
+  };
+
+  // Reset pan when zoom resets
+  useEffect(() => {
+    if (zoomLevel === 1) setPan({ x: 0, y: 0 });
+  }, [zoomLevel]);
 
   /**
    * Format date for display
@@ -87,7 +151,15 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
-        onClose();
+        if (zoomedImage) {
+          setZoomedImage(null);
+          setZoomLevel(1);
+          setPan({ x: 0, y: 0 });
+          setIsDragging(false);
+          setDragStart(null);
+        } else {
+          onClose();
+        }
       }
     };
 
@@ -104,7 +176,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       // Restore body scroll when modal is closed
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, zoomedImage]);
 
   // Don't render if no project or not ready to render
   if (!project || !shouldRender) {
@@ -120,7 +192,77 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         }`}
         onClick={onClose}
       />
-      
+      {/* Zoomed Image Popout */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 select-none"
+          onClick={handleCloseZoom}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <div
+            className="relative flex flex-col items-center"
+            style={{
+              width: '100%',
+              height: '100%',
+              maxWidth: 'calc(100vw - 10vw)',
+              maxHeight: 'calc(100vh - 10vh)',
+              margin: '5vh 5vw',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
+              cursor: isDragging ? 'grabbing' : zoomLevel > 1 ? 'grab' : 'default',
+              alignItems: 'center',
+              justifyContent: 'center',
+              display: 'flex',
+              background: 'transparent',
+              boxShadow: 'none',
+              border: 'none',
+            }}
+            onClick={e => e.stopPropagation()}
+            onWheel={handleWheel}
+          >
+            {/* X Close Button in top right of image popout */}
+            <button
+              onClick={handleCloseZoom}
+              className="absolute top-2 right-2 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 bg-transparent hover:bg-transparent focus:bg-transparent border-none shadow-none outline-none"
+              title="Close zoomed image"
+              aria-label="Close zoomed image"
+            >
+              <svg className={`w-6 h-6 ${isDarkMode ? 'text-green-400' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div
+              className="w-full h-full flex items-center justify-center rounded-2xl overflow-hidden"
+              style={{ position: 'relative', background: 'none', border: 'none', boxShadow: 'none' }}
+            >
+              <img
+                src={zoomedImage.src}
+                alt={zoomedImage.alt}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) scale(${zoomLevel}) translate(${pan.x / zoomLevel}px, ${pan.y / zoomLevel}px)`,
+                  transition: isDragging ? 'none' : 'transform 0.2s',
+                  cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                  borderRadius: 0,
+                  boxShadow: 'none',
+                  userSelect: 'none',
+                  pointerEvents: 'auto',
+                  background: 'none',
+                }}
+                draggable={false}
+                onMouseDown={handleMouseDown}
+              />
+            </div>
+          </div>
+        </div>
+      )}
       {/* Modal */}
       <div className="fixed inset-0 z-50 p-2">
         <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ease-out ${
@@ -134,12 +276,10 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 ${
-              isDarkMode ? 'modal-dark' : 'modal-light'
-            }`}
+            className="absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 bg-transparent hover:bg-transparent focus:bg-transparent border-none shadow-none outline-none"
             title="Close modal"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`w-6 h-6 ${isDarkMode ? 'text-green-400' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -237,6 +377,31 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               </p>
             </div>
 
+            {/* Technologies */}
+            {project.technologies && project.technologies.length > 0 && (
+              <div className="mb-8">
+                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
+                }`}>
+                  Technologies Used
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {project.technologies.map((tech, index) => (
+                    <span
+                      key={index}
+                      className={`px-4 py-2 rounded-full text-sm font-mono font-bold ${
+                        isDarkMode
+                          ? 'bg-green-400 text-black'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Project Images Gallery */}
             {project.images && project.images.length > 0 && (
               <div className="mb-8">
@@ -267,7 +432,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                               isDarkMode 
                                 ? 'border-2 border-green-500/30 bg-gray-800' 
                                 : 'border-2 border-slate-200 bg-white'
-                            }`}
+                            } cursor-zoom-in`}
+                            onClick={() => setZoomedImage({ src: image, alt: `${project.title} - Image ${index + 1}` })}
                           />
                         </div>
                       ))}
@@ -383,31 +549,6 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       }`}
                       dangerouslySetInnerHTML={{ __html: project.body3 }}
                     />
-                </div>
-              </div>
-            )}
-
-            {/* Technologies */}
-            {project.technologies && project.technologies.length > 0 && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
-                  isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
-                }`}>
-                  Technologies Used
-                </h2>
-                <div className="flex flex-wrap gap-3">
-                  {project.technologies.map((tech, index) => (
-                    <span
-                      key={index}
-                      className={`px-4 py-2 rounded-full text-sm font-mono font-bold ${
-                        isDarkMode
-                          ? 'bg-green-400 text-black'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {tech}
-                    </span>
-                  ))}
                 </div>
               </div>
             )}

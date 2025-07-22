@@ -515,9 +515,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   >
                     <div className="p-6">
                       {/* Project Title */}
-                      <h3 className={`text-xl font-semibold mb-3 font-mono ${
+                      <h3 className={`text-xl font-semibold mb-3 font-mono truncate ${
                         isDarkMode ? 'text-green-400' : 'text-slate-800'
-                      }`}>
+                      }`} title={project.title}>
                         {project.title}
                       </h3>
                       {/* Project Description */}
@@ -564,27 +564,42 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                       {/* Project Technologies */}
                       {project.technologies && project.technologies.length > 0 && (
                         <div className="mb-4">
-                          <div className="flex flex-wrap gap-2">
-                            {project.technologies.slice(0, 3).map((tech, index) => (
-                              <span
-                                key={index}
-                                className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                          <div className="flex flex-nowrap gap-2 overflow-hidden">
+                            {project.technologies.length > 3 ? (
+                              <>
+                                {project.technologies.slice(0, 2).map((tech, index) => (
+                                  <span
+                                    key={index}
+                                    className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                                      isDarkMode
+                                        ? 'bg-green-400 text-black'
+                                        : 'bg-blue-100 text-blue-800'
+                                    }`}
+                                  >
+                                    {tech}
+                                  </span>
+                                ))}
+                                <span className={`inline-block px-3 py-1 rounded-full text-sm font-mono ${
                                   isDarkMode
-                                    ? 'bg-green-400 text-black'
-                                    : 'bg-blue-100 text-blue-800'
-                                }`}
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                            {project.technologies.length > 3 && (
-                              <span className={`inline-block px-3 py-1 rounded-full text-sm font-mono ${
-                                isDarkMode
-                                  ? 'bg-gray-700 text-green-300 border border-green-500'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                +{project.technologies.length - 3} more
-                              </span>
+                                    ? 'bg-gray-700 text-green-300 border border-green-500'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}>
+                                  +{project.technologies.length - 2} more
+                                </span>
+                              </>
+                            ) : (
+                              project.technologies.map((tech, index) => (
+                                <span
+                                  key={index}
+                                  className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                                    isDarkMode
+                                      ? 'bg-green-400 text-black'
+                                      : 'bg-blue-100 text-blue-800'
+                                  }`}
+                                >
+                                  {tech}
+                                </span>
+                              ))
                             )}
                           </div>
                         </div>
