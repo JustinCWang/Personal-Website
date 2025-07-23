@@ -2,6 +2,10 @@
  * RippleEffect Component
  * 
  * Creates a subtle, animated ripple effect for light mode backgrounds.
+ *
+ * To change the default animation settings, edit the default values for
+ * opacity, speed, and spawnInterval in the props below.
+ *
  * Features:
  * - Time-based spawning (every 7 seconds)
  * - Three-phase animation: expand → contract → fade
@@ -18,47 +22,42 @@ interface RippleEffectProps {
   isDarkMode: boolean;
   /** Whether animations should be frozen/paused */
   isFrozen?: boolean;
+  opacity?: number; // Default: 0.8
+  speed?: number; // Default: 1.2
+  spawnInterval?: number; // Default: 7000
 }
 
 interface Ripple {
-  /** X coordinate of ripple center */
   x: number;
-  /** Y coordinate of ripple center */
   y: number;
-  /** Current radius of the ripple */
   radius: number;
-  /** Maximum radius the ripple will expand to */
   maxRadius: number;
-  /** Base opacity of the ripple (0-1) */
-  opacity: number;
-  /** Speed of radius change per frame */
-  speed: number;
-  /** Timestamp when ripple was created */
   startedAt: number;
-  /** Current animation phase */
   phase: 'expand' | 'contract' | 'fade';
-  /** Radius when contraction phase started */
   contractStartRadius: number;
-  /** Radius when fade phase started */
   fadeStartRadius: number;
 }
 
-// Animation configuration constants
-const SPAWN_INTERVAL_MS = 7000; // Time between ripple spawns
-const INITIAL_DELAY_MS = 2000; // Delay before first spawn
-const FRAME_RATE_LIMIT_MS = 16; // ~60 FPS
-const MIN_RIPPLE_RADIUS = 5; // Minimum radius to keep ripple
-const MIN_FADE_RADIUS = 2; // Minimum radius for fade phase
-const INITIAL_RIPPLE_RADIUS = 20;
-const MAX_RADIUS_MULTIPLIER = 0.25; // Max radius as fraction of screen size
-const CONTRACTION_SPEED_MULTIPLIER = 0.8; // Slower contraction
-const FADE_SPEED_MULTIPLIER = 0.5; // Even slower fade
-const RIPPLE_COUNT_MIN = 4; // Minimum ripples per spawn
-const RIPPLE_COUNT_MAX = 6; // Maximum ripples per spawn
-const CONTRACTION_THRESHOLD = 0.3; // When to start fade phase
-const AVOID_CENTER_MARGIN = 0.3; // Avoid spawning in center area
+const RippleEffect: React.FC<RippleEffectProps> = (props) => {
+  const {
+    isDarkMode,
+    isFrozen = false,
+    opacity = 0.8,
+    speed = 1.2,
+    spawnInterval = 7000,
+  } = props;
 
-const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = false }) => {
+  // Animation configuration constants (now in function scope)
+  const FRAME_RATE_LIMIT_MS = 16; // ~60 FPS
+  const MIN_RIPPLE_RADIUS = 5; // Minimum radius to keep ripple
+  const MIN_FADE_RADIUS = 2; // Minimum radius for fade phase
+  const INITIAL_RIPPLE_RADIUS = 20;
+  const MAX_RADIUS_MULTIPLIER = 0.25; // Max radius as fraction of screen size
+  const RIPPLE_COUNT_MIN = 4; // Minimum ripples per spawn
+  const RIPPLE_COUNT_MAX = 6; // Maximum ripples per spawn
+  const CONTRACTION_THRESHOLD = 0.3; // When to start fade phase
+  const AVOID_CENTER_MARGIN = 0.3; // Avoid spawning in center area
+  
   // Canvas and rendering refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -69,6 +68,22 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
   const lastSpawnTimeRef = useRef(0);
   const isFrozenRef = useRef(isFrozen);
   
+  // Live refs for speed and opacity
+  const speedRef = useRef(speed);
+  const opacityRef = useRef(opacity);
+  // Live ref for spawnInterval
+  const spawnIntervalRef = useRef(spawnInterval);
+  useEffect(() => {
+    spawnIntervalRef.current = spawnInterval;
+  }, [spawnInterval]);
+
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
+  useEffect(() => {
+    opacityRef.current = opacity;
+  }, [opacity]);
+
   // Performance optimization: memoized functions
   const getMaxRadius = useCallback(() => {
     if (!canvasRef.current) return 100;
@@ -88,8 +103,6 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
       y,
       radius: INITIAL_RIPPLE_RADIUS,
       maxRadius,
-      opacity: 0.6 + Math.random() * 0.4, // Random opacity between 0.6-1.0
-      speed: 1 + Math.random() * 0.5, // Random speed between 1.0-1.5
       startedAt: performance.now(),
       phase: 'expand',
       contractStartRadius: 0,
@@ -179,15 +192,18 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
    * @param ripple - The ripple to update
    */
   const updateRippleRadius = useCallback((ripple: Ripple) => {
+    const speed = speedRef.current;
+    const CONTRACTION_SPEED_MULTIPLIER = speed * 0.67;
+    const FADE_SPEED_MULTIPLIER = speed * 0.42;
     switch (ripple.phase) {
       case 'expand':
-        ripple.radius += ripple.speed;
+        ripple.radius += speed;
         break;
       case 'contract':
-        ripple.radius -= ripple.speed * CONTRACTION_SPEED_MULTIPLIER;
+        ripple.radius -= speed * CONTRACTION_SPEED_MULTIPLIER;
         break;
       case 'fade':
-        ripple.radius -= ripple.speed * FADE_SPEED_MULTIPLIER;
+        ripple.radius -= speed * FADE_SPEED_MULTIPLIER;
         break;
     }
   }, []);
@@ -198,24 +214,25 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
    * @returns Current alpha value (0-1)
    */
   const calculateRippleOpacity = useCallback((ripple: Ripple): number => {
+    const opacity = opacityRef.current;
     switch (ripple.phase) {
       case 'expand': {
         const progress = ripple.radius / ripple.maxRadius;
-        return ripple.opacity * (1 - progress * 0.3); // Gradual fade during expansion
+        return opacity * (1 - progress * 0.3); // Gradual fade during expansion
       }
         
       case 'contract': {
         const contractProgress = (ripple.contractStartRadius - ripple.radius) / (ripple.contractStartRadius * 0.7);
-        return ripple.opacity * (0.7 + contractProgress * 0.3); // Slight opacity increase
+        return opacity * (0.7 + contractProgress * 0.3); // Slight opacity increase
       }
         
       case 'fade': {
         const fadeProgress = (ripple.fadeStartRadius - ripple.radius) / (ripple.fadeStartRadius * 0.5);
-        return ripple.opacity * (1 - fadeProgress); // Complete fade out
+        return opacity * (1 - fadeProgress); // Complete fade out
       }
         
       default:
-        return ripple.opacity;
+        return opacity;
     }
   }, []);
 
@@ -254,13 +271,11 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
    * @param currentTime - Current animation time
    */
   const spawnRipples = useCallback((currentTime: number) => {
-    if (currentTime - lastSpawnTimeRef.current > SPAWN_INTERVAL_MS) {
+    if (currentTime - lastSpawnTimeRef.current > spawnIntervalRef.current) {
       const numRipples = RIPPLE_COUNT_MIN + Math.floor(Math.random() * (RIPPLE_COUNT_MAX - RIPPLE_COUNT_MIN + 1));
-      
       for (let i = 0; i < numRipples; i++) {
         ripplesRef.current.push(createRandomRipple());
       }
-      
       lastSpawnTimeRef.current = currentTime;
     }
   }, [createRandomRipple]);
@@ -335,8 +350,8 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
     
     if (!ctxRef.current) return;
 
-    // Initialize spawn timer with initial delay
-    lastSpawnTimeRef.current = performance.now() - SPAWN_INTERVAL_MS + INITIAL_DELAY_MS;
+    // Reset spawn timer so the next spawn is after the new interval
+    lastSpawnTimeRef.current = performance.now();
     
     // Set up resize listener
     window.addEventListener('resize', resizeCanvas);
@@ -349,7 +364,7 @@ const RippleEffect: React.FC<RippleEffectProps> = ({ isDarkMode, isFrozen = fals
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationId);
     };
-  }, [isDarkMode, resizeCanvas, animate]);
+  }, [isDarkMode, resizeCanvas, animate, spawnInterval]);
 
   // Don't render in dark mode
   if (isDarkMode) return null;

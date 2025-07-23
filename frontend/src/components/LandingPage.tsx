@@ -14,6 +14,7 @@ import ProjectDetailModal from './ProjectDetailModal.tsx'
 import MatrixRain from './MatrixRain.tsx'
 import RippleEffect from './RippleEffect.tsx'
 import TypewriterText from './TypewriterText.tsx'
+import AnimationSettingsDropdown from './AnimationSettingsDropdown';
 
 /**
  * Personal information configuration object
@@ -67,6 +68,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const { isFrozen, toggleFreeze } = useAnimationFreeze()
+
+  // Animation settings state
+  const [matrixRainSettings, setMatrixRainSettings] = useState({
+    speed: 0.8, // default matches MatrixRain
+    length: 16,
+    opacity: 0.7,
+  });
+  const [rippleEffectSettings, setRippleEffectSettings] = useState({
+    opacity: 0.8, // default matches RippleEffect
+    speed: 1.2,
+    spawnInterval: 7000,
+  });
 
   // Scroll animation hooks for different sections
   const heroAnimation = useScrollAnimation({ threshold: 0.3 })
@@ -170,8 +183,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
       isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`} style={{ scrollBehavior: 'smooth' }}>
       {/* Background Animations */}
-      <MatrixRain isDarkMode={isDarkMode} isFrozen={isFrozen} />
-      <RippleEffect isDarkMode={isDarkMode} isFrozen={isFrozen} />
+      <MatrixRain
+        isDarkMode={isDarkMode}
+        isFrozen={isFrozen}
+        speed={matrixRainSettings.speed}
+        length={matrixRainSettings.length}
+        opacity={matrixRainSettings.opacity}
+      />
+      <RippleEffect
+        isDarkMode={isDarkMode}
+        isFrozen={isFrozen}
+        opacity={rippleEffectSettings.opacity}
+        speed={rippleEffectSettings.speed}
+        spawnInterval={rippleEffectSettings.spawnInterval}
+      />
       
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
@@ -245,31 +270,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     </svg>
                   )}
                 </button>
-
-                {/* Animation Freeze Toggle */}
-                <button
-                  onClick={toggleFreeze}
-                  className={`p-2 rounded-lg transition-all duration-300 ${
-                    isFrozen
-                      ? 'bg-red-400 text-white hover:bg-red-300'
-                      : isDarkMode
-                        ? 'bg-gray-600 text-gray-200 hover:bg-gray-500'
-                        : 'bg-slate-300 text-slate-600 hover:bg-slate-400'
-                  }`}
-                  title={isFrozen ? 'Resume Animations' : 'Freeze Animations'}
-                >
-                  {isFrozen ? (
-                    // Play icon when frozen
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    // Pause icon when not frozen
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
+                {/* Animation Settings Dropdown */}
+                <AnimationSettingsDropdown
+                  isDarkMode={isDarkMode}
+                  isFrozen={isFrozen}
+                  onToggleFreeze={toggleFreeze}
+                  matrixRainSettings={{
+                    ...matrixRainSettings,
+                    onChange: setMatrixRainSettings,
+                  }}
+                  rippleEffectSettings={{
+                    ...rippleEffectSettings,
+                    onChange: setRippleEffectSettings,
+                  }}
+                />
               </div>
             </div>
           </div>

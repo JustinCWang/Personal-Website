@@ -3,6 +3,9 @@
  * Creates an interactive Matrix-style digital rain animation with ripple effects
  * Features falling 1's and 0's with clickable ripple interactions
  * Optimized for performance with frame rate limiting and memory management
+ *
+ * To change the default animation settings, edit the default values for
+ * speed, length, and opacity in the props below.
  */
 
 import React, { useEffect, useRef, useCallback } from 'react';
@@ -13,6 +16,9 @@ import React, { useEffect, useRef, useCallback } from 'react';
 interface MatrixRainProps {
   isDarkMode: boolean;
   isFrozen?: boolean;
+  speed?: number; // Default: 0.8
+  length?: number; // Default: 16
+  opacity?: number; // Default: 0.7
 }
 
 /**
@@ -49,7 +55,7 @@ interface Ripple {
  * @param {boolean} props.isDarkMode - Whether dark mode is active
  * @returns {JSX.Element | null} Canvas element with Matrix rain animation
  */
-const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false }) => {
+const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false, speed = 0.8, length = 16, opacity = 0.7 }) => {
   // Canvas reference for drawing
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -132,10 +138,10 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false })
         rainDrops.push({
           x: i * gridSpacing + gridSpacing / 2,
           y: Math.random() * canvas.height,
-          speed: 0.5 + Math.random() * 0.8, // Random speed between 0.5-1.3
-          length: 12 + Math.floor(Math.random() * 8), // Random length 12-20
+          speed: speed, // Use prop
+          length: length, // Use prop
           chars: [],
-          opacity: 0.3 + Math.random() * 0.7,
+          opacity: opacity, // Use prop
           gridOffset: Math.floor(Math.random() * 2) // Random start pattern (0 or 1)
         });
         
@@ -238,7 +244,7 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false })
             drop.y = -drop.length * gridSize;
             drop.x = Math.random() * canvas.width;
             drop.gridOffset = Math.floor(Math.random() * 2); // New random pattern
-            drop.opacity = 0.3 + Math.random() * 0.7;
+            drop.opacity = opacity; // Use prop
             
             // Regenerate alternating pattern for the reset drop
             drop.chars = [];
@@ -312,7 +318,7 @@ const MatrixRain: React.FC<MatrixRainProps> = ({ isDarkMode, isFrozen = false })
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationId);
     };
-  }, [isDarkMode]); // Only re-run when dark mode changes
+  }, [isDarkMode, speed, length, opacity]); // Only re-run when dark mode changes
 
   // Don't render if not in dark mode
   if (!isDarkMode) return null;
