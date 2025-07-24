@@ -103,7 +103,44 @@ const getMe = asyncHandler(async (req, res) => {
         name,
         email
     })
-})  
+})
+
+/**
+ * Change password for authenticated user
+ * @desc Allows a logged-in user to change their password
+ * @route POST /api/users/change-password
+ * @access Private (requires authentication)
+ */
+const changePassword = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        res.status(400);
+        throw new Error('Please provide current and new password');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+        res.status(401);
+        throw new Error('Current password is incorrect');
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+});
 
 /**
  * Generate JWT token for user authentication
@@ -120,5 +157,6 @@ const generateToken = (id) => {
 module.exports = {
     registerUser,
     loginUser,
-    getMe
+    getMe,
+    changePassword
 }

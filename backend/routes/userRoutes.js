@@ -30,4 +30,7 @@ router.post('/login', loginUser)
 // GET /api/users/me - Get current authenticated user's data
 router.get('/me', protect, getMe)
 
+// POST /api/users/change-password - Change password for authenticated user
+router.post('/change-password', protect, require('../controllers/userController').changePassword)
+
 module.exports = router;
