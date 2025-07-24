@@ -456,5 +456,23 @@ export const skillsAPI = {
       throw new Error(`Failed to delete skill: ${response.status} ${response.statusText}`);
     }
     return response.json();
+  },
+
+  /**
+   * Get skills for the authenticated user
+   * @desc Fetches all skills belonging to the current user
+   * @returns {Promise<Array<{name: string, category: string, user?: {name: string, email: string}}>>} Array of user's skills
+   * @access Private - requires authentication
+   */
+  getMine: async () => {
+    const response = await fetch(`${API_BASE_URL}/skills/me`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch user skills:', response.status, errorText);
+      throw new Error(`Failed to fetch user skills: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
   }
 }; 

@@ -16,7 +16,7 @@ const User = require('../models/userModel')           // User model for authoriz
  * @access Public
  */
 const getAllSkills = asyncHandler(async (req, res) => {
-    const skills = await Skill.find().sort({ category: 1, name: 1 })
+    const skills = await Skill.find().populate('user', 'name email').sort({ category: 1, name: 1 })
     res.status(200).json(skills)
 })
 
@@ -159,10 +159,22 @@ const deleteSkill = asyncHandler(async (req, res) => {
     res.status(200).json({ id: req.params.id })
 })
 
+/**
+ * Get skills for the authenticated user
+ * @desc Retrieves all skills belonging to the authenticated user
+ * @route GET /api/skills/me
+ * @access Private (requires authentication)
+ */
+const getMySkills = asyncHandler(async (req, res) => {
+    const skills = await Skill.find({ user: req.user.id }).populate('user', 'name email').sort({ category: 1, name: 1 })
+    res.status(200).json(skills)
+})
+
 module.exports = {
     getAllSkills,
     getSkillsByCategory,
     addSkill,
     updateSkill,
     deleteSkill,
+    getMySkills
 } 

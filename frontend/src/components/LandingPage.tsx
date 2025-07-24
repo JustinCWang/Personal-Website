@@ -16,6 +16,16 @@ import RippleEffect from './RippleEffect.tsx'
 import TypewriterText from './TypewriterText.tsx'
 import AnimationSettingsDropdown from './AnimationSettingsDropdown';
 
+// Extend Project and Skill types to include user info for filtering
+interface ProjectWithUser extends Project {
+  user?: { name: string; email: string }
+}
+interface SkillWithUser {
+  name: string
+  category: string
+  user?: { name: string; email: string }
+}
+
 /**
  * Personal information configuration object
  * Contains static data about the user including:
@@ -62,8 +72,8 @@ interface LandingPageProps {
  */
 const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = false, onGoToDashboard }) => {
   // State management for projects, skills, and loading state
-  const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
-  const [skills, setSkills] = useState<{ name: string; category: string }[]>([])
+  const [featuredProjects, setFeaturedProjects] = useState<ProjectWithUser[]>([])
+  const [skills, setSkills] = useState<SkillWithUser[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -90,7 +100,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const contactAnimation = useScrollAnimation({ threshold: 0.2 })
 
   // Modal state management
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<ProjectWithUser | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   // Pagination configuration
@@ -142,12 +152,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [projects, skillsData] = await Promise.all([
+        const [projects, skillsData]: [ProjectWithUser[], SkillWithUser[]] = await Promise.all([
           projectsAPI.getFeatured(),
           skillsAPI.getAll()
         ])
-        setFeaturedProjects(projects)
-        setSkills(skillsData)
+        // Filter projects and skills by owner
+        const filteredProjects = projects.filter(
+          (project) => project.user && project.user.name === 'Justin Wang' && project.user.email === 'jwlion14@gmail.com'
+        )
+        const filteredSkills = skillsData.filter(
+          (skill) => skill.user && skill.user.name === 'Justin Wang' && skill.user.email === 'jwlion14@gmail.com'
+        )
+        setFeaturedProjects(filteredProjects)
+        setSkills(filteredSkills)
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
@@ -162,7 +179,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
    * Handle project card click to open detail modal
    * @param {Project} project - The project to display
    */
-  const handleProjectClick = (project: Project) => {
+  const handleProjectClick = (project: ProjectWithUser) => {
     setSelectedProject(project)
     setIsDetailModalOpen(true)
   }

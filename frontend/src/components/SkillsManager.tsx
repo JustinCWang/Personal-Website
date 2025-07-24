@@ -65,7 +65,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   const fetchSkills = async () => {
     try {
       setLoading(true);
-      const data = await skillsAPI.getAll();
+      const data = await skillsAPI.getMine();
       setSkills(data);
       setError(null);
     } catch (err) {
@@ -219,26 +219,43 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
         </div>
       ) : (
         <div className="space-y-6">
-          {CATEGORIES.map(category => {
-            const categorySkills = skills.filter(skill => skill.category === category);
-            if (categorySkills.length === 0) return null;
+          {skills.length === 0 ? (
+            <div className="text-center py-12">
+              <div className={`mb-4 ${isDarkMode ? 'text-green-400' : 'text-slate-400'}`}>
+                {/* Empty Skills Icon SVG */}
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className={`text-lg font-mono ${isDarkMode ? 'text-green-300' : 'text-slate-600'}`}>
+                No Skills Found
+              </p>
+              <p className={`mt-2 font-mono ${isDarkMode ? 'text-green-200' : 'text-slate-500'}`}>
+                Add your first skill using the form above.
+              </p>
+            </div>
+          ) : (
+            CATEGORIES.map(category => {
+              const categorySkills = skills.filter(skill => skill.category === category);
+              if (categorySkills.length === 0) return null;
 
-            return (
-              <SkillCategoryDropdown
-                key={category}
-                category={category}
-                skills={categorySkills}
-                editingSkill={editingSkill}
-                setEditingSkill={setEditingSkill}
-                handleDeleteSkill={handleDeleteSkill}
-                handleUpdateSkill={handleUpdateSkill}
-                categories={CATEGORIES}
-                isDarkMode={isDarkMode}
-                centered={false}
-                compact={true}
-              />
-            );
-          })}
+              return (
+                <SkillCategoryDropdown
+                  key={category}
+                  category={category}
+                  skills={categorySkills}
+                  editingSkill={editingSkill}
+                  setEditingSkill={setEditingSkill}
+                  handleDeleteSkill={handleDeleteSkill}
+                  handleUpdateSkill={handleUpdateSkill}
+                  categories={CATEGORIES}
+                  isDarkMode={isDarkMode}
+                  centered={false}
+                  compact={true}
+                />
+              );
+            })
+          )}
         </div>
       )}
     </div>

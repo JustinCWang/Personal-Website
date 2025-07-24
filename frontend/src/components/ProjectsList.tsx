@@ -769,7 +769,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   ? 'Create your first project using the form above.'
                   : hasActiveFilters()
                     ? 'Try adjusting your search terms or filters.'
-                    : 'Something went wrong while loading projects.'
+                    : 'Add some projects using the "Add New Project" tab above.'
                 }
               </p>
             </div>

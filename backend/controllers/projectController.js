@@ -16,11 +16,10 @@ const User = require('../models/userModel')            // User model for authori
  * @access Public
  */
 const getFeaturedProjects = asyncHandler(async (req, res) => {
-    // Fetch projects marked as featured, populate user name, exclude user field from response
+    // Fetch projects marked as featured, populate user name and email
     const featuredProjects = await Project.find({ featured: true })
-        .populate('user', 'name')    // Populate user field with only the name
-        .select('-user')             // Remove user field from response for security
-        .sort({ startDate: -1 })     // Sort by start date descending (newest first)
+        .populate('user', 'name email')    // Populate user field with name and email
+        .sort({ startDate: -1 })          // Sort by start date descending (newest first)
 
     // Return the featured projects array
     res.status(200).json(featuredProjects)

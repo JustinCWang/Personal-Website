@@ -13,7 +13,8 @@ const {
     getSkillsByCategory,
     addSkill,
     updateSkill,
-    deleteSkill
+    deleteSkill,
+    getMySkills
 } = require('../controllers/skillController')
 
 // Import authentication middleware
@@ -38,5 +39,8 @@ router.post('/', protect, addSkill)
 // PUT /api/skills/:id - Update specific skill (user must own the skill)
 // DELETE /api/skills/:id - Delete specific skill (user must own the skill)
 router.route('/:id').put(protect, updateSkill).delete(protect, deleteSkill)
+
+// GET /api/skills/me - Get skills for authenticated user
+router.get('/me', protect, getMySkills)
 
 module.exports = router 
