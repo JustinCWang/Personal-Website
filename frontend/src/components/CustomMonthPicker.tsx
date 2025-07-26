@@ -74,6 +74,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setIsUserTyping(false);
       }
     };
 
@@ -146,7 +147,6 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
    * Handle input focus
    */
   const handleInputFocus = () => {
-    setIsOpen(true);
     if (value && !inputValue) {
       setInputValue(formatDisplayValue());
     }
@@ -254,9 +254,9 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
   };
 
   /**
-   * Handle dropdown button click
+   * Handle dropdown toggle
    */
-  const handleDropdownClick = () => {
+  const handleDropdownToggle = () => {
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
     setIsUserTyping(false);
@@ -264,10 +264,9 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
     // When opening the dropdown, clear inputValue to show all options
     if (newIsOpen) {
       setInputValue('');
-    }
-    
-    if (inputRef.current) {
-      inputRef.current.focus();
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -348,7 +347,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className={`absolute right-8 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${
+            className={`absolute right-8 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors z-[60] ${
               isDarkMode 
                 ? 'text-green-400 hover:bg-gray-800 hover:text-green-300' 
                 : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
@@ -367,29 +366,31 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
         )}
         
         {/* Dropdown arrow */}
-        <button
-          type="button"
-          onClick={handleDropdownClick}
-          className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded transition-colors ${
-            isDarkMode 
-              ? 'text-green-400 hover:bg-gray-800' 
-              : 'text-slate-400 hover:bg-slate-100'
-          }`}
-        >
-          <svg 
-            className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
+        <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <button
+            type="button"
+            onClick={handleDropdownToggle}
+            className={`p-2 rounded transition-colors flex items-center justify-center ${
+              isDarkMode 
+                ? 'text-green-400 hover:bg-gray-800' 
+                : 'text-slate-400 hover:bg-slate-100'
+            }`}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+            <svg 
+              className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className={`absolute z-50 w-full mt-1 border rounded-lg shadow-lg ${
+        <div className={`absolute z-[9999] w-full mt-1 border rounded-lg shadow-lg ${
           isDarkMode 
             ? 'bg-gray-900 border-green-500' 
             : 'bg-white border-slate-300'

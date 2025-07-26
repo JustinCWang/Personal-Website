@@ -69,11 +69,11 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
         }`}>
           {category}
         </h3>
-        <div className={`flex items-center gap-1 sm:gap-2 ${
+        <div className={`flex items-center gap-2 sm:gap-4 ${
           isDarkMode ? 'text-green-400' : 'text-slate-600'
         }`}>
           {showSkillCount && (
-            <span className="text-xs sm:text-sm font-mono">
+            <span className="text-xs sm:text-sm font-mono mr-2">
               {skills.length} skill{skills.length !== 1 ? 's' : ''}
             </span>
           )}

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 // Import authentication context and components
 import { useAuth } from '../hooks/useAuth.ts'
-import { useDarkMode, useAnimationFreeze } from '../hooks/useDarkMode.ts'
+import { useDarkMode } from '../hooks/useDarkMode.ts'
 import ProjectForm from './ProjectForm.tsx'
 import ProjectsList from './ProjectsList.tsx'
 
@@ -28,7 +28,6 @@ const Dashboard = () => {
   const { user, logout } = useAuth()  // Get current user and logout function
   const navigate = useNavigate()      // Navigation function for routing
   const { isDarkMode, toggleDarkMode } = useDarkMode()             // Persistent dark mode state
-  const { isFrozen, toggleFreeze } = useAnimationFreeze()          // Animation freeze state
 
   // Tab configuration
   const tabs = [
@@ -95,44 +94,21 @@ const Dashboard = () => {
                 )}
               </button>
 
-              {/* Animation Freeze Toggle */}
-              <button
-                onClick={toggleFreeze}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  isFrozen
-                    ? 'bg-red-400 text-white hover:bg-red-300'
-                    : isDarkMode
-                      ? 'bg-gray-600 text-gray-200 hover:bg-gray-500'
-                      : 'bg-slate-300 text-slate-600 hover:bg-slate-400'
-                }`}
-                title={isFrozen ? 'Resume Animations' : 'Freeze Animations'}
-              >
-                {isFrozen ? (
-                  // Play icon when frozen
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  // Pause icon when not frozen
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </button>
-
               {/* View Landing Page Button */}
               <button
                 onClick={handleViewLandingPage}
-                className={`px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-lg transition-colors uppercase tracking-wide font-mono font-bold text-xs sm:text-sm ${
-                  isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isDarkMode
+                    ? 'bg-gray-800 text-green-300 hover:bg-gray-700'
+                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                 }`}
+                title="View Landing Page"
               >
-                <span className="hidden sm:inline">View Landing Page</span>
-                <span className="sm:hidden">View</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3v-7a1 1 0 011-1h2a1 1 0 011 1v7h3a1 1 0 001-1V10l-7-7-7 7z"></path></svg>
               </button>
               
               {/* User Welcome Message */}
-              <span className={`font-mono text-xs sm:text-sm ${
+              <span className={`hidden sm:inline font-mono text-xs sm:text-sm ${
                 isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 <span className="hidden md:inline">Welcome, {user?.name}</span>

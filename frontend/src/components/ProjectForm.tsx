@@ -223,11 +223,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
   }
 
   return (
-    <div className={`rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-300 ${
-      isDarkMode 
-        ? 'bg-black border border-green-500' 
-        : 'bg-white'
-    }`}>
+    <div className={`rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)] bg-black' : 'shadow-lg bg-white'}`}>
       {/* Form Header */}
       <h3 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-3 sm:mb-4 font-mono ${
         isDarkMode ? 'text-green-400' : 'text-slate-800'
