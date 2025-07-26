@@ -334,7 +334,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           onKeyDown={handleKeyDown}
           autoComplete="off"
           placeholder="Type month or year, or click dropdown..."
-          className={`w-full px-4 py-3 pr-16 border rounded-lg transition-colors font-mono ${
+          className={`w-full px-3 sm:px-4 py-2 sm:py-3 pr-16 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
             isDarkMode
               ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
               : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -348,7 +348,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className={`absolute right-8 top-1/2 transform -translate-y-1/2 p-1 rounded-full transition-colors ${
+            className={`absolute right-8 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${
               isDarkMode 
                 ? 'text-green-400 hover:bg-gray-800 hover:text-green-300' 
                 : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
@@ -356,7 +356,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
             title="Clear selection"
           >
             <svg 
-              className="w-4 h-4"
+              className="w-5 h-5"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -370,14 +370,14 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
         <button
           type="button"
           onClick={handleDropdownClick}
-          className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors ${
+          className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded transition-colors ${
             isDarkMode 
               ? 'text-green-400 hover:bg-gray-800' 
               : 'text-slate-400 hover:bg-slate-100'
           }`}
         >
           <svg 
-            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"

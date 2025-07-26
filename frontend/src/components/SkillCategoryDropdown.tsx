@@ -60,20 +60,20 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
     >
       {/* Category Header - Always clickable to toggle dropdown */}
       <div
-        className={`w-full px-6 py-4 flex justify-between items-center transition-all duration-300`}
+        className={`w-full px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center transition-all duration-300`}
       >
         <h3 className={`font-semibold font-mono ${
-          compact ? 'text-lg' : 'text-xl'
+          compact ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'
         } ${
           isDarkMode ? 'text-green-300' : 'text-slate-700'
         }`}>
           {category}
         </h3>
-        <div className={`flex items-center gap-2 ${
+        <div className={`flex items-center gap-1 sm:gap-2 ${
           isDarkMode ? 'text-green-400' : 'text-slate-600'
         }`}>
           {showSkillCount && (
-            <span className="text-sm font-mono">
+            <span className="text-xs sm:text-sm font-mono">
               {skills.length} skill{skills.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -94,10 +94,10 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
       <div className={`overflow-hidden transition-all duration-300 ${
         isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
       }`}>
-        <div className={`px-6 pb-4 ${
+        <div className={`px-4 sm:px-6 pb-3 sm:pb-4 ${
           isDarkMode ? 'border-t border-green-500' : 'border-t border-slate-200'
         }`}>
-          <div className={`flex flex-wrap gap-3 pt-4 ${
+          <div className={`flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4 ${
             centered ? 'justify-center' : 'justify-start'
           }`}>
             {skills.map((skill, index) => {
@@ -143,7 +143,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                           borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
                           textColor={isDarkMode ? 'text-white' : 'text-slate-900'}
                           placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
-                          padding="px-4 py-2"
+                          padding="px-3 sm:px-4 py-1.5 sm:py-2"
                         />
                         <div className="flex gap-2">
                           <button
@@ -177,7 +177,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                 return (
                   <div
                     key={skill._id}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm group ${
+                    className={`inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all duration-300 font-mono text-xs sm:text-sm group ${
                       isDarkMode
                         ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-gray-700 hover:border-green-400'
                         : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'
@@ -192,14 +192,14 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                             setEditingSkill(skill as { _id: string; name: string; category: string });
                           }
                         }}
-                        className={`p-1 rounded transition-all duration-300 ${
+                        className={`p-2 rounded transition-all duration-300 ${
                           isDarkMode
                             ? 'text-blue-400 hover:bg-gray-700 hover:text-blue-300'
                             : 'text-slate-600 hover:bg-slate-100'
                         }`}
                         title="Edit skill"
                       >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
@@ -210,14 +210,14 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
                             handleDeleteSkill(skill._id);
                           }
                         }}
-                        className={`p-1 rounded transition-all duration-300 ${
+                        className={`p-2 rounded transition-all duration-300 ${
                           isDarkMode
                             ? 'text-red-400 hover:bg-gray-700'
                             : 'text-red-600 hover:bg-red-50'
                         }`}
                         title="Delete skill"
                       >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
@@ -230,7 +230,7 @@ const SkillCategoryDropdown: React.FC<SkillCategoryDropdownProps> = ({
               return (
                 <span
                   key={index}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 font-mono text-sm ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all duration-300 font-mono text-xs sm:text-sm ${
                     isDarkMode
                       ? 'bg-gray-800 text-green-400 border border-green-500 hover:bg-gray-700 hover:border-green-400'
                       : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:border-slate-300'

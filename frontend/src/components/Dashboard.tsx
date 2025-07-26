@@ -59,11 +59,11 @@ const Dashboard = () => {
     }`}>
       {/* Header Section */}
       <header className={`transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)]' : 'shadow-lg'}`}>
-        <nav className="max-w-6xl mx-auto px-6 py-4">
+        <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             {/* Logo/Title */}
             <div className="flex items-center">
-              <h2 className={`text-2xl font-bold tracking-wide font-mono ${
+              <h2 className={`text-lg sm:text-xl md:text-2xl font-bold tracking-wide font-mono ${
                 isDarkMode ? 'text-primary-dark' : 'text-primary-light'
               }`}>
                 Dashboard
@@ -71,7 +71,7 @@ const Dashboard = () => {
             </div>
             
             {/* Navigation Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
@@ -123,18 +123,20 @@ const Dashboard = () => {
               {/* View Landing Page Button */}
               <button
                 onClick={handleViewLandingPage}
-                className={`px-6 py-2 rounded-lg transition-colors uppercase tracking-wide font-mono font-bold ${
+                className={`px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-lg transition-colors uppercase tracking-wide font-mono font-bold text-xs sm:text-sm ${
                   isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
                 }`}
               >
-                View Landing Page
+                <span className="hidden sm:inline">View Landing Page</span>
+                <span className="sm:hidden">View</span>
               </button>
               
               {/* User Welcome Message */}
-              <span className={`font-mono ${
+              <span className={`font-mono text-xs sm:text-sm ${
                 isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
-                Welcome, {user?.name}
+                <span className="hidden md:inline">Welcome, {user?.name}</span>
+                <span className="hidden sm:inline md:hidden">Hi, {user?.name}</span>
               </span>
               
               {/* Logout Button */}
@@ -156,12 +158,12 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Tab Navigation */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           {/* Tab Buttons */}
-          <div className="flex justify-center mb-6">
-            <div className={`flex rounded-lg p-1 transition-all duration-300 ${
+          <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
+            <div className={`flex rounded-lg p-0.5 sm:p-1 transition-all duration-300 ${
               isDarkMode 
                 ? 'bg-gray-800 border border-green-500' 
                 : 'bg-slate-200 border border-slate-300'
@@ -170,7 +172,7 @@ const Dashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 rounded-md transition-all duration-300 font-mono font-medium flex items-center gap-2 ${
+                  className={`px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-md transition-all duration-300 font-mono font-medium flex items-center gap-1 sm:gap-2 ${
                     activeTab === tab.id
                       ? isDarkMode
                         ? 'bg-green-500 text-black shadow-lg'
@@ -180,7 +182,7 @@ const Dashboard = () => {
                         : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                   }`}
                 >
-                  <span className="text-lg">{tab.icon}</span>
+                  <span className="text-sm sm:text-base md:text-lg">{tab.icon}</span>
                   <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
@@ -188,12 +190,12 @@ const Dashboard = () => {
           </div>
 
           {/* Navigation Dots */}
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-1.5 sm:gap-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                   activeTab === tab.id
                     ? isDarkMode
                       ? 'bg-green-400 scale-125'

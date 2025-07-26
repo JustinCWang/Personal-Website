@@ -223,13 +223,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
   }
 
   return (
-    <div className={`rounded-xl shadow-lg p-6 mb-8 transition-all duration-300 ${
+    <div className={`rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-300 ${
       isDarkMode 
         ? 'bg-black border border-green-500' 
         : 'bg-white'
     }`}>
       {/* Form Header */}
-      <h3 className={`text-5xl font-semibold mb-4 font-mono ${
+      <h3 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-3 sm:mb-4 font-mono ${
         isDarkMode ? 'text-green-400' : 'text-slate-800'
       }`}>
         Add New Project
@@ -237,12 +237,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
       
       {/* Error Message Display */}
       {error && (
-        <div className={`border rounded-lg p-4 mb-4 transition-all duration-300 ${
+        <div className={`border rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 transition-all duration-300 ${
           isDarkMode 
             ? 'bg-red-900 border-red-600' 
             : 'bg-red-50 border-red-200'
         }`}>
-          <p className={`text-sm font-medium font-mono ${
+          <p className={`text-xs sm:text-sm font-medium font-mono ${
             isDarkMode ? 'text-red-300' : 'text-red-600'
           }`}>
             {error}
@@ -252,12 +252,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
       {/* Success Message Display */}
       {success && (
-        <div className={`border rounded-lg p-4 mb-4 transition-all duration-300 ${
+        <div className={`border rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 transition-all duration-300 ${
           isDarkMode 
             ? 'bg-green-900 border-green-600' 
             : 'bg-green-50 border-green-200'
         }`}>
-          <p className={`text-sm font-medium font-mono ${
+          <p className={`text-xs sm:text-sm font-medium font-mono ${
             isDarkMode ? 'text-green-300' : 'text-green-600'
           }`}>
             {success}
@@ -266,11 +266,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
       )}
 
       {/* Project Creation Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         
         {/* Project Title Field */}
         <div>
-          <label htmlFor="title" className={`block text-sm font-medium mb-2 font-mono ${
+          <label htmlFor="title" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Project Title
@@ -283,7 +283,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             required
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -294,7 +294,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
         {/* Project Description Field */}
         <div>
-          <label htmlFor="description" className={`block text-sm font-medium mb-2 font-mono ${
+          <label htmlFor="description" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Description
@@ -305,9 +305,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             value={formData.description}
             onChange={handleChange}
             required
-            rows={4}
+            rows={3}
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -317,11 +317,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         {/* Project Time Frame Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           
           {/* Start Date Field */}
           <div>
-            <label htmlFor="startDate" className={`block text-sm font-medium mb-2 font-mono ${
+            <label htmlFor="startDate" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               Start Date
@@ -337,7 +337,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
           {/* End Date Field */}
           <div>
-            <label htmlFor="endDate" className={`block text-sm font-medium mb-2 font-mono ${
+            <label htmlFor="endDate" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               End Date (optional)
@@ -354,7 +354,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
         {/* Body 1 */}
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Body 1
@@ -364,9 +364,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             name="body1"
             value={formData.body1}
             onChange={handleChange}
-            rows={4}
+            rows={3}
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -377,7 +377,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
         {/* Body 2 */}
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Body 2
@@ -387,9 +387,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             name="body2"
             value={formData.body2}
             onChange={handleChange}
-            rows={4}
+            rows={3}
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -400,7 +400,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
         {/* Body 3 */}
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Body 3
@@ -410,9 +410,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             name="body3"
             value={formData.body3}
             onChange={handleChange}
-            rows={4}
+            rows={3}
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors resize-none font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -423,21 +423,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
         {/* Technologies Section */}
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Technologies
           </label>
           
           {/* Technology Input and Add Button */}
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={techInput}
               onChange={(e) => setTechInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}  // Add on Enter key
               autoComplete="off"
-              className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -462,11 +462,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </div>
           
           {/* Technology Tags Display */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {formData.technologies.map((tech) => (
               <span
                 key={tech}
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-mono font-bold ${
                   isDarkMode
                     ? 'bg-green-400 text-black'
                     : 'bg-blue-100 text-blue-800'
@@ -476,7 +476,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
                 <button
                   type="button"
                   onClick={() => removeTechnology(tech)}
-                  className={`ml-2 hover:opacity-70 ${
+                  className={`ml-1.5 sm:ml-2 hover:opacity-70 ${
                     isDarkMode ? 'text-black' : 'text-blue-600'
                   }`}
                 >
@@ -488,11 +488,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         {/* URL Fields Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           
           {/* GitHub URL Field */}
           <div>
-            <label htmlFor="githubUrl" className={`block text-sm font-medium mb-2 font-mono ${
+            <label htmlFor="githubUrl" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               GitHub URL (optional)
@@ -504,7 +504,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               value={formData.githubUrl}
               onChange={handleChange}
               autoComplete="off"
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -515,7 +515,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
 
           {/* Demo URL Field */}
           <div>
-            <label htmlFor="demoUrl" className={`block text-sm font-medium mb-2 font-mono ${
+            <label htmlFor="demoUrl" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               Demo URL (optional)
@@ -527,7 +527,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               value={formData.demoUrl}
               onChange={handleChange}
               autoComplete="off"
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -538,11 +538,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         {/* Status and Featured Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           
           {/* Project Status Field */}
           <div>
-            <label htmlFor="status" className={`block text-sm font-medium mb-2 font-mono ${
+            <label htmlFor="status" className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               Status
@@ -564,13 +564,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}
               textColor={isDarkMode ? 'text-green-100' : 'text-slate-900'}
               placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
-              padding="px-4 py-3"
+              padding="px-3 sm:px-4 py-2 sm:py-3"
             />
           </div>
 
           {/* Featured Checkbox */}
           <div className="flex items-end">
-            <label className={`flex items-center space-x-3 font-mono ${
+            <label className={`flex items-center space-x-2 sm:space-x-3 font-mono ${
               isDarkMode ? 'text-green-300' : 'text-slate-700'
             }`}>
               <input
@@ -578,33 +578,33 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
                 name="featured"
                 checked={formData.featured}
                 onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                className={`w-4 h-4 rounded transition-colors border-2 ${
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded transition-colors border-2 ${
                   isDarkMode
                     ? 'bg-gray-900 text-green-400 focus:ring-green-400 focus:ring-2 checkbox-green-border'
                     : 'bg-white text-blue-600 focus:ring-blue-500 focus:ring-2 checkbox-blue-border'
                 }`}
               />
-              <span className="text-sm font-medium">Featured Project</span>
+              <span className="text-xs sm:text-sm font-medium">Featured Project</span>
             </label>
           </div>
         </div>
 
         {/* Images Management */}
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Project Images
           </label>
           {/* Image Input and Add Button */}
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={imageInput}
               onChange={(e) => setImageInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
               autoComplete="off"
-              className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -627,10 +627,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             </button>
           </div>
           {imageError && (
-            <div className={`text-sm font-mono mb-2 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{imageError}</div>
+            <div className={`text-xs sm:text-sm font-mono mb-1.5 sm:mb-2 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{imageError}</div>
           )}
           {/* Image URLs Display */}
-          <div className="flex flex-wrap gap-2 relative z-0">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 relative z-0">
             {formData.images.map((image, index) => (
               <div
                 key={index}
@@ -641,7 +641,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
                 <img
                   src={image}
                   alt={`Project image ${index + 1}`}
-                  className="w-20 h-20 object-cover"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover"
                   onError={(e) => {
                     // Fallback for broken images
                     const target = e.target as HTMLImageElement
@@ -651,7 +651,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
                 <button
                   type="button"
                   onClick={() => removeImage(image)}
-                  className={`absolute top-1 right-1 p-1 rounded-full text-xs font-bold transition-all duration-300 z-20 ${
+                  className={`absolute top-0.5 right-0.5 sm:top-1 sm:right-1 p-0.5 sm:p-1 rounded-full text-xs font-bold transition-all duration-300 z-20 ${
                     isDarkMode
                       ? 'bg-red-600 text-white hover:bg-red-500'
                       : 'bg-red-500 text-white hover:bg-red-600'
@@ -666,21 +666,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Tags
           </label>
           
           {/* Tag Input and Add Button */}
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               autoComplete="off"
-              className={`flex-1 px-4 py-2 border rounded-lg transition-colors font-mono ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -704,11 +704,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </div>
           
           {/* Tags Display */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-mono font-bold ${
                   isDarkMode
                     ? 'bg-gray-700 text-gray-300 border border-gray-600'
                     : 'bg-gray-100 text-gray-700 border border-gray-300'
@@ -718,7 +718,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
                 <button
                   type="button"
                   onClick={() => removeTag(tag)}
-                  className={`ml-2 hover:opacity-70 ${
+                  className={`ml-1.5 sm:ml-2 hover:opacity-70 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-600'
                   }`}
                 >
@@ -730,7 +730,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         <div>
-          <label className={`block text-sm font-medium mb-2 font-mono ${
+          <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
             isDarkMode ? 'text-green-300' : 'text-slate-700'
           }`}>
             Team Size
@@ -751,7 +751,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               }
             }}
             autoComplete="off"
-            className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                 : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
@@ -761,11 +761,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
         </div>
 
         {/* Form Submit Button */}
-        <div className="pt-4">
+        <div className="pt-3 sm:pt-4">
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-mono font-bold text-sm uppercase tracking-wide border-2 ${
+            className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg transition-all duration-300 font-mono font-bold text-xs sm:text-sm uppercase tracking-wide border-2 ${
               loading
                 ? isDarkMode
                   ? 'border-gray-600 text-gray-400 cursor-not-allowed bg-gray-800'

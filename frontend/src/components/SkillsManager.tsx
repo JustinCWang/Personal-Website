@@ -135,12 +135,12 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
   };
 
   return (
-    <div className={`rounded-xl shadow-lg p-6 transition-all duration-300 ${
+    <div className={`rounded-xl shadow-lg p-4 sm:p-6 transition-all duration-300 ${
       isDarkMode 
         ? 'bg-black border border-green-500' 
         : 'bg-white'
     }`}>
-      <h2 className={`text-5xl font-bold mb-6 font-mono ${
+      <h2 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 font-mono ${
         isDarkMode ? 'text-green-400' : 'text-slate-800'
       }`}>
         Skills Management
@@ -162,39 +162,38 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
       )}
 
       {/* Add New Skill Form */}
-      <form onSubmit={handleAddSkill} className="mb-8">
-        <div className="flex gap-4">
+      <form onSubmit={handleAddSkill} className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <input
             type="text"
             value={newSkill.name}
             onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
             placeholder="Skill name"
             autoComplete="off"
-            className={`flex-1 px-4 py-2 h-[40px] rounded-lg border font-mono ${
+            className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm ${
               isDarkMode 
                 ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none' 
                 : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
           />
-          <div className="w-64">
+          <div className="w-full sm:w-64">
             <CustomDropdown
               value={newSkill.category}
               onChange={(value) => setNewSkill({ ...newSkill, category: value })}
               options={CATEGORIES.map(category => ({ value: category, label: category }))}
               placeholder="Select category..."
-              isDarkMode={isDarkMode}
-              className="[&>button]:h-[40px]"
+                            isDarkMode={isDarkMode}
               backgroundColor={isDarkMode ? 'bg-gray-800' : 'bg-white'}
               borderColor={isDarkMode ? 'border-green-500' : 'border-blue-400'}
               borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
               textColor={isDarkMode ? 'text-white' : 'text-slate-900'}
               placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
-              padding="px-4 py-2"
+              padding="px-3 sm:px-4 py-1.5 sm:py-2"
             />
           </div>
           <button
             type="submit"
-            className={`px-6 py-2 h-[40px] rounded-lg transition-all duration-300 border-2 font-mono font-bold whitespace-nowrap flex items-center justify-center ${
+            className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg transition-all duration-300 border-2 font-mono font-bold whitespace-nowrap flex items-center justify-center text-xs sm:text-sm ${
               isDarkMode
                 ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                 : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'

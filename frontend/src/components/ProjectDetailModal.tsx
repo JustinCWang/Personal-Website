@@ -264,8 +264,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         </div>
       )}
       {/* Modal */}
-      <div className="fixed inset-0 z-50 p-2">
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300 ease-out ${
+      <div className="fixed inset-0 z-50 p-1 sm:p-2">
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[98vw] sm:max-w-[95vw] max-h-[98vh] sm:max-h-[95vh] overflow-y-auto rounded-xl sm:rounded-2xl shadow-2xl transition-all duration-300 ease-out ${
           isDarkMode ? 'card-dark' : 'card-light'
         } ${
           isAnimating 
@@ -276,26 +276,26 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 bg-transparent hover:bg-transparent focus:bg-transparent border-none shadow-none outline-none"
+            className="absolute top-2 sm:top-4 right-2 sm:right-4 p-2 rounded-full transition-all duration-300 hover:scale-110 z-10 bg-transparent hover:bg-transparent focus:bg-transparent border-none shadow-none outline-none"
             title="Close modal"
           >
-            <svg className={`w-6 h-6 ${isDarkMode ? 'text-green-400' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`w-5 h-5 ${isDarkMode ? 'text-green-400' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
           {/* Modal Content */}
-          <div className="p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* Project Header */}
-            <div className="mb-8">
-              <div className="flex items-start justify-between mb-4">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
                 <div className="flex-1">
-                  <h1 className={`text-4xl font-bold font-mono ${
+                  <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold font-mono ${
                     isDarkMode ? 'text-primary-dark' : 'text-primary-light'
                   }`}>
                     {project.title}
                   </h1>
-                  <div className="flex items-center gap-4 mt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
                     <span className={`text-sm font-mono ${
                       isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                     }`}>
@@ -321,13 +321,13 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   
                   {/* Team Size Display */}
                   {project.teamSize && (
-                    <div className="mt-3">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-mono ${
+                    <div className="mt-2 sm:mt-3">
+                      <span className={`inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-mono ${
                         isDarkMode
                           ? 'bg-purple-900 text-purple-300 border border-purple-500'
                           : 'bg-purple-100 text-purple-800 border border-purple-300'
                       }`}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                         Team Size: {project.teamSize} {project.teamSize === 1 ? 'person' : 'people'}
@@ -340,17 +340,17 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Tags Section - Moved above Overview */}
             {project.tags && project.tags.length > 0 && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+              <div className="mb-6 sm:mb-8">
+                <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Tags
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {project.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className={`px-3 py-1 rounded-full text-sm font-mono ${
+                      className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-mono ${
                         isDarkMode
                           ? 'bg-gray-700 text-gray-300 border border-gray-600'
                           : 'bg-gray-100 text-gray-700 border border-gray-300'
@@ -364,13 +364,13 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             )}
 
             {/* Project Description */}
-            <div className="mb-8">
-              <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+            <div className="mb-6 sm:mb-8">
+              <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 font-mono ${
                 isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Overview
               </h2>
-              <p className={`text-lg leading-relaxed font-mono ${
+              <p className={`text-base sm:text-lg leading-relaxed font-mono ${
                 isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 {project.description}
@@ -379,17 +379,17 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Technologies */}
             {project.technologies && project.technologies.length > 0 && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+              <div className="mb-6 sm:mb-8">
+                <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Technologies Used
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {project.technologies.map((tech, index) => (
                     <span
                       key={index}
-                      className={`px-4 py-2 rounded-full text-sm font-mono font-bold ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-mono font-bold ${
                         isDarkMode
                           ? 'bg-green-400 text-black'
                           : 'bg-blue-100 text-blue-800'
@@ -404,8 +404,8 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Project Images Gallery */}
             {project.images && project.images.length > 0 && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+              <div className="mb-6 sm:mb-8">
+                <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Project Gallery
@@ -444,27 +444,27 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       <>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === 0 ? project.images!.length - 1 : prev - 1)}
-                          className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
+                          className={`absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full transition-all duration-300 ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
                               : 'bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-lg'
                           } z-10`}
                           title="Previous image"
                         >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                           </svg>
                         </button>
                         <button
                           onClick={() => setActiveImageIndex(prev => prev === project.images!.length - 1 ? 0 : prev + 1)}
-                          className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-300 ${
+                          className={`absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full transition-all duration-300 ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300 shadow-lg'
                               : 'bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-lg'
                           } z-10`}
                           title="Next image"
                         >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </button>
@@ -474,21 +474,21 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   
                   {/* Image Counter and Dots */}
                   {project.images.length > 1 && (
-                    <div className="flex items-center justify-center mt-4 gap-4">
+                    <div className="flex items-center justify-center mt-3 sm:mt-4 gap-3 sm:gap-4">
                       {/* Image Counter */}
-                      <span className={`text-sm font-mono ${
+                      <span className={`text-xs sm:text-sm font-mono ${
                         isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}>
                         {activeImageIndex + 1} of {project.images.length}
                       </span>
                       
                       {/* Dot Indicators */}
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5 sm:gap-2">
                         {project.images.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setActiveImageIndex(index)}
-                            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-200 ${
                               index === activeImageIndex
                                 ? isDarkMode 
                                   ? 'bg-green-400' 
@@ -509,12 +509,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Body Content Sections */}
             {project.body1 && (
-              <div className="mb-8">
-                <div className={`prose prose-xl max-w-none ${
+              <div className="mb-6 sm:mb-8">
+                <div className={`prose prose-lg sm:prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                                       <div 
-                      className={`text-lg font-mono leading-relaxed ${
+                      className={`text-base sm:text-lg font-mono leading-relaxed ${
                         isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}
                       dangerouslySetInnerHTML={{ __html: project.body1 }}
@@ -524,12 +524,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             )}
 
             {project.body2 && (
-              <div className="mb-8">
-                <div className={`prose prose-xl max-w-none ${
+              <div className="mb-6 sm:mb-8">
+                <div className={`prose prose-lg sm:prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                                       <div 
-                      className={`text-lg font-mono leading-relaxed ${
+                      className={`text-base sm:text-lg font-mono leading-relaxed ${
                         isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}
                       dangerouslySetInnerHTML={{ __html: project.body2 }}
@@ -539,12 +539,12 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             )}
 
             {project.body3 && (
-              <div className="mb-8">
-                <div className={`prose prose-xl max-w-none ${
+              <div className="mb-6 sm:mb-8">
+                <div className={`prose prose-lg sm:prose-xl max-w-none ${
                   isDarkMode ? 'prose-invert' : ''
                 }`}>
                                       <div 
-                      className={`text-lg font-mono leading-relaxed ${
+                      className={`text-base sm:text-lg font-mono leading-relaxed ${
                         isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                       }`}
                       dangerouslySetInnerHTML={{ __html: project.body3 }}
@@ -555,19 +555,19 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Project Links */}
             {(project.demoUrl || project.githubUrl) && (
-              <div className="mb-8">
-                <h2 className={`text-2xl font-semibold mb-4 font-mono ${
+              <div className="mb-6 sm:mb-8">
+                <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Project Links
                 </h2>
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
                   {project.demoUrl && (
                     <a
                       href={project.demoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
+                      className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
                         isDarkMode ? 'btn-secondary-dark' : 'btn-secondary-light'
                       }`}
                     >
@@ -582,7 +582,7 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
+                      className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 font-mono ${
                         isDarkMode
                           ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
                           : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
@@ -599,10 +599,10 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             )}
 
             {/* Close Button at Bottom */}
-            <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-gray-700">
+            <div className="flex justify-end pt-3 sm:pt-4 border-t border-slate-200 dark:border-gray-700">
               <button
                 onClick={onClose}
-                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 font-mono ${
+                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 font-mono ${
                   isDarkMode ? 'modal-dark' : 'modal-light'
                 }`}
               >

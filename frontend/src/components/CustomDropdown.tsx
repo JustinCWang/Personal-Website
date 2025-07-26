@@ -61,7 +61,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   backgroundColor = isDarkMode ? 'bg-gray-800' : 'bg-white',
   textColor = isDarkMode ? 'text-green-100' : 'text-slate-800',
   placeholderColor = isDarkMode ? 'placeholder-green-300' : 'placeholder-slate-500',
-  padding = 'px-4 py-2'
+  padding = 'px-3 sm:px-4 py-2 sm:py-3'
 }) => {
   // State management
   const [isOpen, setIsOpen] = useState(false);
@@ -232,7 +232,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             placeholder={placeholder}
             disabled={disabled}
             autoComplete="off"
-            className={`w-full ${padding} rounded-lg border transition-all duration-300 font-mono text-sm ${
+            className={`w-full ${padding} rounded-lg border transition-all duration-300 font-mono text-xs sm:text-sm ${
               disabled
                 ? isDarkMode
                   ? 'bg-gray-800 border-gray-600 text-gray-400 cursor-not-allowed'
@@ -247,7 +247,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             type="button"
             onClick={handleDropdownToggle}
             disabled={disabled}
-            className={`w-full ${padding} rounded-lg border transition-all duration-300 font-mono text-sm text-left pr-10 ${
+            className={`w-full ${padding} rounded-lg border transition-all duration-300 font-mono text-xs sm:text-sm text-left pr-10 ${
               disabled
                 ? isDarkMode
                   ? 'bg-gray-800 border-gray-600 text-gray-400 cursor-not-allowed'
@@ -268,7 +268,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             type="button"
             onClick={handleDropdownToggle}
             disabled={disabled}
-            className={`w-6 h-6 rounded transition-colors flex items-center justify-center ${
+            className={`p-2 rounded transition-colors flex items-center justify-center ${
               disabled
                 ? isDarkMode
                   ? 'text-gray-500 cursor-not-allowed'
@@ -279,7 +279,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             }`}
           >
             <svg 
-              className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -304,7 +304,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             className="overflow-y-auto max-h-60"
           >
             {filteredOptions.length === 0 ? (
-              <div className={`px-3 py-2 text-sm ${
+              <div className={`px-3 py-2 text-xs sm:text-sm ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
                 No options found
@@ -316,7 +316,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                   type="button"
                   onClick={() => handleOptionSelect(option.value)}
                   disabled={option.disabled}
-                  className={`w-full ${padding} text-left text-sm font-mono transition-colors ${
+                  className={`w-full ${padding} text-left text-xs sm:text-sm font-mono transition-colors ${
                     option.disabled
                       ? isDarkMode
                         ? 'text-gray-500 cursor-not-allowed'

@@ -280,9 +280,9 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
   }
 
   return (
-    <div className={`rounded-xl p-6 transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)] bg-black' : 'shadow-lg bg-white'}`}>
-      <div className="flex justify-between items-center mb-6">
-        <h3 className={`text-5xl font-bold font-mono ${
+    <div className={`rounded-xl p-4 sm:p-6 transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)] bg-black' : 'shadow-lg bg-white'}`}>
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h3 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-mono ${
           isDarkMode ? 'text-primary-dark' : 'text-primary-light'
         }`}>
           Your Projects
@@ -305,16 +305,16 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
 
       {/* Advanced Filtering Controls */}
       {!loading && !error && (
-        <div className={`mb-6 p-4 rounded-lg border transition-all duration-300 ${
+        <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg border transition-all duration-300 ${
           isDarkMode 
             ? 'bg-gray-900 border-green-500' 
             : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             
             {/* Search Input */}
             <div>
-              <label className={`block text-sm font-medium mb-2 font-mono ${
+              <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                 isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
               }`}>
                 Search Projects:
@@ -325,7 +325,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
                   placeholder="Search by title, description, or technologies..."
-                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                  className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm transition-all duration-300 ${
                     isDarkMode
                       ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                       : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -344,7 +344,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
             </div>
 
             {/* Filter Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               
               {/* Status Filter */}
               <div>
@@ -366,13 +366,13 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   borderFocusColor={isDarkMode ? 'focus:border-green-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'}
                   textColor={isDarkMode ? 'text-green-100' : 'text-slate-800'}
                   placeholderColor={isDarkMode ? 'placeholder-green-300' : 'placeholder-slate-500'}
-                  padding="px-3 py-2"
+                  padding="px-2.5 sm:px-3 py-1.5 sm:py-2"
                 />
               </div>
 
               {/* Technologies Filter */}
               <div>
-                <label className={`block text-sm font-medium mb-2 font-mono ${
+                <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Technologies:
@@ -382,7 +382,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   value={filters.technologies}
                   onChange={(e) => handleFilterChange('technologies', e.target.value)}
                   placeholder="e.g., React, Node.js, Java"
-                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                  className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm transition-all duration-300 ${
                     isDarkMode
                       ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                       : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -392,7 +392,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
 
               {/* Start Date Filter */}
               <div>
-                <label className={`block text-sm font-medium mb-2 font-mono ${
+                <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   Start Year:
@@ -404,7 +404,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   placeholder="e.g., 2023"
                   min="2000"
                   max="2030"
-                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                  className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm transition-all duration-300 ${
                     isDarkMode
                       ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                       : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -414,7 +414,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
 
               {/* End Date Filter */}
               <div>
-                <label className={`block text-sm font-medium mb-2 font-mono ${
+                <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                   isDarkMode ? 'text-secondary-dark' : 'text-secondary-light'
                 }`}>
                   End Year:
@@ -426,7 +426,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   placeholder="e.g., 2024"
                   min="2000"
                   max="2030"
-                  className={`w-full px-3 py-2 rounded-lg border font-mono text-sm transition-all duration-300 ${
+                  className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm transition-all duration-300 ${
                     isDarkMode
                       ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
                       : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -436,22 +436,22 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
             </div>
 
             {/* Sort Controls and Clear Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
               
               {/* Sort Controls */}
               <div className="flex flex-wrap gap-2">
-                <label className={`block text-sm font-medium mb-2 font-mono ${
+                <label className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 font-mono ${
                   isDarkMode ? 'text-green-300' : 'text-slate-700'
                 }`}>
                   Sort by:
                 </label>
                 
                 {/* Sort Buttons */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {/* Date Sort */}
                   <button
                     onClick={() => handleSortChange('startDate')}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 ${
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all duration-300 ${
                       filters.sortBy === 'startDate'
                         ? isDarkMode
                           ? 'bg-green-500 text-black'
@@ -473,7 +473,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
               {hasActiveFilters() && (
                 <button
                   onClick={clearFilters}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium font-mono transition-all duration-300 border ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium font-mono transition-all duration-300 border ${
                     isDarkMode
                       ? 'bg-red-900 text-red-300 border-red-600 hover:bg-red-800 hover:text-red-200'
                       : 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100'
@@ -485,7 +485,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
             </div>
 
             {/* Results Count */}
-            <div className={`text-sm font-mono ${
+            <div className={`text-xs sm:text-sm font-mono ${
               isDarkMode ? 'text-green-200' : 'text-slate-600'
             }`}>
               Showing {projects.length} projects
@@ -494,7 +494,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                 <span className={`ml-2 inline-flex items-center ${
                   isDarkMode ? 'text-green-300' : 'text-blue-600'
                 }`}>
-                  <div className={`inline-block animate-spin rounded-full h-3 w-3 border-b-2 mr-1 ${
+                  <div className={`inline-block animate-spin rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 border-b-2 mr-1 ${
                     isDarkMode ? 'border-green-400' : 'border-blue-600'
                   }`}></div>
                   Updating...
@@ -549,37 +549,37 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
       ) : (
         
         /* Projects List */
-        <div className={`space-y-6 transition-opacity duration-200 ${
+        <div className={`space-y-4 sm:space-y-6 transition-opacity duration-200 ${
           filterLoading ? 'opacity-75' : 'opacity-100'
         }`}>
           {projects.length > 0 ? (
             projects.map((project) => (
-              <div key={project._id} className={`border-l-4 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
+              <div key={project._id} className={`border-l-4 rounded-lg p-4 sm:p-6 hover:shadow-md transition-all duration-300 ${
                 isDarkMode 
                   ? 'bg-gray-900 border-green-400 hover:bg-gray-800' 
                   : 'bg-slate-50 border-blue-400'
               }`}>
                 
                 {/* Project Header */}
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0 mb-3 sm:mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                       
                       {/* Project Title */}
-                      <h4 className={`text-xl font-semibold font-mono ${
+                      <h4 className={`text-lg sm:text-xl font-semibold font-mono ${
                         isDarkMode ? 'text-green-400' : 'text-slate-800'
                       }`}>
                         {project.title}
                       </h4>
                       
                       {/* Status Badge */}
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium border font-mono ${getStatusColor(project.status)}`}>
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border font-mono ${getStatusColor(project.status)}`}>
                         {project.status}
                       </span>
                       
                       {/* Featured Badge */}
                       {project.featured && (
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium border font-mono ${
+                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border font-mono ${
                           isDarkMode 
                             ? 'bg-purple-900 text-purple-300 border-purple-600' 
                             : 'bg-purple-100 text-purple-800 border-purple-200'
@@ -590,33 +590,33 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                     </div>
                     
                     {/* Project Description */}
-                    <p className={`mb-4 font-mono text-sm ${
+                    <p className={`mb-3 sm:mb-4 font-mono text-xs sm:text-sm ${
                       isDarkMode ? 'text-green-100' : 'text-slate-600'
                     }`}>
                       {project.description}
                     </p>
                     
                     {/* Project Time Frame */}
-                    <div className="mb-4">
-                      <h5 className={`text-sm font-medium mb-2 font-mono ${
+                    <div className="mb-3 sm:mb-4">
+                      <h5 className={`text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                         isDarkMode ? 'text-green-300' : 'text-slate-700'
                       }`}>
                         Time Frame:
                       </h5>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-mono ${
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <span className={`text-xs sm:text-sm font-mono ${
                           isDarkMode ? 'text-green-200' : 'text-slate-600'
                         }`}>
                           {formatDate(project.startDate)}
                         </span>
                         {project.endDate && (
                           <>
-                            <span className={`text-sm font-mono ${
+                            <span className={`text-xs sm:text-sm font-mono ${
                               isDarkMode ? 'text-green-300' : 'text-slate-500'
                             }`}>
                               →
                             </span>
-                            <span className={`text-sm font-mono ${
+                            <span className={`text-xs sm:text-sm font-mono ${
                               isDarkMode ? 'text-green-200' : 'text-slate-600'
                             }`}>
                               {formatDate(project.endDate)}
@@ -624,7 +624,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                           </>
                         )}
                         {!project.endDate && (
-                          <span className={`text-sm font-mono px-2 py-1 rounded-full ${
+                          <span className={`text-xs sm:text-sm font-mono px-1.5 sm:px-2 py-1 rounded-full ${
                             isDarkMode 
                               ? 'bg-green-900 text-green-300 border border-green-500' 
                               : 'bg-green-100 text-green-800 border border-green-200'
@@ -637,17 +637,17 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                     
                     {/* Technologies Section */}
                     {project.technologies && project.technologies.length > 0 && (
-                      <div className="mb-4">
-                        <h5 className={`text-sm font-medium mb-2 font-mono ${
+                      <div className="mb-3 sm:mb-4">
+                        <h5 className={`text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 font-mono ${
                           isDarkMode ? 'text-green-300' : 'text-slate-700'
                         }`}>
                           Technologies:
                         </h5>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {project.technologies.map((tech, index) => (
                             <span
                               key={index}
-                              className={`inline-block px-3 py-1 rounded-full text-sm font-mono font-bold ${
+                              className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-mono font-bold ${
                                 isDarkMode
                                   ? 'bg-green-400 text-black'
                                   : 'bg-blue-100 text-blue-800'
@@ -661,21 +661,21 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                     )}
 
                     {/* Project Links */}
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                       {/* GitHub Link */}
                       {project.githubUrl && (
                         <a
                           href={project.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
+                          className={`inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-medium font-mono ${
                             isDarkMode
                               ? 'bg-black text-green-400 border border-green-400 hover:bg-green-400 hover:text-black'
                               : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                           }`}
                         >
                           {/* GitHub Icon SVG */}
-                          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
                           </svg>
                           GitHub
@@ -687,14 +687,14 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                           href={project.demoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium font-mono ${
+                          className={`inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-medium font-mono ${
                             isDarkMode
                               ? 'bg-green-400 text-black hover:bg-green-300'
                               : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                           }`}
                         >
                           {/* External Link Icon SVG */}
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
                           Live Demo
@@ -704,7 +704,7 @@ const ProjectsList = ({ isDarkMode }: ProjectsListProps) => {
                   </div>
                   
                   {/* Project Action Buttons */}
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center justify-center sm:justify-end space-x-2 sm:space-x-4">
                     {/* Edit Project Button */}
                     <button
                       onClick={() => handleEditProject(project)}
