@@ -8,7 +8,7 @@
 // Import React dependencies and custom hooks/utilities
 import React, { useState } from 'react'
 import { useAuth } from '../hooks/useAuth.ts'           // Authentication context hook
-import { useDarkMode, useAnimationFreeze } from '../hooks/useDarkMode.ts'   // Dark mode and animation freeze hooks
+import { useDarkMode } from '../hooks/useDarkMode.ts'   // Dark mode and animation freeze hooks
 import { handleAPIError } from '../services/api.ts'    // Error handling utility
 
 /**
@@ -39,7 +39,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   // Authentication functions from context
   const { login, register } = useAuth()
   const { isDarkMode, toggleDarkMode } = useDarkMode()       // Persistent dark mode state
-  const { isFrozen, toggleFreeze } = useAnimationFreeze()    // Animation freeze state
 
   /**
    * Handle form input changes
@@ -128,37 +127,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             </svg>
           )}
         </button>
-
-        {/* Animation Freeze Toggle */}
-        <button
-          onClick={toggleFreeze}
-          className={`p-2 rounded-lg transition-all duration-300 ${
-            isFrozen
-              ? 'bg-red-400 text-white hover:bg-red-300'
-              : isDarkMode
-                ? 'bg-gray-600 text-gray-200 hover:bg-gray-500'
-                : 'bg-slate-300 text-slate-600 hover:bg-slate-400'
-          }`}
-          title={isFrozen ? 'Resume Animations' : 'Freeze Animations'}
-        >
-          {isFrozen ? (
-            // Play icon when frozen
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            // Pause icon when not frozen
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          )}
-        </button>
       </div>
 
       {/* Main form container with centered layout */}
-      <div className={`rounded-2xl shadow-2xl w-full max-w-md p-8 transition-all duration-300 ${
-        isDarkMode ? 'card-dark' : 'card-light'
-      }`}>
+      <div className={`rounded-2xl w-full max-w-md p-8 transition-all duration-300 ${isDarkMode ? 'shadow-[0_4px_24px_0_rgba(34,197,94,0.15)] bg-black' : 'shadow-2xl bg-white'}`}>
         
         {/* Form header */}
         <div className="text-center mb-8">
@@ -207,8 +179,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 value={formData.name}
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
-                className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode ? 'input-dark' : 'input-light'
+                className={`w-full px-4 py-3 border rounded-lg transition-all duration-300 font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Enter your full name"
               />
@@ -229,8 +203,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               value={formData.email}
               onChange={handleChange}
               required
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode ? 'input-dark' : 'input-light'
+              className={`w-full px-4 py-3 border rounded-lg transition-all duration-300 font-mono ${
+                isDarkMode
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="Enter your email"
             />
@@ -250,8 +226,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               value={formData.password}
               onChange={handleChange}
               required
-              className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                isDarkMode ? 'input-dark' : 'input-light'
+              className={`w-full px-4 py-3 border rounded-lg transition-all duration-300 font-mono ${
+                isDarkMode
+                  ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="Enter your password"
             />
@@ -272,8 +250,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required={!isLogin}  // Required only in register mode
-                className={`w-full px-4 py-3 border rounded-lg transition-colors font-mono ${
-                  isDarkMode ? 'input-dark' : 'input-light'
+                className={`w-full px-4 py-3 border rounded-lg transition-all duration-300 font-mono ${
+                  isDarkMode
+                    ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
+                    : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
                 }`}
                 placeholder="Confirm your password"
               />
