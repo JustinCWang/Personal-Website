@@ -283,10 +283,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             required
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="Enter your project title"
           />
@@ -307,10 +307,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             required
             rows={3}
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="Describe your project in detail"
           />
@@ -366,10 +366,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             rows={3}
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="First content section"
           />
@@ -389,10 +389,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             rows={3}
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="Second content section (optional)"
           />
@@ -412,10 +412,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             onChange={handleChange}
             rows={3}
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors resize-none font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 resize-none font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="Third content section (optional)"
           />
@@ -430,24 +430,24 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </label>
           
           {/* Technology Input and Add Button */}
-          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={techInput}
               onChange={(e) => setTechInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}  // Add on Enter key
               autoComplete="off"
-              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="Add a technology (e.g., React, Node.js)"
             />
             <button
               type="button"
               onClick={addTechnology}
-              className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+              className={`py-1.5 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all duration-300 border-2 flex items-center justify-center leading-none ${
                 isDarkMode
                   ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                   : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
@@ -455,7 +455,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               title="Add Technology"
             >
               {/* Plus Icon */}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -504,10 +504,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               value={formData.githubUrl}
               onChange={handleChange}
               autoComplete="off"
-              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+              className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="https://github.com/username/repo"
             />
@@ -527,10 +527,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               value={formData.demoUrl}
               onChange={handleChange}
               autoComplete="off"
-              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+              className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="https://your-demo-url.com"
             />
@@ -560,11 +560,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               isDarkMode={isDarkMode}
               className="w-full"
               backgroundColor={isDarkMode ? 'bg-gray-900' : 'bg-white'}
-              borderColor={isDarkMode ? 'border-green-500' : 'border-slate-300'}
+              borderColor={isDarkMode ? 'border-green-500' : 'border-blue-400'}
               borderFocusColor={isDarkMode ? 'focus:ring-2 focus:ring-green-400 focus:border-green-400' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}
               textColor={isDarkMode ? 'text-green-100' : 'text-slate-900'}
               placeholderColor={isDarkMode ? 'placeholder-green-400' : 'placeholder-slate-400'}
-              padding="px-3 sm:px-4 py-2 sm:py-3"
+              padding="px-3 sm:px-4 py-1.5 sm:py-2"
             />
           </div>
 
@@ -597,31 +597,31 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
             Project Images
           </label>
           {/* Image Input and Add Button */}
-          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={imageInput}
               onChange={(e) => setImageInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
               autoComplete="off"
-              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="Add an image URL (e.g. https://...)"
             />
             <button
               type="button"
               onClick={addImage}
-              className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+              className={`py-1.5 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all duration-300 border-2 flex items-center justify-center leading-none ${
                 isDarkMode
                   ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                   : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
               }`}
               title="Add Image"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -673,31 +673,31 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
           </label>
           
           {/* Tag Input and Add Button */}
-          <div className="flex gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
             <input
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               autoComplete="off"
-              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+              className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
                 isDarkMode
                   ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                  : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
               }`}
               placeholder="Add a tag"
             />
             <button
               type="button"
               onClick={addTag}
-              className={`p-2 rounded-lg transition-all duration-300 border-2 ${
+              className={`py-1.5 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all duration-300 border-2 flex items-center justify-center leading-none ${
                 isDarkMode
                   ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                   : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'
               }`}
               title="Add Tag"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -751,10 +751,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onProjectCreated, isDarkMode 
               }
             }}
             autoComplete="off"
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
               isDarkMode
                 ? 'bg-gray-900 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
             }`}
             placeholder="Enter team size (e.g., 1, 3, 5)"
           />

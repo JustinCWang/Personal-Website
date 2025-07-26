@@ -334,7 +334,7 @@ const CustomMonthPicker: React.FC<CustomMonthPickerProps> = ({
           onKeyDown={handleKeyDown}
           autoComplete="off"
           placeholder="Type month or year, or click dropdown..."
-          className={`w-full px-3 sm:px-4 py-2 sm:py-3 pr-16 border rounded-lg transition-colors font-mono text-xs sm:text-sm ${
+          className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 border-1 rounded-lg transition-all duration-300 font-mono text-xs sm:text-sm ${
             isDarkMode
               ? 'bg-gray-900 border-green-500 text-green-100 placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none'
               : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'

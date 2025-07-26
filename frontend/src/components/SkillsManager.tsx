@@ -170,7 +170,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
             onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
             placeholder="Skill name"
             autoComplete="off"
-            className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-mono text-xs sm:text-sm ${
+            className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-1 font-mono text-xs sm:text-sm transition-all duration-300 ${
               isDarkMode 
                 ? 'bg-gray-800 border-green-500 text-white placeholder-green-400 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none' 
                 : 'bg-white border-blue-400 text-slate-900 placeholder-slate-400 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none'
@@ -193,7 +193,7 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ isDarkMode }) => {
           </div>
           <button
             type="submit"
-            className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg transition-all duration-300 border-2 font-mono font-bold whitespace-nowrap flex items-center justify-center text-xs sm:text-sm ${
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-lg transition-all duration-300 border-2 font-mono font-bold whitespace-nowrap flex items-center justify-center text-xs sm:text-sm ${
               isDarkMode
                 ? 'border-green-500 text-green-400 hover:border-green-400 hover:text-green-300 hover:bg-gray-800'
                 : 'border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-100'

@@ -61,7 +61,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   backgroundColor = isDarkMode ? 'bg-gray-800' : 'bg-white',
   textColor = isDarkMode ? 'text-green-100' : 'text-slate-800',
   placeholderColor = isDarkMode ? 'placeholder-green-300' : 'placeholder-slate-500',
-  padding = 'px-3 sm:px-4 py-2 sm:py-3'
+  padding = 'px-3 sm:px-4 py-1.5 sm:py-2'
 }) => {
   // State management
   const [isOpen, setIsOpen] = useState(false);
