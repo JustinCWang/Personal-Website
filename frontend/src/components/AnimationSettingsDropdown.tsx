@@ -127,12 +127,12 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
         }`}>
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <span>Freeze Animations</span>
+              <span>Animation Settings</span>
               <button
                 onClick={onToggleFreeze}
                 className={`px-3 py-1 rounded transition-all font-bold ${
                   isFrozen
-                    ? 'bg-red-400 text-white hover:bg-red-300'
+                    ? 'bg-blue-400 text-white hover:bg-blue-300'
                     : isDarkMode
                       ? 'bg-gray-700 text-green-300 hover:bg-gray-600'
                       : 'bg-slate-200 text-slate-600 hover:bg-slate-300'

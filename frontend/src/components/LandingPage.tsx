@@ -79,6 +79,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const { isFrozen, toggleFreeze } = useAnimationFreeze()
 
+  // State for responsive projects per page
+  const [projectsPerPage, setProjectsPerPage] = useState(3);
+
   // Animation settings state
   const [matrixRainSettings, setMatrixRainSettings] = useState({
     speed: 0.8, // default matches MatrixRain
@@ -104,7 +107,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   // Pagination configuration
-  const projectsPerPage = 3 // Show 3 projects per row
   const totalPages = Math.ceil(featuredProjects.length / projectsPerPage)
   const startIndex = currentPage * projectsPerPage
   const endIndex = startIndex + projectsPerPage
@@ -118,6 +120,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const goToPrevPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 0))
   }
+
+  /**
+   * Effect to handle responsive pagination for projects
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setProjectsPerPage(3);
+      } else if (window.innerWidth >= 768) {
+        setProjectsPerPage(2);
+      } else {
+        setProjectsPerPage(1);
+      }
+    };
+
+    // Set initial value
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   /**
    * Format date for display
@@ -273,7 +296,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                       ? 'bg-green-400 text-black hover:bg-green-300'
                       : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                   }`}
-                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Hacker Mode'}
+                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                 >
                   {isDarkMode ? (
                     // Sun icon for light mode
@@ -281,9 +304,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                       <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                     </svg>
                   ) : (
-                    // Hacker/terminal icon for dark mode
+                    // Moon icon for dark mode
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                     </svg>
                   )}
                 </button>
@@ -531,7 +554,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               )}
 
               {/* Projects Grid */}
-              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 ${
+              <div className={`grid ${ {1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3'}[projectsPerPage] || 'grid-cols-1' } gap-4 sm:gap-6 md:gap-8 ${
                 totalPages > 1 ? 'mx-12 sm:mx-16' : ''
               }`}>
                 {currentProjects.map((project) => (
@@ -997,7 +1020,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
       </section>
 
       {/* Footer */}
-      <footer className={`py-4 sm:py-6 px-4 sm:px-6 border-t transition-all duration-300 ${
+      <footer className={`relative z-10 py-4 sm:py-6 px-4 sm:px-6 border-t transition-all duration-300 ${
         isDarkMode 
           ? 'bg-black border-green-500' 
           : 'bg-white border-slate-200'
