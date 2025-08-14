@@ -4,18 +4,24 @@ import React, { useState } from 'react';
  * AnimationSettingsDropdown
  *
  * This component provides a dropdown UI for controlling animation settings.
+ * 
+ * Features:
+ * - Global animation toggle (ON/OFF) - defaults to OFF
+ * - When disabled, animation components are not rendered at all
+ * - When enabled, provides freeze/resume controls and setting adjustments
+ * - Settings persist in localStorage via useAnimationToggle hook
  *
  * To change the default values for MatrixRain or RippleEffect animations,
  * edit the default values in MatrixRain.tsx and RippleEffect.tsx directly.
  * (Look for variables like `speed`, `length`, `opacity`, `SPAWN_INTERVAL_MS`, etc.)
- *
- * The dropdown allows live adjustment of these settings via props.
  */
 
 interface AnimationSettingsDropdownProps {
   isDarkMode: boolean;
   isFrozen: boolean;
   onToggleFreeze: () => void;
+  animationsEnabled: boolean;
+  onToggleAnimations: () => void;
   matrixRainSettings: {
     speed: number;
     length: number;
@@ -37,6 +43,8 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
   isDarkMode,
   isFrozen,
   onToggleFreeze,
+  animationsEnabled,
+  onToggleAnimations,
   matrixRainSettings,
   rippleEffectSettings,
 }) => {
@@ -128,21 +136,52 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <span>Animation Settings</span>
-              <button
-                onClick={onToggleFreeze}
-                className={`px-3 py-1 rounded transition-all font-bold ${
-                  isFrozen
-                    ? 'bg-blue-400 text-white hover:bg-blue-300'
-                    : isDarkMode
-                      ? 'bg-gray-700 text-green-300 hover:bg-gray-600'
-                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                }`}
-              >
-                {isFrozen ? 'Resume' : 'Freeze'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onToggleAnimations}
+                  className={`px-3 py-1 rounded transition-all font-bold ${
+                    animationsEnabled
+                      ? isDarkMode
+                        ? 'bg-green-600 text-white hover:bg-green-500'
+                        : 'bg-green-500 text-white hover:bg-green-400'
+                      : isDarkMode
+                        ? 'bg-red-600 text-white hover:bg-red-500'
+                        : 'bg-red-500 text-white hover:bg-red-400'
+                  }`}
+                  title={animationsEnabled ? 'Disable Animations' : 'Enable Animations'}
+                >
+                  {animationsEnabled ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  onClick={onToggleFreeze}
+                  disabled={!animationsEnabled}
+                  className={`px-3 py-1 rounded transition-all font-bold ${
+                    !animationsEnabled
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-50'
+                      : isFrozen
+                        ? 'bg-blue-400 text-white hover:bg-blue-300'
+                        : isDarkMode
+                          ? 'bg-gray-700 text-green-300 hover:bg-gray-600'
+                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                  }`}
+                  title={!animationsEnabled ? 'Enable animations first' : (isFrozen ? 'Resume Animations' : 'Freeze Animations')}
+                >
+                  {isFrozen ? 'Resume' : 'Freeze'}
+                </button>
+              </div>
             </div>
             <hr className={isDarkMode ? 'border-green-700' : 'border-slate-200'} />
-            {isDarkMode ? (
+            {!animationsEnabled ? (
+              <div className="text-center py-4">
+                <div className={`text-lg font-bold mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Animations Disabled
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Click "ON" to enable background animations<br/>
+                  and interactive effects
+                </div>
+              </div>
+            ) : isDarkMode ? (
               <div>
                 <div className="font-bold mb-2">Matrix Rain</div>
                 <div className="mb-2">

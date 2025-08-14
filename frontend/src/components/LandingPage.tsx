@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode, useAnimationFreeze } from '../hooks/useDarkMode.ts'
+import { useAnimationToggle } from '../hooks/useAnimationToggle.ts'
 import { useScrollAnimation } from '../hooks/useScrollAnimation.ts'
 import SkillCategoryDropdown from './SkillCategoryDropdown.tsx'
 import ProjectDetailModal from './ProjectDetailModal.tsx'
@@ -78,6 +79,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [currentPage, setCurrentPage] = useState(0)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const { isFrozen, toggleFreeze } = useAnimationFreeze()
+  const { animationsEnabled, toggleAnimations } = useAnimationToggle()
 
   // State for responsive projects per page
   const [projectsPerPage, setProjectsPerPage] = useState(3);
@@ -222,21 +224,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
     <div className={`min-h-screen transition-all duration-300 ${
       isDarkMode ? 'page-bg-dark' : 'page-bg-light'
     }`} style={{ scrollBehavior: 'smooth' }}>
-      {/* Background Animations */}
-      <MatrixRain
-        isDarkMode={isDarkMode}
-        isFrozen={isFrozen}
-        speed={matrixRainSettings.speed}
-        length={matrixRainSettings.length}
-        opacity={matrixRainSettings.opacity}
-      />
-      <RippleEffect
-        isDarkMode={isDarkMode}
-        isFrozen={isFrozen}
-        opacity={rippleEffectSettings.opacity}
-        speed={rippleEffectSettings.speed}
-        spawnInterval={rippleEffectSettings.spawnInterval}
-      />
+      {/* Background Animations - Only render when animations are enabled */}
+      {animationsEnabled && (
+        <>
+          <MatrixRain
+            isDarkMode={isDarkMode}
+            isFrozen={isFrozen}
+            speed={matrixRainSettings.speed}
+            length={matrixRainSettings.length}
+            opacity={matrixRainSettings.opacity}
+          />
+          <RippleEffect
+            isDarkMode={isDarkMode}
+            isFrozen={isFrozen}
+            opacity={rippleEffectSettings.opacity}
+            speed={rippleEffectSettings.speed}
+            spawnInterval={rippleEffectSettings.spawnInterval}
+          />
+        </>
+      )}
       
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-4 sm:px-6 relative">
@@ -315,6 +321,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                   isDarkMode={isDarkMode}
                   isFrozen={isFrozen}
                   onToggleFreeze={toggleFreeze}
+                  animationsEnabled={animationsEnabled}
+                  onToggleAnimations={toggleAnimations}
                   matrixRainSettings={{
                     ...matrixRainSettings,
                     onChange: setMatrixRainSettings,
