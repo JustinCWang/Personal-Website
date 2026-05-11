@@ -14,6 +14,9 @@ import { useDarkMode } from './hooks/useDarkMode.ts'
 import Login from './components/Login.tsx'
 import Dashboard from './components/Dashboard.tsx'
 import LandingPage from './components/LandingPage.tsx'
+import NotesIndex from './pages/notes/NotesIndex.tsx'
+import CalculusNote from './pages/notes/CalculusNote.tsx'
+import CSNote from './pages/notes/CSNote.tsx'
 
 /**
  * App Content Component
@@ -37,55 +40,57 @@ const AppContent = () => {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className={`min-h-screen transition-all duration-300 flex items-center justify-center ${
-        isDarkMode ? 'page-bg-dark' : 'page-bg-light'
-      }`}>
-        <div className={`text-center ${
-          isDarkMode ? 'text-primary-dark' : 'text-primary-light'
+      <div className={`min-h-screen transition-all duration-300 flex items-center justify-center ${isDarkMode ? 'page-bg-dark' : 'page-bg-light'
         }`}>
-          <div className={`inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4 ${
-            isDarkMode ? 'spinner-dark' : 'spinner-light'
-          }`}></div>
+        <div className={`text-center ${isDarkMode ? 'text-primary-dark' : 'text-primary-light'
+          }`}>
+          <div className={`inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4 ${isDarkMode ? 'spinner-dark' : 'spinner-light'
+            }`}></div>
           <p className="text-xl font-mono">Loading...</p>
         </div>
-      </div>  
+      </div>
     )
   }
 
   return (
     <Routes>
       {/* Landing Page Route - Public access */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
-          <LandingPage 
+          <LandingPage
             onLogin={() => navigate('/login')}  // Navigate to login when login button clicked
           />
-        } 
+        }
       />
-      
+
+      {/* Notes Routes - Public access */}
+      <Route path="/notes" element={<NotesIndex />} />
+      <Route path="/notes/calculus" element={<CalculusNote />} />
+      <Route path="/notes/cs" element={<CSNote />} />
+
       {/* Login Route - Redirect to dashboard if already authenticated */}
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           !isAuthenticated ? (
             <Login onLoginSuccess={handleLoginSuccess} />
           ) : (
             <Navigate to="/dashboard" replace />  // Redirect authenticated users to dashboard
           )
-        } 
+        }
       />
-      
+
       {/* Dashboard Route - Requires authentication */}
-      <Route 
-        path="/dashboard" 
+      <Route
+        path="/dashboard"
         element={
           isAuthenticated ? (
             <Dashboard />
           ) : (
             <Navigate to="/login" replace />  // Redirect unauthenticated users to login
           )
-        } 
+        }
       />
     </Routes>
   )

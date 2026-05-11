@@ -20,15 +20,33 @@ export const useDarkMode = () => {
     return false
   })
 
-  // Update localStorage whenever dark mode changes
+  // Listen for changes from other components
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('darkMode', JSON.stringify(isDarkMode))
+    const syncDarkMode = () => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('darkMode')
+        if (saved !== null) {
+          setIsDarkMode(JSON.parse(saved))
+        }
+      }
     }
-  }, [isDarkMode])
+
+    // Custom event for same-window syncing
+    window.addEventListener('darkModeChange', syncDarkMode)
+    
+    return () => {
+      window.removeEventListener('darkModeChange', syncDarkMode)
+    }
+  }, [])
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
+    const newValue = !isDarkMode;
+    setIsDarkMode(newValue);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('darkMode', JSON.stringify(newValue));
+      // Dispatch custom event to notify other hook instances
+      window.dispatchEvent(new Event('darkModeChange'));
+    }
   }
 
   return { isDarkMode, toggleDarkMode }
