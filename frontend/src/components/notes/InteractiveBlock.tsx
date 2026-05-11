@@ -1,3 +1,9 @@
+/**
+ * InteractiveBlock Component
+ * A wrapper component for interactive React elements
+ * Provides a terminal-like window frame with a title bar
+ */
+
 import React from 'react';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
@@ -7,6 +13,11 @@ interface InteractiveBlockProps {
   className?: string;
 }
 
+/**
+ * Wrapper component for rendering interactive notes elements
+ * @param {InteractiveBlockProps} props - Component props containing children and optional title
+ * @returns {JSX.Element} Styled container with optional title bar
+ */
 export const InteractiveBlock: React.FC<InteractiveBlockProps> = ({ 
   children, 
   title, 

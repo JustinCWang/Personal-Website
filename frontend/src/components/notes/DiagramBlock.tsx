@@ -1,3 +1,9 @@
+/**
+ * DiagramBlock Component
+ * Renders flowcharts and diagrams using Mermaid.js
+ * Automatically adapts to light/dark mode themes
+ */
+
 import React, { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
 import { useDarkMode } from '../../hooks/useDarkMode';
@@ -7,6 +13,11 @@ interface DiagramBlockProps {
   className?: string;
 }
 
+/**
+ * Component for rendering Mermaid.js diagrams
+ * @param {DiagramBlockProps} props - Component props containing the Mermaid chart string
+ * @returns {JSX.Element} Mermaid diagram container
+ */
 export const DiagramBlock: React.FC<DiagramBlockProps> = ({ chart, className = '' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isDarkMode } = useDarkMode();

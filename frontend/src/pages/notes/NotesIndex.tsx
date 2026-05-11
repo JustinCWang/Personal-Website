@@ -1,91 +1,52 @@
+/**
+ * Notes Index Page
+ * The landing page for the digital notes section
+ * Serves as a guide showcasing all available custom note components
+ */
+
 import { NotesLayout } from '../../components/notes/NotesLayout';
-import { MathBlock, InlineMath, CodeBlock, DiagramBlock, InteractiveBlock } from '../../components/notes';
+import { NoteTitle, NoteParagraph } from '../../components/notes';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
+/**
+ * Renders the index/welcome page for notes
+ * @returns {JSX.Element} Welcome page for the digital notes section
+ */
 export default function NotesIndex() {
   const { isDarkMode } = useDarkMode();
 
   return (
     <NotesLayout>
-      <div className={`mb-12 border-b pb-8 ${isDarkMode ? 'border-green-500/30' : 'border-slate-200'}`}>
-        <h1 className={`text-4xl font-extrabold tracking-tight sm:text-5xl mb-4 font-mono ${isDarkMode ? 'text-green-400' : 'text-slate-900'
-          }`}>
-          Digital Notes Guide
-        </h1>
-        <p className={`text-xl font-mono ${isDarkMode ? 'text-green-300' : 'text-slate-500'
-          }`}>
-          Welcome! Here is a guide on how to use all the components we built to construct your Math and Computer Science notes.
+      <div className="flex flex-col items-center justify-center text-center mt-12 mb-8">
+        <svg className={`w-24 h-24 mb-6 ${isDarkMode ? 'text-green-500/50' : 'text-slate-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+
+        <NoteTitle>My Notes</NoteTitle>
+        <p className={`text-xl font-mono max-w-2xl ${isDarkMode ? 'text-green-300' : 'text-slate-500'}`}>
+          A personal repository of my Math and Computer Science knowledge.
         </p>
       </div>
 
-      <h2 className={`text-2xl font-bold mt-12 mb-4 font-mono ${isDarkMode ? 'text-green-400' : 'text-slate-900'
-        }`}>
-        1. Using Math Blocks
-      </h2>
-      <p className={`leading-relaxed mb-4 font-mono ${isDarkMode ? 'text-green-100' : 'text-slate-700'
-        }`}>
-        You can use <code className={`px-1.5 py-0.5 rounded-md text-sm ${isDarkMode ? 'bg-black/50 text-green-300 border border-green-500/30' : 'bg-slate-100 text-slate-800'}`}>{'<InlineMath math="..." />'}</code> for inline equations like <InlineMath math="F" />, and <code className={`px-1.5 py-0.5 rounded-md text-sm ${isDarkMode ? 'bg-black/50 text-green-300 border border-green-500/30' : 'bg-slate-100 text-slate-800'}`}>{'<MathBlock math="..." />'}</code> for block equations:
-      </p>
+      <div className={`p-8 rounded-2xl mb-8 border font-mono ${isDarkMode ? 'bg-black/40 border-green-500/30 text-green-100' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
+        <h2 className={`text-xl font-bold mb-4 uppercase tracking-wider ${isDarkMode ? 'text-green-400' : 'text-slate-900'}`}>Preface</h2>
+        <p className="leading-relaxed mb-4">
+          There is so much to learn, especially in today's world, and it can be difficult to keep track of everything one learns.
+          I've found taking notes in a teaching manner is one of the best ways to solidify your own understanding.
+          In these notes, I share my personal explanations and intuition for the topics that I have learned.
+        </p>
+        <p className="leading-relaxed mb-4">
+          My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and Math.
+        </p>
+        <p className="leading-relaxed">
+          This is not meant to dive deep into any one subject, but instead provide a comprehensive view for understanding. ~Enjoy!
+        </p>
+      </div>
 
-      {/* Render Math Block */}
-      <MathBlock math="\int_a^b f(x) \, dx = F(b) - F(a)" />
-
-      <h2 className={`text-2xl font-bold mt-12 mb-4 font-mono ${isDarkMode ? 'text-green-400' : 'text-slate-900'
-        }`}>
-        2. Using Code Blocks
-      </h2>
-      <p className={`leading-relaxed mb-4 font-mono ${isDarkMode ? 'text-green-100' : 'text-slate-700'
-        }`}>
-        Use <code className={`px-1.5 py-0.5 rounded-md text-sm ${isDarkMode ? 'bg-black/50 text-green-300 border border-green-500/30' : 'bg-slate-100 text-slate-800'}`}>{'<CodeBlock language="..." code={`...`} />'}</code> to highlight code snippets properly:
-      </p>
-
-      {/* Render Code Block */}
-      <CodeBlock
-        language="python"
-        code={`
-def estimate_derivative(f, x, h=1e-5):
-    """
-    Numerically estimate the derivative of function f at point x.
-    """
-    return (f(x + h) - f(x)) / h
-        `}
-      />
-
-      <h2 className={`text-2xl font-bold mt-12 mb-4 font-mono ${isDarkMode ? 'text-green-400' : 'text-slate-900'
-        }`}>
-        3. Using Diagram Blocks
-      </h2>
-      <p className={`leading-relaxed mb-4 font-mono ${isDarkMode ? 'text-green-100' : 'text-slate-700'
-        }`}>
-        Use <code className={`px-1.5 py-0.5 rounded-md text-sm ${isDarkMode ? 'bg-black/50 text-green-300 border border-green-500/30' : 'bg-slate-100 text-slate-800'}`}>{'<DiagramBlock chart={`...`} />'}</code> with Mermaid syntax to draw flowchart diagrams:
-      </p>
-
-      {/* Render Diagram Block */}
-      <DiagramBlock
-        chart={`
-graph LR
-    A[Position s] -->|Derivative| B(Velocity v)
-    B -->|Derivative| C(Acceleration a)
-        `}
-      />
-
-      <h2 className={`text-2xl font-bold mt-12 mb-4 font-mono ${isDarkMode ? 'text-green-400' : 'text-slate-900'
-        }`}>
-        4. Using Interactive Blocks
-      </h2>
-      <p className={`leading-relaxed mb-4 font-mono ${isDarkMode ? 'text-green-100' : 'text-slate-700'
-        }`}>
-        Use <code className={`px-1.5 py-0.5 rounded-md text-sm ${isDarkMode ? 'bg-black/50 text-green-300 border border-green-500/30' : 'bg-slate-100 text-slate-800'}`}>{'<InteractiveBlock title="...">...</InteractiveBlock>'}</code> to wrap your custom interactive React components!
-      </p>
-
-      {/* Interactive Wrapper Block */}
-      <InteractiveBlock title="Custom Component Wrapper">
-        <div className={`h-32 border-2 border-dashed rounded-lg flex items-center justify-center font-mono ${isDarkMode ? 'border-green-500/50 text-green-500/80' : 'border-slate-600 text-slate-500'
-          }`}>
-          <p>Put interactive tools here!</p>
-        </div>
-      </InteractiveBlock>
-
-    </NotesLayout>
+      <NoteParagraph className="text-center">
+        Please select a topic from the sidebar on the left to get started. <br />
+        If you want to see how these pages are built, click the info button (ⓘ).
+      </NoteParagraph>
+    </NotesLayout >
   );
 }

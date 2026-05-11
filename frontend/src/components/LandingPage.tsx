@@ -293,7 +293,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                       : 'text-slate-600 hover:text-slate-800'
                     }`}
                 >
-                  Notes
+                  My Notes
                 </a>
               </nav>
 
