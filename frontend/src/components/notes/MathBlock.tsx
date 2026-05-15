@@ -22,7 +22,7 @@ interface MathProps {
 export const MathBlock: React.FC<MathProps> = ({ math, className = '' }) => {
   const { isDarkMode } = useDarkMode();
   return (
-    <div className={`my-6 overflow-x-auto text-center ${isDarkMode ? 'text-green-300' : 'text-slate-800'} ${className}`}>
+    <div className={`my-1 overflow-x-auto text-center ${isDarkMode ? 'text-green-300' : 'text-slate-800'} ${className}`}>
       <BlockMath math={math} />
     </div>
   );

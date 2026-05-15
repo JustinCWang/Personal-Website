@@ -5,7 +5,7 @@
  */
 
 import { NotesLayout } from '../../components/notes/NotesLayout';
-import { MathBlock, InlineMath, CodeBlock, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph } from '../../components/notes';
+import { MathBlock, InlineMath, CodeBlock, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, DiagramBlock } from '../../components/notes';
 
 /**
  * Renders the Calculus notes content
@@ -21,26 +21,42 @@ export default function CalculusNote() {
 
       {/* 1. FUNCTIONS SECTION */}
       <NoteSectionTitle id="functions">1. Functions</NoteSectionTitle>
-      <NoteParagraph>Content for 1. Functions goes here.</NoteParagraph>
 
       <NoteSubSectionTitle id="function-basics">1.1 Function Basics</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Function Basics.
+        We can think of functions as some box that takes in some input and spits out some output.
+      </NoteParagraph>
+      <DiagramBlock chart={`graph LR
+       X(("$$x$$")) --> F["$$f(x)$$"]
+       F --> Y(("$$y$$"))`} />
+      <NoteParagraph>
+        What the function does itself can stay an abstraction, but it does have an important guideline.
+        A function cannot give two different outputs for the same input, or graphically, functions pass the <strong>vertical line test</strong>.
       </NoteParagraph>
 
       <NoteSubSectionTitle id="domain-and-range">1.2 Domain and Range</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Domain and Range.
+        All functions have a <strong>domain</strong> and <strong>range</strong>. The domain dictates the set of allowed inputs and
+        the range dictates the set of all possible outputs. One should always consider what both of these are before anything else.
       </NoteParagraph>
 
       <NoteSubSectionTitle id="composition-of-functions">1.3 Composition of Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Composition of Functions.
+        Functions are just building blocks. When combining them together, we create a <strong>composition of functions</strong>.
+        We denote such a composition of functions like so
+        <MathBlock math="(f ∘ g)(x) = f(g(x))" />
+        Note that the we always evaluate the inside function first and work outwards!
       </NoteParagraph>
 
       <NoteSubSectionTitle id="inverse-functions">1.4 Inverse Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Inverse Functions.
+        If we can modify an input with a function, then naturally we might want to also <strong>undo</strong> our changes.
+        This is called the <strong>inverse</strong> of the function. Of course, a function's inverse only exists if it is
+        <strong>one-to-one</strong> or <strong>injective</strong>. If this was false, then clearly we can't find the
+        inverse since we can't tell what the original input was! Visually, we can check with the <strong>horizontal line test</strong>.
+        We commonly denote the inverse of a function as:
+        <MathBlock math="f^{-1}(x)" />
+
       </NoteParagraph>
 
       <NoteSubSectionTitle id="graph-transformations">1.5 Graph Transformations</NoteSubSectionTitle>

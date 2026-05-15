@@ -39,7 +39,7 @@ export default function NotesIndex() {
           My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and Math.
         </p>
         <p className="leading-relaxed">
-          This is not meant to dive deep into any one subject, but instead provide a comprehensive view for understanding. ~Enjoy!
+          This is not meant to dive deep into any one subject or teach anything from scratch, but instead provide a comprehensive view for understanding. ~Enjoy!
         </p>
       </div>
 

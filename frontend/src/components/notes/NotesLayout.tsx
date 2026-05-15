@@ -760,7 +760,7 @@ interface NotesLayoutProps {
   children: React.ReactNode;
 }
 
-const SubtopicItem: React.FC<{ sub: Subtopic, isDarkMode: boolean, closeMenu: () => void, depth: number }> = ({ sub, isDarkMode, closeMenu, depth }) => {
+const SubtopicItem: React.FC<{ sub: Subtopic, isDarkMode: boolean, closeMenu: () => void, depth: number, parentPath: string }> = ({ sub, isDarkMode, closeMenu, depth, parentPath }) => {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = sub.subtopics && sub.subtopics.length > 0;
 
@@ -771,8 +771,8 @@ const SubtopicItem: React.FC<{ sub: Subtopic, isDarkMode: boolean, closeMenu: ()
           ? 'text-green-300 hover:bg-green-500/10' 
           : 'text-slate-500 hover:bg-slate-50'
       }`}>
-        <a 
-          href={`#${sub.hash}`}
+        <Link 
+          to={`${parentPath}#${sub.hash}`}
           className={`block flex-1 px-2 py-1 text-xs font-mono ${!isDarkMode && 'hover:text-blue-500'} ${isDarkMode && 'hover:text-green-400'}`}
           onClick={() => {
             closeMenu();
@@ -780,7 +780,7 @@ const SubtopicItem: React.FC<{ sub: Subtopic, isDarkMode: boolean, closeMenu: ()
           }}
         >
           {sub.name}
-        </a>
+        </Link>
         {hasChildren && (
           <button 
             onClick={() => setIsOpen(!isOpen)} 
@@ -792,17 +792,17 @@ const SubtopicItem: React.FC<{ sub: Subtopic, isDarkMode: boolean, closeMenu: ()
         )}
       </div>
       {hasChildren && isOpen && (
-        <SubtopicList subtopics={sub.subtopics!} isDarkMode={isDarkMode} closeMenu={closeMenu} depth={depth + 1} />
+        <SubtopicList subtopics={sub.subtopics!} isDarkMode={isDarkMode} closeMenu={closeMenu} depth={depth + 1} parentPath={parentPath} />
       )}
     </li>
   );
 };
 
-const SubtopicList: React.FC<{ subtopics: Subtopic[], isDarkMode: boolean, closeMenu: () => void, depth?: number }> = ({ subtopics, isDarkMode, closeMenu, depth = 0 }) => {
+const SubtopicList: React.FC<{ subtopics: Subtopic[], isDarkMode: boolean, closeMenu: () => void, depth?: number, parentPath: string }> = ({ subtopics, isDarkMode, closeMenu, depth = 0, parentPath }) => {
   return (
     <ul className={`mt-1 space-y-1 ${depth === 0 ? 'ml-4 border-l-2 border-slate-200 dark:border-green-500/30 pl-2' : 'ml-3 border-l border-slate-200 dark:border-green-500/20 pl-2'}`}>
       {subtopics.map((sub, index) => (
-        <SubtopicItem key={index} sub={sub} isDarkMode={isDarkMode} closeMenu={closeMenu} depth={depth} />
+        <SubtopicItem key={index} sub={sub} isDarkMode={isDarkMode} closeMenu={closeMenu} depth={depth} parentPath={parentPath} />
       ))}
     </ul>
   );
@@ -855,6 +855,7 @@ const MainSectionItem: React.FC<{ item: any, isDarkMode: boolean, closeMenu: () 
           subtopics={item.subtopics} 
           isDarkMode={isDarkMode} 
           closeMenu={closeMenu} 
+          parentPath={item.path}
         />
       )}
     </li>
@@ -871,6 +872,21 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname, location.hash]);
+
 
   const renderThemeIcon = () => {
     return isDarkMode ? (
@@ -1009,7 +1025,7 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 max-w-4xl mx-auto px-6 py-10 pb-24 md:px-12 w-full transition-all duration-300 ${mobileMenuOpen ? 'hidden md:block' : ''}`}>
+      <main className={`flex-1 max-w-7xl mx-auto px-6 py-10 pb-24 md:px-12 w-full transition-all duration-300 ${mobileMenuOpen ? 'hidden md:block' : ''}`}>
         <div className="font-mono w-full">
           {children}
         </div>

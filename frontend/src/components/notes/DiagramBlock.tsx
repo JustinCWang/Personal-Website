@@ -29,7 +29,7 @@ export const DiagramBlock: React.FC<DiagramBlockProps> = ({ chart, className = '
       themeVariables: isDarkMode ? {
         darkMode: true,
         background: 'transparent',
-        primaryColor: '#000000', 
+        primaryColor: '#000000',
         primaryTextColor: '#4ade80', // green-400
         primaryBorderColor: '#22c55e', // green-500
         lineColor: '#86efac', // green-300
@@ -46,7 +46,7 @@ export const DiagramBlock: React.FC<DiagramBlockProps> = ({ chart, className = '
         tertiaryColor: '#f1f5f9'
       }
     });
-    
+
     if (containerRef.current) {
       // Clear previous
       containerRef.current.removeAttribute('data-processed');
@@ -56,9 +56,7 @@ export const DiagramBlock: React.FC<DiagramBlockProps> = ({ chart, className = '
   }, [chart, isDarkMode]);
 
   return (
-    <div className={`my-8 flex justify-center p-6 rounded-xl border ${
-      isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'
-    } ${className}`}>
+    <div className={`my-1 flex justify-center py-1 px-6 ${className}`}>
       <div ref={containerRef} className="mermaid flex justify-center w-full font-mono">
         {chart}
       </div>
