@@ -5,13 +5,47 @@
  */
 
 import { NotesLayout } from '../../components/notes/NotesLayout';
-import { MathBlock, InlineMath, CodeBlock, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, DiagramBlock } from '../../components/notes';
+import { MathBlock, InlineMath, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, DiagramBlock } from '../../components/notes';
+import { Mafs, Coordinates, Plot, Theme, Line, Circle } from "mafs";
+import "mafs/core.css";
+import "mafs/font.css";
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 /**
  * Renders the Calculus notes content
  * @returns {JSX.Element} Structured calculus notes page
  */
 export default function CalculusNote() {
+  const { isDarkMode } = useDarkMode();
+
+  const mafsStyle = isDarkMode ? {
+    '--mafs-fg': '#4ade80',
+    '--mafs-bg': 'transparent',
+    '--mafs-line-color': '#22c55e40',
+    '--mafs-origin-color': '#4ade80'
+  } as React.CSSProperties : {
+    '--mafs-fg': '#1e293b',
+    '--mafs-bg': 'transparent',
+    '--mafs-line-color': '#cbd5e1',
+    '--mafs-origin-color': '#64748b'
+  } as React.CSSProperties;
+  const dottedMafsStyle = {
+    ...mafsStyle,
+    '--mafs-line-stroke-dash-style': '1, 8',
+  } as React.CSSProperties;
+
+  const graphListClassName = `list-disc pl-6 mb-8 font-mono text-sm space-y-2 [&_span]:!text-inherit [&_.katex]:!text-inherit ${isDarkMode ? 'text-green-100/80' : 'text-slate-700'}`;
+  const graphColors = {
+    foreground: isDarkMode ? '#4ade80' : '#1e293b',
+    red: '#f11d0e',
+    orange: '#f14e0e',
+    yellow: '#ffe44a',
+    green: '#15e272',
+    blue: '#58a6ff',
+    violet: '#ae58ff',
+    asymptote: '#9ca3af',
+  };
+
   return (
     <NotesLayout>
       <NoteHeader
@@ -43,7 +77,7 @@ export default function CalculusNote() {
       <NoteSubSectionTitle id="composition-of-functions">1.3 Composition of Functions</NoteSubSectionTitle>
       <NoteParagraph>
         Functions are just building blocks. When combining them together, we create a <strong>composition of functions</strong>.
-        We denote such a composition of functions like so
+        We denote such a composition of functions like so:
         <MathBlock math="(f ∘ g)(x) = f(g(x))" />
         Note that the we always evaluate the inside function first and work outwards!
       </NoteParagraph>
@@ -61,43 +95,344 @@ export default function CalculusNote() {
 
       <NoteSubSectionTitle id="graph-transformations">1.5 Graph Transformations</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Graph Transformations.
+        Diving a bit deeper, we can easily <strong>transform</strong> the shape or position of a function <InlineMath math="y = f(x)" /> into whatever
+        we desire. Most commonly, we use <InlineMath math="a" /> as a scalar and <InlineMath math="c" /> as a constant.
       </NoteParagraph>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li><InlineMath math="f(x)" />: original function</li>
+            <li><InlineMath math="f(x) + c" />: shift up <InlineMath math="c" /></li>
+            <li><InlineMath math="f(x) - c" />: shift down <InlineMath math="c" /></li>
+            <li><InlineMath math="f(x - c)" />: shift right <InlineMath math="c" /></li>
+            <li><InlineMath math="f(x + c)" />: shift left <InlineMath math="c" /></li>
+            <li><InlineMath math="-c \cdot f(x)" />: reflect and stretch vertically</li>
+            <li><InlineMath math="f(-x)" />: reflect across y-axis</li>
+            <li><InlineMath math="-f(x) + c" />: reflect across x-axis and shift up</li>
+            <li><InlineMath math="a \cdot f(x)" />: vertical stretch/compression</li>
+            <li><InlineMath math="f(ax)" />: horizontal compression/stretch</li>
+          </ul>
+          <NoteParagraph>
+            The graph shows some basic transformations applied to <InlineMath math="f(x) = x^2" />.
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={mafsStyle}>
+            <Mafs viewBox={{ x: [-4, 4], y: [-1, 4] }} height={300} zoom>
+              <Coordinates.Cartesian />
+              <Plot.OfX y={(x) => x ** 2} color={Theme.foreground} />
+              <Plot.OfX y={(x) => x ** 2 + 2} color={Theme.green} />
+              <Plot.OfX y={(x) => (x - 2) ** 2} color={Theme.red} />
+              <Plot.OfX y={(x) => -(x ** 2) + 2} color={Theme.orange} />
+              <Plot.OfX y={(x) => 4 * (x ** 2)} color={Theme.violet} />
+            </Mafs>
+          </div>
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="polynomial-functions">1.6 Polynomial Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Polynomial Functions.
+        Polynomial functions are continuous everywhere and built from powers of <InlineMath math="x"/> with non-negative integer exponents. You 
+        have probably seen a function like <InlineMath math="f(x) = x^3 + 2x^2 + 4"/>. This is a basic polynomial function of <strong>degree 3</strong>, 
+        denoted by the highest power of the polynomial. I find the most intuitive way to understand polynomial functions is to just look at them.  
       </NoteParagraph>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li style={{ color: graphColors.foreground }}><InlineMath math="f(x) = x"/></li>
+            <li style={{ color: graphColors.green }}><InlineMath math="f(x) = x^2" /></li>
+            <li style={{ color: graphColors.red }}><InlineMath math="f(x) = x^3" /></li>
+            <li style={{ color: graphColors.orange }}><InlineMath math="f(x) = x^{4}\ +\ 2x^{3}" /></li>
+            <li style={{ color: graphColors.violet }}><InlineMath math="f(x) = x^{5}-5x^{3}+4x" /></li>
+            <li style={{ color: graphColors.blue }}><InlineMath math="f(x) = \frac{1}{2}x^{6}-\frac{15}{4}x^{4}+6x^{2}" /></li>
+          </ul>
+          <NoteParagraph>
+            The graph shows basic polynomial functions of degree 1-6 with coefficients to highlight some patterns with polynomial functions. 
+            Notice that for <strong>degree n</strong>, there are at most <strong>n-1 critical points</strong>. Additionally, it may be useful to 
+            keep in mind the relationship between the parity of the degree and end behavior of the function! 
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={mafsStyle}>
+            <Mafs viewBox={{ x: [-3, 3], y: [-3, 3] }} height={300} zoom>
+              <Coordinates.Cartesian />
+              <Plot.OfX y={(x) => x} color={Theme.foreground} />
+              <Plot.OfX y={(x) => x ** 2} color={Theme.green} />
+              <Plot.OfX y={(x) => x ** 3} color={Theme.red} />
+              <Plot.OfX y={(x) => x ** 4 + 2 *x ** 3} color={Theme.orange} />
+              <Plot.OfX y={(x) => x ** 5 - 5 * x ** 3 + 4 * x} color={Theme.violet} />
+              <Plot.OfX y={(x) => 1/2 *x ** 6 - 15/4 * x ** 4 + 6 * x ** 2} color={Theme.blue} />
+            </Mafs>
+          </div>
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="rational-functions">1.7 Rational Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Rational Functions.
-      </NoteParagraph>
+        Rational functions are a ratio of two polynomials. Because we have a denominator, it can't be zero or else it would be undefined.
+        This results in behavior that we call <strong>asymptotes.</strong>. Additionally, factors of the polynomials can cancel resulting in what
+        we call a <strong>hole</strong>. This results in a domain restriction which we can see in the examples below.
+      </NoteParagraph>    
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li style={{ color: graphColors.blue }}><InlineMath math="f(x) = \frac{x+3}{x+2}, x \in \mathbb{R} \setminus \{-2\}" /></li>
+            <li style={{ color: graphColors.green }}><InlineMath math="f(x) = \frac{2-x}{x-1}, x \in \mathbb{R} \setminus \{1\}" /></li>
+            <li style={{ color: graphColors.red }}><InlineMath math="f(x) = \frac{x^2 - 2x - 2}{x - 3}, x \in \mathbb{R} \setminus \{3\}" /></li>
+            <li style={{ color: graphColors.violet }}><InlineMath math="f(x) = \frac{(x-1)(x+3)}{x+3}, x \in \mathbb{R} \setminus \{-3\}" /></li>
+          </ul>
+          <NoteParagraph>
+            We denote the vertical, horizontal, and slant asymptotes with dotted gray lines. The open circle marks the <strong>hole</strong>.
+            Notice the restrictions upon the domain that this family of functions induces. In a more practical sense, it might be useful to 
+            think of the asymptotes and holes as modeling the <strong>limitations</strong> of reality, where the theory doesn't quite match up 
+            with practicality.  
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={dottedMafsStyle}>
+            <Mafs viewBox={{ x: [-4, 4], y: [-5, 6], padding: 0 }} height={300} zoom>
+              <Coordinates.Cartesian />
+
+              <Plot.OfX y={(x) => (x + 3) / (x + 2)} domain={[4, 100]} color={Theme.blue} />
+              <Plot.OfX y={(x) => (x + 3) / (x + 2)} domain={[-4, -2.0000001]} color={Theme.blue} />
+              <Plot.OfX y={(x) => (x + 3) / (x + 2)} domain={[-1.999999, 4]} color={Theme.blue} />
+              <Plot.OfX y={(x) => (x + 3) / (x + 2)} domain={[-100, -4]} color={Theme.blue} />
+
+              <Plot.OfX y={(x) => (2 - x) / (x - 1)} domain={[4, 100]} color={Theme.green} />
+              <Plot.OfX y={(x) => (2 - x) / (x - 1)} domain={[-4, 0.999999]} color={Theme.green} />
+              <Plot.OfX y={(x) => (2 - x) / (x - 1)} domain={[1.000001, 4]} color={Theme.green} />
+              <Plot.OfX y={(x) => (2 - x) / (x - 1)} domain={[-100, -4]} color={Theme.green} />
+
+              <Plot.OfX y={(x) => (x ** 2 - 2 * x - 2) / (x - 3)} domain={[4, 100]} color={Theme.red} />
+              <Plot.OfX y={(x) => (x ** 2 - 2 * x - 2) / (x - 3)} domain={[-4, 2.999999]} color={Theme.red} />
+              <Plot.OfX y={(x) => (x ** 2 - 2 * x - 2) / (x - 3)} domain={[3.000001, 4]} color={Theme.red} />
+              <Plot.OfX y={(x) => (x ** 2 - 2 * x - 2) / (x - 3)} domain={[-100, -4]} color={Theme.red} />
+
+              <Plot.OfX y={(x) => x - 1} color={Theme.violet} />
+
+              <Line.ThroughPoints point1={[-2, -5]} point2={[-2, 6]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[1, -5]} point2={[1, 6]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[3, -5]} point2={[3, 6]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.PointSlope point={[0, 1]} slope={0} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.PointSlope point={[0, -1]} slope={0} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.PointSlope point={[0, 1]} slope={1} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+
+              <Circle center={[-3, -4]} radius={0.12} color={Theme.violet} fillOpacity={0} strokeOpacity={1} weight={3} />
+            </Mafs>
+          </div>
+        </div>
+      </div>                                                                  
 
       <NoteSubSectionTitle id="exponential-functions">1.8 Exponential Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Exponential Functions.
+        Exponential functions have the variable in the exponent, modeling repeated multiplication. A basic exponential
+        function has the form <InlineMath math="f(x) = a^x" />, where <InlineMath math="a > 0" /> and <InlineMath math="a \ne 1" />.
+        When <InlineMath math="a > 1" />, the function <strong>grows</strong> and when <InlineMath math="0 < a < 1" />, the function <strong>decays</strong>.
       </NoteParagraph>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li style={{ color: graphColors.blue }}><InlineMath math="f(x) = 2^x" /></li>
+            <li style={{ color: graphColors.green }}><InlineMath math="f(x) = \left(\frac{1}{2}\right)^x" /></li>
+            <li style={{ color: graphColors.red }}><InlineMath math="f(x) = e^x" /></li>
+            <li style={{ color: graphColors.violet }}><InlineMath math="f(x) = 2^x - 2" /></li>
+            <li style={{ color: graphColors.orange }}><InlineMath math="f(x) = 2^{x-1} - 2" /></li>
+          </ul>
+          <NoteParagraph>
+            Unlike rational functions, exponential functions have domain <InlineMath math="\mathbb{R}"/>. However, as seen from the examples, the range is now 
+            limited by their horizontal asymptote, controlled by the <strong>vertical shift</strong> of the function. Practically, we see exponential functions
+            as a very good fit for modeling a variety of fields from finance to biology. 
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={dottedMafsStyle}>
+            <Mafs viewBox={{ x: [-4, 4], y: [-3, 6], padding: 0 }} height={300} zoom>
+              <Coordinates.Cartesian />
+
+              <Plot.OfX y={(x) => 2 ** x} color={Theme.blue} />
+              <Plot.OfX y={(x) => (1 / 2) ** x} color={Theme.green} />
+              <Plot.OfX y={(x) => Math.E ** x} color={Theme.red} />
+              <Plot.OfX y={(x) => 2 ** x - 2} color={Theme.violet} />
+              <Plot.OfX y={(x) => 2 ** (x - 1) - 2} color={Theme.orange} />
+
+              <Line.PointSlope point={[0, 0]} slope={0} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.PointSlope point={[0, -2]} slope={0} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+            </Mafs>
+          </div>
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="logarithmic-functions">1.9 Logarithmic Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Logarithmic Functions.
+        Logarithmic functions can be thought of as the inverses of exponential functions. A basic logarithmic function answers the question:
+        what exponent gives this input? Because logs can only take positive inputs, the inside of the logarithm determines the domain.
       </NoteParagraph>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li style={{ color: graphColors.blue }}><InlineMath math="f(x) = \log_2(x), x > 0" /></li>
+            <li style={{ color: graphColors.red }}><InlineMath math="f(x) = \ln(x), x > 0" /></li>
+            <li style={{ color: graphColors.green }}><InlineMath math="f(x) = -\log_2(x), x > 0" /></li>
+            <li style={{ color: graphColors.violet }}><InlineMath math="f(x) = \log_2(x - 1), x > 1" /></li>
+          </ul>
+          <NoteParagraph>
+            Of the example functions, one should take note of <InlineMath math="ln(x) = \log_e(x)" /> which denotes the <strong>natural log</strong>. 
+            This special log is seen everywhere and should be remembered. Intuitively, logarithmic functions should be thought of solving for extreme 
+            scales. Just looking at the graph, as the <InlineMath math="x"/> value grows, the <InlineMath math="y"/> value grows much slower, but still grows 
+            unboundedly nonetheless. 
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={dottedMafsStyle}>
+            <Mafs viewBox={{ x: [-1, 6], y: [-4, 4], padding: 0 }} height={300} zoom>
+              <Coordinates.Cartesian />
+
+              <Plot.OfX y={(x) => Math.log2(x)} color={Theme.blue} />
+              <Plot.OfX y={(x) => Math.log(x)} color={Theme.red} />
+              <Plot.OfX y={(x) => -Math.log2(x)} color={Theme.green} />
+              <Plot.OfX y={(x) => Math.log2(x - 1)} color={Theme.violet} />
+
+              <Line.ThroughPoints point1={[0, -4]} point2={[0, 4]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[1, -4]} point2={[1, 4]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+            </Mafs>
+          </div>
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="trigonometric-functions">1.10 Trigonometric Functions</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Trigonometric Functions.
+        Trigonometric functions connect angles to ratios on the <strong>unit circle</strong>. The sine and cosine functions are <strong>periodic</strong> and bounded,
+        while tangent is periodic but has <strong>vertical asymptotes</strong> wherever cosine is zero. That is to say, this family of functions model waves.  
       </NoteParagraph>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start mb-8">
+        <div>
+          <ul className={graphListClassName}>
+            <li style={{ color: graphColors.blue }}><InlineMath math="f(x) = \sin(x - 1)" /></li>
+            <li style={{ color: graphColors.green }}><InlineMath math="f(x) = \cos(x) + 2" /></li>
+            <li style={{ color: graphColors.red }}><InlineMath math="f(x) = \tan(x), x \ne \frac{\pi}{2} + k\pi" /></li>
+            <li style={{ color: graphColors.violet }}><InlineMath math="f(x) = 2\sin(x)" /></li>
+          </ul>
+          <NoteParagraph>
+            Every trigonometric function has the following properties: period, amplitude, phase shift, and vertical shift. The <strong>period</strong> is how long it 
+            takes for the function to repeat itself, the <strong>amplitude</strong> is how far the function goes from its center line, the <strong>phase shift</strong> is 
+            how much the function is shifted horizontally, and the <strong>vertical shift</strong> is how much the function is shifted vertically.
+          </NoteParagraph>
+        </div>
+
+        <div className={`p-1 rounded-xl border ${isDarkMode ? 'bg-black/50 border-green-500/30' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="rounded-lg overflow-hidden" style={dottedMafsStyle}>
+            <Mafs viewBox={{ x: [-2 * Math.PI, 2 * Math.PI], y: [-3, 3], padding: 0 }} height={300} zoom>
+              <Coordinates.Cartesian />
+
+              <Plot.OfX y={(x) => Math.sin(x - 1)} color={Theme.blue} />
+              <Plot.OfX y={(x) => Math.cos(x) + 2} color={Theme.green} />
+              <Plot.OfX y={(x) => Math.tan(x)} domain={[-2 * Math.PI, -1.5 * Math.PI - 0.05]} color={Theme.red} />
+              <Plot.OfX y={(x) => Math.tan(x)} domain={[-1.5 * Math.PI + 0.05, -0.5 * Math.PI - 0.05]} color={Theme.red} />
+              <Plot.OfX y={(x) => Math.tan(x)} domain={[-0.5 * Math.PI + 0.05, 0.5 * Math.PI - 0.05]} color={Theme.red} />
+              <Plot.OfX y={(x) => Math.tan(x)} domain={[0.5 * Math.PI + 0.05, 1.5 * Math.PI - 0.05]} color={Theme.red} />
+              <Plot.OfX y={(x) => Math.tan(x)} domain={[1.5 * Math.PI + 0.05, 2 * Math.PI]} color={Theme.red} />
+              <Plot.OfX y={(x) => 2 * Math.sin(x)} color={Theme.violet} />
+
+              <Line.ThroughPoints point1={[-1.5 * Math.PI, -3]} point2={[-1.5 * Math.PI, 3]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[-0.5 * Math.PI, -3]} point2={[-0.5 * Math.PI, 3]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[0.5 * Math.PI, -3]} point2={[0.5 * Math.PI, 3]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+              <Line.ThroughPoints point1={[1.5 * Math.PI, -3]} point2={[1.5 * Math.PI, 3]} color={graphColors.asymptote} style="dashed" opacity={0.9} />
+            </Mafs>
+          </div>
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="algebra-review">1.11 Algebra Review</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Algebra Review.
+        While most of algebra is mostly common sense, there are a few concepts worth remembering before diving into calculus. 
       </NoteParagraph>
+      <div className="space-y-5 mb-8">
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Factoring</h4>
+          <NoteParagraph>
+            Factoring rewrites an expression as a product. I've seen many ways factoring has been taught, but I find the fastest and most intuitive way
+            is to just look at the coefficients for the first and last term see what combination of factors result in the middle terms. If this is not possible,
+            then you can always use the <strong>quadratic formula</strong>. 
+          </NoteParagraph>
+          <MathBlock math="x^2 + 5x + 6 = (x + 2)(x + 3)" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Expanding</h4>
+          <NoteParagraph>
+            In a similar sense, expanding rewrites a product as a sum. While this is fairly trivial, we will see later on that it is quite mathematically convenient to 
+            expand before doing anything else. 
+          </NoteParagraph>
+          <MathBlock math="(x + h)^2 = x^2 + 2xh + h^2" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Rationalizing</h4>
+          <NoteParagraph>
+            Rationalizing uses a <strong>conjugate</strong> to remove a square root expression from a difference. We find it useful to rationalize to simplify the 
+            expression and for mathematical convenience.
+          </NoteParagraph>
+          <MathBlock math="\frac{\sqrt{x} - 2}{1} \cdot \frac{\sqrt{x} + 2}{\sqrt{x} + 2} = \frac{x - 4}{\sqrt{x} + 2}" />
+          <NoteParagraph className="mb-0">
+            Used in limits when direct substitution creates an indeterminate form like <InlineMath math="0/0" />.
+          </NoteParagraph>
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Exponent Rules</h4>
+          <NoteParagraph>
+            Exponents come with their own little set of rules that allow us to modify and simplify expressions. 
+          </NoteParagraph>
+          <MathBlock math="x^a x^b = x^{a+b} \qquad \frac{x^a}{x^b} = x^{a-b} \qquad (x^a)^b = x^{ab}" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Fraction Rules</h4>
+          <NoteParagraph>
+            Similarly, fractions also come with their own set of handy rules. 
+          </NoteParagraph>
+          <MathBlock math="\frac{a}{b} + \frac{c}{d} = \frac{ad + bc}{bd} \qquad \frac{\frac{a}{b}}{\frac{c}{d}} = \frac{ad}{bc}" />
+        </div>
+      </div>
 
       <NoteSubSectionTitle id="trig-identities">1.12 Trig Identities</NoteSubSectionTitle>
       <NoteParagraph>
-        Notes on Trig Identities.
+        Trig identities also constantly come up and are worth remembering the most common ones. 
       </NoteParagraph>
+      <div className="space-y-5 mb-8">
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Pythagorean Identities</h4>
+          <MathBlock math="\sin^2(x) + \cos^2(x) = 1" />
+          <MathBlock math="1 + \tan^2(x) = \sec^2(x) \qquad 1 + \cot^2(x) = \csc^2(x)" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Quotient and Reciprocal Identities</h4>
+          <MathBlock math="\tan(x) = \frac{\sin(x)}{\cos(x)} \qquad \cot(x) = \frac{\cos(x)}{\sin(x)}" />
+          <MathBlock math="\sec(x) = \frac{1}{\cos(x)} \qquad \csc(x) = \frac{1}{\sin(x)} \qquad \cot(x) = \frac{1}{\tan(x)}" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Even and Odd Identities</h4>
+          <MathBlock math="\sin(-x) = -\sin(x) \qquad \cos(-x) = \cos(x) \qquad \tan(-x) = -\tan(x)" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Double-Angle Identities</h4>
+          <MathBlock math="\sin(2x) = 2\sin(x)\cos(x)" />
+          <MathBlock math="\cos(2x) = \cos^2(x) - \sin^2(x)" />
+        </div>
+
+        <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'}`}>
+          <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>Power-Reduction Identities</h4>
+          <MathBlock math="\sin^2(x) = \frac{1 - \cos(2x)}{2} \qquad \cos^2(x) = \frac{1 + \cos(2x)}{2}" />
+        </div>
+      </div>
 
       {/* 2. LIMITS SECTION */}
       <NoteSectionTitle id="limits">2. Limits</NoteSectionTitle>
