@@ -15,6 +15,12 @@ interface Subtopic {
   subtopics?: Subtopic[];
 }
 
+interface MainTopicItem {
+  name: string;
+  path: string;
+  subtopics?: Subtopic[];
+}
+
 const TOPICS = [
   {
     title: 'Mathematics',
@@ -808,7 +814,7 @@ const SubtopicList: React.FC<{ subtopics: Subtopic[], isDarkMode: boolean, close
   );
 };
 
-const MainSectionItem: React.FC<{ item: any, isDarkMode: boolean, closeMenu: () => void, isActive: boolean }> = ({ item, isDarkMode, closeMenu, isActive }) => {
+const MainSectionItem: React.FC<{ item: MainTopicItem, isDarkMode: boolean, closeMenu: () => void, isActive: boolean }> = ({ item, isDarkMode, closeMenu, isActive }) => {
   const [isOpen, setIsOpen] = useState(isActive);
   
   useEffect(() => {
@@ -852,7 +858,7 @@ const MainSectionItem: React.FC<{ item: any, isDarkMode: boolean, closeMenu: () 
       </div>
       {hasChildren && isOpen && (
         <SubtopicList 
-          subtopics={item.subtopics} 
+          subtopics={item.subtopics!}
           isDarkMode={isDarkMode} 
           closeMenu={closeMenu} 
           parentPath={item.path}

@@ -16,6 +16,10 @@ interface SectionTitleProps extends BaseProps {
   id?: string;
 }
 
+interface TopicBlockProps extends BaseProps {
+  title: React.ReactNode;
+}
+
 /**
  * Main title component for note pages
  * @param {BaseProps} props - Component props containing children and className
@@ -69,6 +73,34 @@ export const NoteParagraph: React.FC<BaseProps> = ({ children, className = '' })
     <p className={`font-mono mb-4 leading-relaxed ${isDarkMode ? 'text-green-100' : 'text-slate-700'} ${className}`}>
       {children}
     </p>
+  );
+};
+
+/**
+ * Container for grouped mini-topics within a note section.
+ * @param {BaseProps} props - Component props containing children and className
+ * @returns {JSX.Element} Spaced mini-topic group
+ */
+export const NoteTopicGroup: React.FC<BaseProps> = ({ children, className = '' }) => {
+  return (
+    <div className={`space-y-5 mb-8 ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+/**
+ * Mini-topic block with a themed left border and heading.
+ * @param {TopicBlockProps} props - Component props containing title, children, and className
+ * @returns {JSX.Element} Stylized note topic block
+ */
+export const NoteTopicBlock: React.FC<TopicBlockProps> = ({ title, children, className = '' }) => {
+  const { isDarkMode } = useDarkMode();
+  return (
+    <div className={`border-l-2 pl-4 ${isDarkMode ? 'border-green-500/40' : 'border-slate-300'} ${className}`}>
+      <h4 className={`font-mono font-bold mb-2 ${isDarkMode ? 'text-green-300' : 'text-slate-800'}`}>{title}</h4>
+      {children}
+    </div>
   );
 };
 

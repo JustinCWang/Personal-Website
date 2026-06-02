@@ -45,7 +45,8 @@ export default function NotesIndex() {
 
       <NoteParagraph className="text-center">
         Please select a topic from the sidebar on the left to get started. <br />
-        If you want to see how these pages are built, click the info button (ⓘ).
+        If you want to see how these pages are built, click the info button (ⓘ). <br />
+        If you find any errors or have suggestions, please make a pull request on the GitHub repo! <br />
       </NoteParagraph>
     </NotesLayout >
   );
