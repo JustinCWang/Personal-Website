@@ -16,6 +16,7 @@ import Dashboard from './components/Dashboard.tsx'
 import LandingPage from './components/LandingPage.tsx'
 import NotesIndex from './pages/notes/NotesIndex.tsx'
 import CalculusNote from './pages/notes/CalculusNote.tsx'
+import DiscreteMathNote from './pages/notes/DiscreteMath.tsx'
 import CSNote from './pages/notes/CSNote.tsx'
 
 /**
@@ -67,6 +68,7 @@ const AppContent = () => {
       {/* Notes Routes - Public access */}
       <Route path="/notes" element={<NotesIndex />} />
       <Route path="/notes/calculus" element={<CalculusNote />} />
+      <Route path="/notes/discrete-math" element={<DiscreteMathNote />} />
       <Route path="/notes/cs" element={<CSNote />} />
 
       {/* Login Route - Redirect to dashboard if already authenticated */}

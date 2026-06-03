@@ -36,7 +36,7 @@ export const MathBlock: React.FC<MathProps> = ({ math, className = '' }) => {
 export const InlineMath: React.FC<MathProps> = ({ math, className = '' }) => {
   const { isDarkMode } = useDarkMode();
   return (
-    <span className={`${isDarkMode ? 'text-green-300' : 'text-slate-800'} ${className}`}>
+    <span className={`inline-flex items-center align-middle leading-none [&_.katex]:leading-none ${isDarkMode ? 'text-green-300' : 'text-slate-800'} ${className}`}>
       <ReactInlineMath math={math} />
     </span>
   );
