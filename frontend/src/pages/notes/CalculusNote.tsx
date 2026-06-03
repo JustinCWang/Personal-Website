@@ -54,12 +54,27 @@ export default function CalculusNote() {
         subtitle="The beginning of all things regarding change..."
       />
 
+      <NoteTopicGroup>
+        <NoteTopicBlock title="How to Read the Notation">
+          <ul className={graphListClassName}>
+            <li><InlineMath math="\mathbb R" /> means the real numbers, the usual number line used for most calculus inputs and outputs.</li>
+            <li><InlineMath math="f:A\to B" /> means the function takes inputs from <InlineMath math="A" /> and returns outputs in <InlineMath math="B" />.</li>
+            <li><InlineMath math="\Delta" /> means a finite change, while <InlineMath math="d" /> appears in derivative and integral notation for infinitesimal change.</li>
+            <li><InlineMath math="f'(x)" />, <InlineMath math="\frac{dy}{dx}" />, and <InlineMath math="\frac{d}{dx}f(x)" /> are derivative notations.</li>
+            <li><InlineMath math="\int" /> means integrate, or accumulate; <InlineMath math="dx" /> tells which variable the accumulation uses.</li>
+            <li><InlineMath math="\sum" /> means add indexed terms; <InlineMath math="\nabla" /> is the gradient operator; <InlineMath math="\partial" /> marks a partial derivative.</li>
+            <li><InlineMath math="\approx" /> means approximately equal, and <InlineMath math="\|\vec v\|" /> means vector length.</li>
+          </ul>
+        </NoteTopicBlock>
+      </NoteTopicGroup>
+
       {/* 1. FUNCTIONS SECTION */}
       <NoteSectionTitle id="functions">1. Functions</NoteSectionTitle>
 
       <NoteSubSectionTitle id="function-basics">1.1 Function Basics</NoteSubSectionTitle>
       <NoteParagraph>
-        We can think of functions as some box that takes in some input and spits out some output.
+        A function is an input-output rule. It takes each allowed input and assigns exactly one output. The rule can be a formula, a graph, a table,
+        code, or a verbal description, but the one-output-per-input requirement is what makes it a function.
       </NoteParagraph>
       <DiagramBlock chart={`graph LR
        X(("$$x$$")) --> F["$$f(x)$$"]
@@ -71,8 +86,9 @@ export default function CalculusNote() {
 
       <NoteSubSectionTitle id="domain-and-range">1.2 Domain and Range</NoteSubSectionTitle>
       <NoteParagraph>
-        All functions have a <strong>domain</strong> and <strong>range</strong>. The domain dictates the set of allowed inputs and
-        the range dictates the set of all possible outputs. One should always consider what both of these are before anything else.
+        All functions have a <strong>domain</strong>, a <strong>codomain</strong>, and a <strong>range</strong>. The domain is the set of allowed
+        inputs. The codomain is the target set we agree outputs should live in. The range is the set of outputs the function actually hits. One
+        should always consider these sets before doing algebra or reading a graph.
       </NoteParagraph>
 
       <NoteSubSectionTitle id="composition-of-functions">1.3 Composition of Functions</NoteSubSectionTitle>
@@ -89,7 +105,8 @@ export default function CalculusNote() {
       <NoteParagraph>
         If we can modify an input with a function, then naturally we might want to also <strong>undo</strong> our changes.
         This is called the <strong>inverse</strong> of the function. Of course, a function's inverse only exists as a function if it is{' '}
-        <strong>one-to-one</strong> or <strong>injective</strong>. If this was false, then the inverse would not know which original input to return.
+        <strong>one-to-one</strong> or <strong>injective</strong>, meaning different inputs always produce different outputs. If this was false,
+        then the inverse would not know which original input to return.
         Visually, we can check with the <strong>horizontal line test</strong>.
         We commonly denote the inverse of a function as:
       </NoteParagraph>

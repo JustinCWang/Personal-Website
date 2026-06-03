@@ -230,9 +230,15 @@ function NotationGuide() {
           <li><InlineMath math="\mathbb Q" />: rational numbers, meaning fractions of integers with nonzero denominator.</li>
           <li><InlineMath math="\mathbb R" />: real numbers.</li>
           <li><InlineMath math="\in" /> means "is an element of"; <InlineMath math="\notin" /> means "is not an element of".</li>
+          <li><InlineMath math="\emptyset" /> is the empty set, and <InlineMath math="|S|" /> is the cardinality, or size, of a set <InlineMath math="S" />.</li>
           <li><InlineMath math="\subseteq" /> means subset; <InlineMath math="\subset" /> is used here for proper subset.</li>
+          <li><InlineMath math="\mathcal P(S)" /> is the power set of <InlineMath math="S" />, the set of all subsets of <InlineMath math="S" />.</li>
+          <li><InlineMath math="A\times B" /> is the Cartesian product: all ordered pairs <InlineMath math="(a,b)" /> with <InlineMath math="a\in A" /> and <InlineMath math="b\in B" />.</li>
+          <li><InlineMath math="\forall" /> means "for all"; <InlineMath math="\exists" /> means "there exists"; <InlineMath math="\exists!" /> means "there exists exactly one".</li>
+          <li><InlineMath math="\neg,\land,\lor,\to,\leftrightarrow,\oplus" /> mean NOT, AND, OR, conditional, biconditional, and XOR.</li>
           <li><InlineMath math=":" /> or <InlineMath math="\mid" /> inside set-builder notation means "such that".</li>
           <li><InlineMath math="\Longleftrightarrow" /> and "iff" mean "if and only if".</li>
+          <li><InlineMath math="\lceil x\rceil" /> is the ceiling of <InlineMath math="x" />, the smallest integer at least as large as <InlineMath math="x" />.</li>
         </BulletList>
       </NoteTopicBlock>
     </NoteTopicGroup>
@@ -536,7 +542,7 @@ function NormalFormExplorer() {
   const minterm = (p: boolean, q: boolean) => `${p ? 'p' : "p'"}${q ? 'q' : "q'"}`;
   const maxterm = (p: boolean, q: boolean) => `(${p ? "p'" : 'p'} + ${q ? "q'" : 'q'})`;
   const dnf = rows.filter((row) => row.value).map((row) => minterm(row.p, row.q)).join(' + ') || '0';
-  const cnf = rows.filter((row) => !row.value).map((row) => maxterm(row.p, row.q)).join(' · ') || '1';
+  const cnf = rows.filter((row) => !row.value).map((row) => maxterm(row.p, row.q)).join(' * ') || '1';
 
   return (
     <InteractiveBlock title="DNF and CNF Builder">
@@ -852,7 +858,7 @@ export default function DiscreteMathNote() {
           ['Constructive existence', 'Produce an object that satisfies the property.'],
           ['Nonconstructive existence', 'Prove something exists without identifying it.'],
           ['Uniqueness', 'Prove existence, then prove any two satisfying objects are equal.'],
-          ['Biconditional', 'Prove both p -> q and q -> p.'],
+          ['Biconditional', <>Prove both <InlineMath math="p\to q" /> and <InlineMath math="q\to p" />.</>],
         ]}
       />
 
@@ -1249,7 +1255,7 @@ while i <= n:
           <BulletList>
             <li>Make the truth table.</li>
             <li>Find rows where the function is 0.</li>
-            <li>Convert each false row to a maximal clause.</li>
+            <li>Convert each false row to a maxterm, also called a maximal clause in some course notes.</li>
             <li>AND the clauses together.</li>
           </BulletList>
         </NoteTopicBlock>
@@ -1287,7 +1293,7 @@ while i <= n:
       <NoteTable
         headers={['Rule', 'Use it when']}
         rows={[
-          ['Product rule', 'a task is built from sequential independent stages'],
+          ['Product rule', 'a task is built from stages with a fixed number of choices at each stage'],
           ['Sum rule', 'a task is split into disjoint cases'],
           ['Bijection rule', 'pair the objects with another set of known size'],
           ['k-to-1 rule', 'each desired object is counted exactly k times'],

@@ -474,6 +474,246 @@ const NOTE_TOPIC_GROUPS: NotesTopicGroup[] = [
           },
         ],
       },
+      {
+        name: 'Linear Algebra',
+        path: '/notes/linear-algebra',
+        subtopics: [
+          {
+            name: '1. Linear Systems',
+            hash: 'linear-systems',
+            subtopics: [
+              { name: 'Linear Equations and Solutions', hash: 'linear-equations-and-solutions' },
+              { name: 'Geometry of Systems', hash: 'geometry-of-systems' },
+              { name: 'Matrices of a System', hash: 'matrices-of-a-system' },
+            ],
+          },
+          {
+            name: '2. Numerical Computation',
+            hash: 'numerical-computation',
+            subtopics: [
+              { name: 'Floating-Point Thinking', hash: 'floating-point-thinking' },
+              { name: 'Flops and Cost', hash: 'flops-and-cost' },
+            ],
+          },
+          {
+            name: '3. Gaussian Elimination',
+            hash: 'gaussian-elimination',
+            subtopics: [
+              { name: 'Row Operations and Echelon Form', hash: 'row-operations-and-echelon-form' },
+              { name: 'Pivot and Free Variables', hash: 'pivot-and-free-variables' },
+              { name: 'Elimination Template', hash: 'elimination-template' },
+            ],
+          },
+          {
+            name: '4. Vectors and Linear Combinations',
+            hash: 'vectors-and-linear-combinations',
+            subtopics: [
+              { name: 'Vectors in Rn', hash: 'vectors-in-rn' },
+              { name: 'Linear Combinations and Span', hash: 'linear-combinations-and-span' },
+            ],
+          },
+          {
+            name: '5. Matrix Equations',
+            hash: 'matrix-equations',
+            subtopics: [
+              { name: 'Columns of a Matrix', hash: 'columns-of-a-matrix' },
+              { name: 'Existence and Uniqueness', hash: 'existence-and-uniqueness' },
+            ],
+          },
+          {
+            name: '6. Linear Independence',
+            hash: 'linear-independence',
+            subtopics: [
+              { name: 'Dependence Definition', hash: 'dependence-definition' },
+              { name: 'Independence Intuition', hash: 'independence-intuition' },
+            ],
+          },
+          {
+            name: '7. Linear Transformations and Matrix Algebra',
+            hash: 'linear-transformations-and-matrix-algebra',
+            subtopics: [
+              { name: 'Linear Transformations', hash: 'linear-transformations' },
+              { name: 'Matrix Products', hash: 'matrix-products' },
+            ],
+          },
+          {
+            name: '8. Inverses and Factorizations',
+            hash: 'inverses-and-factorizations',
+            subtopics: [
+              { name: 'Matrix Inverse', hash: 'matrix-inverse' },
+              { name: 'LU Factorization', hash: 'lu-factorization' },
+            ],
+          },
+          {
+            name: '9. Computational Applications',
+            hash: 'computational-applications',
+            subtopics: [
+              { name: 'Markov Chains', hash: 'markov-chains' },
+              { name: 'Computer Graphics', hash: 'computer-graphics' },
+            ],
+          },
+          {
+            name: '10. Subspaces, Dimension, and Rank',
+            hash: 'subspaces-dimension-and-rank',
+            subtopics: [
+              { name: 'Subspaces', hash: 'subspaces' },
+              { name: 'Basis, Dimension, and Rank', hash: 'basis-dimension-rank' },
+            ],
+          },
+          {
+            name: '11. Eigenvalues and Diagonalization',
+            hash: 'eigenvalues-and-diagonalization',
+            subtopics: [
+              { name: 'Eigenvectors and Eigenvalues', hash: 'eigenvectors-and-eigenvalues' },
+              { name: 'Characteristic Equation', hash: 'characteristic-equation' },
+              { name: 'Diagonalization and PageRank', hash: 'diagonalization-and-pagerank' },
+            ],
+          },
+          {
+            name: '12. Orthogonality and Projection',
+            hash: 'orthogonality-and-projection',
+            subtopics: [
+              { name: 'Dot Products and Orthogonality', hash: 'dot-products-and-orthogonality' },
+              { name: 'Projection', hash: 'projection' },
+              { name: 'Orthogonal Bases', hash: 'orthogonal-bases' },
+            ],
+          },
+          {
+            name: '13. Least Squares and Linear Models',
+            hash: 'least-squares-and-linear-models',
+            subtopics: [
+              { name: 'Least Squares', hash: 'least-squares' },
+              { name: 'Linear Models', hash: 'linear-models' },
+            ],
+          },
+          {
+            name: '14. Symmetric Matrices',
+            hash: 'symmetric-matrices',
+            subtopics: [
+              { name: 'Spectral Theorem', hash: 'spectral-theorem' },
+              { name: 'Quadratic Forms', hash: 'quadratic-forms' },
+            ],
+          },
+          {
+            name: '15. Singular Value Decomposition',
+            hash: 'singular-value-decomposition',
+            subtopics: [
+              { name: 'SVD Structure', hash: 'svd-structure' },
+              { name: 'SVD Applications', hash: 'svd-applications' },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'Probability and Statistics',
+        path: '/notes/probability-statistics',
+        subtopics: [
+          {
+            name: '1. Modeling Uncertainty',
+            hash: 'modeling-uncertainty',
+            subtopics: [
+              { name: 'Probability Workflow', hash: 'probability-workflow' },
+            ],
+          },
+          {
+            name: '2. Probability Spaces',
+            hash: 'probability-spaces',
+            subtopics: [
+              { name: 'Experiments, Outcomes, and Events', hash: 'experiments-outcomes-events' },
+              { name: 'Probability Axioms', hash: 'probability-axioms' },
+              { name: 'Basic Probability Rules', hash: 'basic-probability-rules' },
+              { name: 'Uniform Models', hash: 'uniform-models' },
+              { name: 'Continuous Uniform Spaces', hash: 'continuous-uniform-spaces' },
+            ],
+          },
+          {
+            name: '3. Conditioning and Bayes',
+            hash: 'conditioning-and-bayes',
+            subtopics: [
+              { name: 'Conditional Probability', hash: 'conditional-probability' },
+              { name: 'Product Rule and Trees', hash: 'product-rule-and-trees' },
+              { name: 'Total Probability', hash: 'total-probability' },
+              { name: "Bayes' Theorem", hash: 'bayes-theorem' },
+            ],
+          },
+          {
+            name: '4. Independence',
+            hash: 'independence',
+            subtopics: [
+              { name: 'Event Independence', hash: 'event-independence' },
+              { name: 'Pairwise and Mutual Independence', hash: 'pairwise-and-mutual-independence' },
+              { name: 'Fallacies and False Independence', hash: 'fallacies-and-false-independence' },
+            ],
+          },
+          {
+            name: '5. Random Variables and Distributions',
+            hash: 'random-variables-and-distributions',
+            subtopics: [
+              { name: 'Random Variables', hash: 'random-variable-definition' },
+              { name: 'Discrete vs Continuous', hash: 'discrete-vs-continuous' },
+              { name: 'PMF, PDF, and CDF', hash: 'pmf-pdf-cdf' },
+              { name: 'Simulation and Empirical Distributions', hash: 'simulation-and-empirical-distributions' },
+            ],
+          },
+          {
+            name: '6. Discrete Distributions',
+            hash: 'discrete-distributions',
+            subtopics: [
+              { name: 'Discrete Uniform', hash: 'discrete-uniform' },
+              { name: 'Bernoulli and Binomial', hash: 'bernoulli-and-binomial' },
+              { name: 'Geometric and Negative Binomial', hash: 'geometric-and-negative-binomial' },
+              { name: 'Poisson', hash: 'poisson' },
+            ],
+          },
+          {
+            name: '7. Continuous Distributions',
+            hash: 'continuous-distributions',
+            subtopics: [
+              { name: 'Continuous Uniform', hash: 'continuous-uniform' },
+              { name: 'Normal and Standardization', hash: 'normal-and-standardization' },
+              { name: 'Exponential', hash: 'exponential-distribution' },
+            ],
+          },
+          {
+            name: '8. Expectation',
+            hash: 'expectation',
+            subtopics: [
+              { name: 'Expectation Basics', hash: 'expectation-basics' },
+              { name: 'Linearity of Expectation', hash: 'linearity-of-expectation' },
+              { name: 'Indicator Variables', hash: 'indicator-random-variables' },
+              { name: 'Conditional and Total Expectation', hash: 'conditional-expectation' },
+            ],
+          },
+          {
+            name: '9. Variance and Covariance',
+            hash: 'variance-and-covariance',
+            subtopics: [
+              { name: 'Variance and Standard Deviation', hash: 'variance-basics' },
+              { name: 'Variance Rules', hash: 'variance-rules' },
+              { name: 'Covariance', hash: 'covariance' },
+              { name: 'Independent Random Variables', hash: 'independent-random-variables' },
+            ],
+          },
+          {
+            name: '10. Sampling, Estimation, and Concentration',
+            hash: 'sampling-and-concentration',
+            subtopics: [
+              { name: 'Estimator Language', hash: 'estimator-language' },
+              { name: 'Polling Estimators', hash: 'polling-estimators' },
+              { name: 'Markov and Chebyshev', hash: 'markov-and-chebyshev' },
+            ],
+          },
+          {
+            name: '11. Computing Applications',
+            hash: 'computing-applications',
+            subtopics: [
+              { name: 'Coupon Collector', hash: 'coupon-collector' },
+              { name: 'Reservoir Sampling', hash: 'reservoir-sampling' },
+              { name: 'Randomized Algorithms and Systems', hash: 'randomized-algorithms-and-systems' },
+            ],
+          },
+        ],
+      },
     ],
   },
   {

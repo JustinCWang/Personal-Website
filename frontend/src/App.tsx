@@ -16,6 +16,8 @@ import Dashboard from './components/Dashboard.tsx'
 import LandingPage from './components/LandingPage.tsx'
 import NotesIndex from './pages/notes/NotesIndex.tsx'
 import CalculusNote from './pages/notes/CalculusNote.tsx'
+import LinearAlgebraNote from './pages/notes/LinearAlgebra.tsx'
+import ProbabilityStatisticsNote from './pages/notes/ProbabilityStatistics.tsx'
 import DiscreteMathNote from './pages/notes/DiscreteMath.tsx'
 import CSNote from './pages/notes/CSNote.tsx'
 
@@ -68,6 +70,8 @@ const AppContent = () => {
       {/* Notes Routes - Public access */}
       <Route path="/notes" element={<NotesIndex />} />
       <Route path="/notes/calculus" element={<CalculusNote />} />
+      <Route path="/notes/linear-algebra" element={<LinearAlgebraNote />} />
+      <Route path="/notes/probability-statistics" element={<ProbabilityStatisticsNote />} />
       <Route path="/notes/discrete-math" element={<DiscreteMathNote />} />
       <Route path="/notes/cs" element={<CSNote />} />
 
