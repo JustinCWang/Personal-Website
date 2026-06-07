@@ -4,7 +4,7 @@
  */
 
 import { useMemo, useState, type ReactNode } from 'react';
-import { NotesLayout } from '../../components/notes/NotesLayout';
+import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
   CodeBlock,
   InlineMath,
@@ -16,8 +16,8 @@ import {
   NoteSubSectionTitle,
   NoteTopicBlock,
   NoteTopicGroup,
-} from '../../components/notes';
-import { useDarkMode } from '../../hooks/useDarkMode';
+} from '../../../components/notes';
+import { useDarkMode } from '../../../hooks/useDarkMode';
 
 type TableRow = ReactNode[];
 
@@ -438,13 +438,13 @@ export default function ProbabilityStatisticsNote() {
 
       {/* 1. FRAMING */}
       <NoteSectionTitle id="modeling-uncertainty">1. Modeling Uncertainty</NoteSectionTitle>
-      <NoteSubSectionTitle id="probability-workflow">1.1 Probability Workflow</NoteSubSectionTitle>
+      <NoteSubSectionTitle id="probability-modeling-steps">1.1 Probability Modeling Steps</NoteSubSectionTitle>
       <NoteParagraph>
         Probability is a tool for computing. The goal is not only to solve card and dice problems, but to model randomized algorithms,
         simulations, polling, streaming samples, network packets, server arrivals, and systems where exact deterministic analysis is too expensive.
       </NoteParagraph>
       <NoteParagraph>
-        The recurring workflow is: describe the random process, define a probability model, choose useful random variables, compute expectation and
+        The recurring sequence is: describe the random process, define a probability model, choose useful random variables, compute expectation and
         variance, then prove a guarantee about how unlikely bad outcomes are.
       </NoteParagraph>
       <NoteTopicGroup>

@@ -5,12 +5,12 @@
  */
 
 import type { CSSProperties } from 'react';
-import { NotesLayout } from '../../components/notes/NotesLayout';
-import { MathBlock, InlineMath, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, NoteTopicGroup, NoteTopicBlock, DiagramBlock } from '../../components/notes';
+import { NotesLayout } from '../../../components/notes/NotesLayout';
+import { MathBlock, InlineMath, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, NoteTopicGroup, NoteTopicBlock, DiagramBlock } from '../../../components/notes';
 import { Mafs, Coordinates, Plot, Theme, Line, Circle, Polygon, Point, Vector } from 'mafs';
 import 'mafs/core.css';
 import 'mafs/font.css';
-import { useDarkMode } from '../../hooks/useDarkMode';
+import { useDarkMode } from '../../../hooks/useDarkMode';
 
 /**
  * Renders the Calculus notes content
@@ -564,7 +564,7 @@ export default function CalculusNote() {
         A removable discontinuity is like a missing dot. A jump is a disagreement between left and right. An infinite discontinuity is usually a vertical asymptote.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Mental Model">
+        <NoteTopicBlock title="Classifying the Break">
           <NoteParagraph>
             Classifying the break tells us what went wrong: the value is missing, the sides disagree, or the output becomes unbounded.
           </NoteParagraph>
@@ -1394,7 +1394,7 @@ export default function CalculusNote() {
         The point is not to memorize every formula, but to notice when integration by parts can create a recurrence.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Recursive Mindset">
+        <NoteTopicBlock title="Recurrence Form">
           <MathBlock math="I_n=\int f_n(x)\,dx \qquad \Rightarrow \qquad I_n=\text{simpler terms involving } I_{n-1}\text{ or }I_{n-2}" />
         </NoteTopicBlock>
       </NoteTopicGroup>
@@ -1661,7 +1661,7 @@ export default function CalculusNote() {
         This is often easier than solving because it only checks consistency.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Check Mindset">
+        <NoteTopicBlock title="Verification Step">
           <NoteParagraph>
             Differentiate the proposed solution, plug it in, and see whether the equation becomes true.
           </NoteParagraph>
@@ -3004,7 +3004,7 @@ export default function CalculusNote() {
         This is one of the main differences from single-variable intuition: zero gradient does not mean peak or valley.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Mental Model">
+        <NoteTopicBlock title="Saddle Intuition">
           <NoteParagraph>
             Think of a mountain pass: locally high in one direction, locally low in another.
           </NoteParagraph>
@@ -3561,7 +3561,7 @@ export default function CalculusNote() {
         The same geometric idea from constrained optimization remains: only changes that stay inside the rules count.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Boundary Mindset">
+        <NoteTopicBlock title="Boundary Condition">
           <NoteParagraph className="mb-0">
             Fixed endpoints mean variations vanish at the endpoints, so the interior path carries the optimization condition.
           </NoteParagraph>
@@ -3632,7 +3632,7 @@ export default function CalculusNote() {
         The intuition is that calculus gives the limiting truth, while computation asks how close a finite process gets to that truth.
       </NoteParagraph>
       <NoteTopicGroup>
-        <NoteTopicBlock title="Error Mindset">
+        <NoteTopicBlock title="Error Sources">
           <NoteParagraph className="mb-0">
             Smaller steps can reduce mathematical approximation error, but floating-point arithmetic and repeated operations can introduce their own instability.
           </NoteParagraph>

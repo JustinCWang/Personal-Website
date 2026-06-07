@@ -15,11 +15,29 @@ import Login from './components/Login.tsx'
 import Dashboard from './components/Dashboard.tsx'
 import LandingPage from './components/LandingPage.tsx'
 import NotesIndex from './pages/notes/NotesIndex.tsx'
-import CalculusNote from './pages/notes/CalculusNote.tsx'
-import LinearAlgebraNote from './pages/notes/LinearAlgebra.tsx'
-import ProbabilityStatisticsNote from './pages/notes/ProbabilityStatistics.tsx'
-import DiscreteMathNote from './pages/notes/DiscreteMath.tsx'
-import CSNote from './pages/notes/CSNote.tsx'
+import CalculusNote from './pages/notes/mathematics/CalculusNote.tsx'
+import LinearAlgebraNote from './pages/notes/mathematics/LinearAlgebra.tsx'
+import ProbabilityStatisticsNote from './pages/notes/mathematics/ProbabilityStatistics.tsx'
+import FoundationsDataScienceNote from './pages/notes/mathematics/FoundationsDataScienceNote.tsx'
+import DiscreteMathNote from './pages/notes/mathematics/DiscreteMath.tsx'
+import IntroPythonNote from './pages/notes/programming-tools/IntroPythonNote.tsx'
+import IntroJavaNote from './pages/notes/programming-tools/IntroJavaNote.tsx'
+import CProgrammingNote from './pages/notes/programming-tools/CProgrammingNote.tsx'
+import GoNote from './pages/notes/programming-tools/GoNote.tsx'
+import OCamlNote from './pages/notes/programming-tools/OCamlNote.tsx'
+import SQLNote from './pages/notes/programming-tools/SQLNote.tsx'
+import WebFrameworksToolingNote from './pages/notes/programming-tools/WebFrameworksToolingNote.tsx'
+import ProgrammingLanguagesNote from './pages/notes/computer-science/ProgrammingLanguagesNote.tsx'
+import WebDevelopmentNote from './pages/notes/computer-science/WebDevelopmentNote.tsx'
+import AlgorithmsNote from './pages/notes/computer-science/AlgorithmsNote.tsx'
+import ArtificialIntelligenceNote from './pages/notes/computer-science/ArtificialIntelligenceNote.tsx'
+import MachineLearningNote from './pages/notes/computer-science/MachineLearningNote.tsx'
+import ComputerVisionNote from './pages/notes/computer-science/ComputerVisionNote.tsx'
+import ComputerSystemsNote from './pages/notes/computer-science/ComputerSystemsNote.tsx'
+import DatabaseSystemsNote from './pages/notes/computer-science/DatabaseSystemsNote.tsx'
+import InformationSecurityNote from './pages/notes/computer-science/InformationSecurityNote.tsx'
+import CryptographyNote from './pages/notes/computer-science/CryptographyNote.tsx'
+import DistributedSystemsNote from './pages/notes/computer-science/DistributedSystemsNote.tsx'
 
 /**
  * App Content Component
@@ -72,8 +90,26 @@ const AppContent = () => {
       <Route path="/notes/calculus" element={<CalculusNote />} />
       <Route path="/notes/linear-algebra" element={<LinearAlgebraNote />} />
       <Route path="/notes/probability-statistics" element={<ProbabilityStatisticsNote />} />
+      <Route path="/notes/foundations-data-science" element={<FoundationsDataScienceNote />} />
       <Route path="/notes/discrete-math" element={<DiscreteMathNote />} />
-      <Route path="/notes/cs" element={<CSNote />} />
+      <Route path="/notes/intro-python" element={<IntroPythonNote />} />
+      <Route path="/notes/intro-java" element={<IntroJavaNote />} />
+      <Route path="/notes/c-programming" element={<CProgrammingNote />} />
+      <Route path="/notes/go" element={<GoNote />} />
+      <Route path="/notes/ocaml" element={<OCamlNote />} />
+      <Route path="/notes/sql" element={<SQLNote />} />
+      <Route path="/notes/web-frameworks-and-tooling" element={<WebFrameworksToolingNote />} />
+      <Route path="/notes/programming-languages" element={<ProgrammingLanguagesNote />} />
+      <Route path="/notes/web-development" element={<WebDevelopmentNote />} />
+      <Route path="/notes/algorithms" element={<AlgorithmsNote />} />
+      <Route path="/notes/artificial-intelligence" element={<ArtificialIntelligenceNote />} />
+      <Route path="/notes/machine-learning" element={<MachineLearningNote />} />
+      <Route path="/notes/computer-vision" element={<ComputerVisionNote />} />
+      <Route path="/notes/computer-systems" element={<ComputerSystemsNote />} />
+      <Route path="/notes/database-systems" element={<DatabaseSystemsNote />} />
+      <Route path="/notes/information-security" element={<InformationSecurityNote />} />
+      <Route path="/notes/cryptography" element={<CryptographyNote />} />
+      <Route path="/notes/distributed-systems" element={<DistributedSystemsNote />} />
 
       {/* Login Route - Redirect to dashboard if already authenticated */}
       <Route

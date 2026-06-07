@@ -7,7 +7,7 @@ import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Coordinates, Line, Mafs, Point, Theme, Vector } from 'mafs';
 import 'mafs/core.css';
 import 'mafs/font.css';
-import { NotesLayout } from '../../components/notes/NotesLayout';
+import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
   CodeBlock,
   InlineMath,
@@ -19,8 +19,8 @@ import {
   NoteSubSectionTitle,
   NoteTopicBlock,
   NoteTopicGroup,
-} from '../../components/notes';
-import { useDarkMode } from '../../hooks/useDarkMode';
+} from '../../../components/notes';
+import { useDarkMode } from '../../../hooks/useDarkMode';
 
 type TableRow = ReactNode[];
 type Vec2 = [number, number];

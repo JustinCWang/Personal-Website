@@ -4,7 +4,7 @@
  */
 
 import { useMemo, useState, type ReactNode } from 'react';
-import { NotesLayout } from '../../components/notes/NotesLayout';
+import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
   CodeBlock,
   InlineMath,
@@ -16,8 +16,8 @@ import {
   NoteSubSectionTitle,
   NoteTopicBlock,
   NoteTopicGroup,
-} from '../../components/notes';
-import { useDarkMode } from '../../hooks/useDarkMode';
+} from '../../../components/notes';
+import { useDarkMode } from '../../../hooks/useDarkMode';
 
 type TableRow = ReactNode[];
 
