@@ -769,56 +769,16 @@ function FlowCutExplorer() {
   );
 }
 
-type CertificateExample = 'independent-set' | 'hamilton-path' | 'coloring';
-
 function HardnessCertificateExplorer() {
-  const { subtlePanelClass } = useAlgorithmsTheme();
-  const [example, setExample] = useState<CertificateExample>('independent-set');
-  const examples: Record<CertificateExample, { title: string; certificate: string; checks: string[] }> = {
-    'independent-set': {
-      title: 'Independent Set',
-      certificate: 'A proposed vertex subset S.',
-      checks: ['Check |S| >= k.', 'For every edge (u, v), check that not both endpoints are in S.'],
-    },
-    'hamilton-path': {
-      title: 'Hamilton Path',
-      certificate: 'A proposed ordering of all vertices.',
-      checks: ['Check every vertex appears exactly once.', 'Check every consecutive pair is connected by an edge.'],
-    },
-    coloring: {
-      title: '3-Coloring',
-      certificate: 'A proposed color for every vertex.',
-      checks: ['Check every color is one of three allowed colors.', 'For every edge, check the endpoints have different colors.'],
-    },
-  };
-  const current = examples[example];
-
   return (
-    <InteractiveBlock title="NP Certificates">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]">
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <div className="space-y-2">
-            {(Object.keys(examples) as CertificateExample[]).map((key) => (
-              <button
-                type="button"
-                key={key}
-                onClick={() => setExample(key)}
-                className={`w-full rounded border px-3 py-2 text-left text-sm ${example === key ? 'border-current font-bold' : 'border-current/20'}`}
-              >
-                {examples[key].title}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <h4 className="mb-3 text-sm font-bold">{current.title}</h4>
-          <NoteParagraph className="text-sm"><strong>Certificate:</strong> {current.certificate}</NoteParagraph>
-          <BulletList className="mb-0">
-            {current.checks.map((check) => <li key={check}>{check}</li>)}
-          </BulletList>
-        </div>
-      </div>
-    </InteractiveBlock>
+    <NoteTable
+      headers={['Problem', 'Certificate', 'Polynomial-time checks']}
+      rows={[
+        ['Independent Set', 'A proposed vertex subset S.', 'Check |S| >= k, then check every edge (u, v) to ensure not both endpoints are in S.'],
+        ['Hamilton Path', 'A proposed ordering of all vertices.', 'Check every vertex appears exactly once, then check every consecutive pair is connected by an edge.'],
+        ['3-Coloring', 'A proposed color for every vertex.', 'Check every color is allowed, then check every edge has endpoints with different colors.'],
+      ]}
+    />
   );
 }
 

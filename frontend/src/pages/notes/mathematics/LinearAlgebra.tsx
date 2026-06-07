@@ -329,11 +329,11 @@ function MatrixTransformExplorer() {
         <div className={`min-w-0 rounded-lg border p-3 ${subtlePanelClass}`}>
           <svg viewBox="-50 -40 390 300" className="h-[300px] w-full" role="img" aria-label="Matrix transformation of a unit square">
             <defs>
-              <marker id="linear-transform-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
-                <path d="M0,0 L0,8 L8,4 z" fill={blue} />
+              <marker id="linear-transform-arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill={blue} />
               </marker>
-              <marker id="linear-transform-arrow-orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
-                <path d="M0,0 L0,8 L8,4 z" fill={orange} />
+              <marker id="linear-transform-arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill={orange} />
               </marker>
             </defs>
             <line x1="-30" y1={origin[1]} x2="320" y2={origin[1]} stroke={grid} strokeWidth="1.5" />

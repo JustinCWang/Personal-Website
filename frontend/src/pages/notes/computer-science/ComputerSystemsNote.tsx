@@ -43,6 +43,7 @@ function useSystemsTheme() {
   const textColor = isDarkMode ? '#bbf7d0' : '#334155';
 
   return {
+    isDarkMode,
     subtlePanelClass,
     listClass,
     tableClass,

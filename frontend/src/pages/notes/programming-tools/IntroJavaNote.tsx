@@ -169,8 +169,8 @@ r2.setWidth(50);`
             <text x="350" y="83" fontFamily="monospace" fontSize="13" fill={textColor}>Rectangle</text>
             <text x="350" y="105" fontFamily="monospace" fontSize="13" fill={textColor}>width = {r1Width}</text>
 
-            <line x1="175" y1="72" x2="330" y2="88" stroke={primaryColor} strokeWidth="2.5" markerEnd="url(#arrow)" />
-            <line x1="175" y1="148" x2={alias ? '330' : '330'} y2={alias ? '98' : '173'} stroke={secondaryColor} strokeWidth="2.5" markerEnd="url(#arrow)" />
+            <line x1="175" y1="72" x2="330" y2="88" stroke={primaryColor} strokeWidth="2.5" markerEnd="url(#java-reference-arrow-primary)" />
+            <line x1="175" y1="148" x2={alias ? '330' : '330'} y2={alias ? '98' : '173'} stroke={secondaryColor} strokeWidth="2.5" markerEnd="url(#java-reference-arrow-secondary)" />
 
             {!alias && (
               <>
@@ -181,8 +181,11 @@ r2.setWidth(50);`
             )}
 
             <defs>
-              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L9,3 z" fill={textColor} />
+              <marker id="java-reference-arrow-primary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill={primaryColor} />
+              </marker>
+              <marker id="java-reference-arrow-secondary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill={secondaryColor} />
               </marker>
             </defs>
           </svg>

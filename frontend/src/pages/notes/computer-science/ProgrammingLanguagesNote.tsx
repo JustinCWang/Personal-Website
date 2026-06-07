@@ -135,92 +135,18 @@ function PLNotationGuide() {
   );
 }
 
-type PipelineStage = 'source' | 'lexing' | 'parsing' | 'typing' | 'evaluation';
-
 function LanguagePipelineExplorer() {
-  const { subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = usePLTheme();
-  const [stage, setStage] = useState<PipelineStage>('typing');
-  const stages = {
-    source: {
-      label: 'source',
-      question: 'What did the programmer write?',
-      artifact: 'Characters such as let x = 2 + 3 in x.',
-    },
-    lexing: {
-      label: 'lexing',
-      question: 'How are characters grouped into tokens?',
-      artifact: 'Tokens such as LET, IDENT(x), INT(2), PLUS, INT(3).',
-    },
-    parsing: {
-      label: 'parsing',
-      question: 'What syntax tree does the token stream describe?',
-      artifact: 'An AST such as Let("x", Add(Int 2, Int 3), Var "x").',
-    },
-    typing: {
-      label: 'typing',
-      question: 'Is the syntax statically meaningful?',
-      artifact: <><InlineMath math={'\\Gamma \\vdash e : int'} /></>,
-    },
-    evaluation: {
-      label: 'evaluation',
-      question: 'What value does the expression compute?',
-      artifact: <><InlineMath math={'e \\Downarrow 5'} /></>,
-    },
-  } satisfies Record<PipelineStage, { label: string; question: string; artifact: ReactNode }>;
-  const current = stages[stage];
-  const order: PipelineStage[] = ['source', 'lexing', 'parsing', 'typing', 'evaluation'];
-
   return (
-    <InteractiveBlock title="Syntax, Typing, Semantics Pipeline">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(260px,360px)_minmax(0,1fr)]">
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox="0 0 420 210" className="h-56 w-full" role="img" aria-label="Language implementation pipeline">
-            {order.map((key, index) => {
-              const isActive = key === stage;
-              const x = 18 + index * 80;
-              return (
-                <g key={key}>
-                  <rect
-                    x={x}
-                    y="76"
-                    width="68"
-                    height="44"
-                    rx="8"
-                    fill={isActive ? primaryColor : panelFill}
-                    fillOpacity={isActive ? '0.18' : '1'}
-                    stroke={isActive ? primaryColor : mutedColor}
-                    strokeWidth="2"
-                  />
-                  <text x={x + 34} y="102" textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>{stages[key].label}</text>
-                  {index < order.length - 1 && <line x1={x + 70} y1="98" x2={x + 78} y2="98" stroke={secondaryColor} strokeWidth="2" />}
-                </g>
-              );
-            })}
-          </svg>
-          <label className="mb-2 block text-sm font-bold" htmlFor="pipeline-stage">Stage</label>
-          <select
-            id="pipeline-stage"
-            value={stage}
-            onChange={(event) => setStage(event.target.value as PipelineStage)}
-            className="w-full rounded border border-current/20 bg-transparent p-2 text-sm"
-          >
-            {order.map((key) => (
-              <option key={key} value={key}>{stages[key].label}</option>
-            ))}
-          </select>
-        </div>
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <NoteTable
-            headers={['focus', current.label]}
-            rows={[
-              ['question', current.question],
-              ['artifact', current.artifact],
-              ['core idea', 'A language implementation transforms raw text into a checked program and then into behavior.'],
-            ]}
-          />
-        </div>
-      </div>
-    </InteractiveBlock>
+    <NoteTable
+      headers={['Stage', 'Question', 'Artifact']}
+      rows={[
+        ['Source', 'What did the programmer write?', 'Characters such as let x = 2 + 3 in x.'],
+        ['Lexing', 'How are characters grouped into tokens?', 'Tokens such as LET, IDENT(x), INT(2), PLUS, INT(3).'],
+        ['Parsing', 'What syntax tree does the token stream describe?', 'An AST such as Let("x", Add(Int 2, Int 3), Var "x").'],
+        ['Typing', 'Is the syntax statically meaningful?', <InlineMath math={'\\Gamma \\vdash e : int'} />],
+        ['Evaluation', 'What value does the expression compute?', <InlineMath math={'e \\Downarrow 5'} />],
+      ]}
+    />
   );
 }
 
@@ -481,64 +407,16 @@ function TypingRuleExplorer() {
   );
 }
 
-type SemanticsMode = 'big' | 'small' | 'env';
-
 function SemanticsExplorer() {
-  const { subtlePanelClass } = usePLTheme();
-  const [mode, setMode] = useState<SemanticsMode>('small');
-  const rows = {
-    big: [
-      ['judgment', <InlineMath key="j" math={'e \\Downarrow v'} />],
-      ['question', 'What final value does this expression evaluate to?'],
-      ['style', 'Skips intermediate states and relates expression directly to value.'],
-    ],
-    small: [
-      ['judgment', <InlineMath key="j" math={'e \\to e\\prime'} />],
-      ['question', 'What is the next computation step?'],
-      ['style', 'Models execution as a sequence of local reductions.'],
-    ],
-    env: [
-      ['judgment', <InlineMath key="j" math={'\\langle \\mathcal{E}, e \\rangle \\Downarrow v'} />],
-      ['question', 'What value does expression e produce under environment E?'],
-      ['style', 'Uses runtime bindings instead of rewriting expressions with substitution.'],
-    ],
-  } satisfies Record<SemanticsMode, TableRow[]>;
-
   return (
-    <InteractiveBlock title="Semantic Judgment Styles">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]">
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <label className="mb-2 block text-sm font-bold" htmlFor="semantics-mode">Semantics</label>
-          <select
-            id="semantics-mode"
-            value={mode}
-            onChange={(event) => setMode(event.target.value as SemanticsMode)}
-            className="w-full rounded border border-current/20 bg-transparent p-2 text-sm"
-          >
-            <option value="big">big-step</option>
-            <option value="small">small-step</option>
-            <option value="env">environment big-step</option>
-          </select>
-        </div>
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <NoteTable headers={['view', mode]} rows={rows[mode]} />
-          <CodeBlock
-            language="text"
-            code={
-              mode === 'small'
-                ? `(2 + 3) * 4
--> 5 * 4
--> 20`
-                : mode === 'big'
-                  ? `2 + 3 evaluates to 5
-5 * 4 evaluates to 20`
-                  : `<{ x -> 3 }, x + 1> evaluates to 4`
-            }
-            className="mb-0"
-          />
-        </div>
-      </div>
-    </InteractiveBlock>
+    <NoteTable
+      headers={['Style', 'Judgment', 'Meaning']}
+      rows={[
+        ['Big-step', <InlineMath math={'e \\Downarrow v'} />, 'Relates an expression directly to its final value.'],
+        ['Small-step', <InlineMath math={'e \\to e\\prime'} />, 'Models execution as a sequence of local reductions.'],
+        ['Environment big-step', <InlineMath math={'\\langle \\mathcal{E}, e \\rangle \\Downarrow v'} />, 'Evaluates under runtime bindings instead of rewriting expressions with substitution.'],
+      ]}
+    />
   );
 }
 
