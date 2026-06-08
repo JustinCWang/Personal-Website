@@ -6,7 +6,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -832,19 +832,16 @@ export default function AlgorithmsNote() {
         unhappy pair is called a blocking pair. Gale-Shapley, also called deferred acceptance, repeatedly lets unmatched proposers propose down
         their preference lists while receivers keep only their best offer so far.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-while some proposer h is unmatched and has not proposed to everyone:
-    let s be the highest-ranked receiver h has not proposed to
-    if s is unmatched:
-        match h and s tentatively
-    else if s prefers h to current match h':
-        match h and s tentatively
-        make h' unmatched
-    else:
-        s rejects h
-        `}
+      <AlgorithmBlock
+        title="Gale-Shapley"
+        steps={[
+          <span>Choose an unmatched proposer <InlineMath math="h" /> who still has someone left to propose to.</span>,
+          <span>Let <InlineMath math="s" /> be the highest-ranked receiver that <InlineMath math="h" /> has not proposed to.</span>,
+          <span>If <InlineMath math="s" /> is unmatched, tentatively match <InlineMath math="h" /> with <InlineMath math="s" />.</span>,
+          <span>If <InlineMath math="s" /> prefers <InlineMath math="h" /> to its current tentative match <InlineMath math="h'" />, replace <InlineMath math="h'" /> with <InlineMath math="h" />.</span>,
+          <span>Otherwise, <InlineMath math="s" /> rejects <InlineMath math="h" />.</span>,
+          'Repeat until no proposer can make another proposal.',
+        ]}
       />
       <NoteParagraph>
         There are at most <InlineMath math="n^2" /> proposals, so the algorithm terminates in <InlineMath math="O(n^2)" /> time with appropriate
@@ -878,22 +875,15 @@ while some proposer h is unmatched and has not proposed to everyone:
         Breadth-first search explores by distance from a start vertex. It uses a queue, discovers all vertices at distance 1 before distance 2,
         and computes shortest path distances when every edge has unit length.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-BFS(s):
-    set Level[v] = infinity and parent[v] = null for every v
-    Level[s] = 0
-    enqueue s
-
-    while queue is not empty:
-        u = dequeue
-        for each v in Adj[u]:
-            if Level[v] == infinity:
-                Level[v] = Level[u] + 1
-                parent[v] = u
-                enqueue v
-        `}
+      <AlgorithmBlock
+        title="Breadth-First Search"
+        steps={[
+          <span>Set <InlineMath math="\operatorname{Level}[v]=\infty" /> and <InlineMath math="\operatorname{parent}[v]=\varnothing" /> for every vertex.</span>,
+          <span>Set <InlineMath math="\operatorname{Level}[s]=0" /> and enqueue the start vertex <InlineMath math="s" />.</span>,
+          'Repeatedly dequeue the next vertex from the queue.',
+          <span>For each undiscovered neighbor <InlineMath math="v" />, set its level to one more than the current vertex, record its parent, and enqueue it.</span>,
+          'Stop when the queue is empty.',
+        ]}
       />
       <NoteParagraph>
         With adjacency lists, BFS runs in <InlineMath math="O(n+m)" /> time because each vertex is enqueued once and each edge is inspected a
@@ -977,17 +967,15 @@ BFS(s):
         Interval partitioning schedules all intervals into the minimum number of classrooms. The depth is the maximum number of intervals
         overlapping at one time, and it is a lower bound because simultaneous intervals require distinct rooms.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-sort lectures by start time
-for each lecture j:
-    if the earliest-finishing room is free by s_j:
-        reuse that room
-    else:
-        open a new room
-    update the room's finish time to f_j
-        `}
+      <AlgorithmBlock
+        title="Interval Partitioning"
+        steps={[
+          'Sort lectures by increasing start time.',
+          <span>For each lecture <InlineMath math="j" />, inspect the room with the earliest current finish time.</span>,
+          <span>If that room is free by <InlineMath math="s_j" />, reuse it.</span>,
+          'Otherwise, open a new room.',
+          <span>Update the chosen room finish time to <InlineMath math="f_j" />.</span>,
+        ]}
       />
       <NoteParagraph>
         A priority queue keyed by room finish time gives <InlineMath math="O(n\log n)" /> total time. When the algorithm opens a room, all existing
@@ -1047,13 +1035,14 @@ for each lecture j:
         Prim's algorithm grows one tree from an arbitrary start vertex. At each step, it adds the cheapest edge crossing from the built tree to an
         outside vertex. This is safe by the cut property.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-start with any vertex s
-while some vertex is outside the tree:
-    add the cheapest edge crossing from the tree to an outside vertex
-        `}
+      <AlgorithmBlock
+        title="Prim's Algorithm"
+        steps={[
+          <span>Start from any vertex <InlineMath math="s" />.</span>,
+          'Maintain the cut between the current tree and vertices outside it.',
+          'Add the cheapest edge crossing from the tree to an outside vertex.',
+          'Repeat until every vertex is in the tree.',
+        ]}
       />
       <NoteParagraph>
         With a binary heap priority queue and adjacency lists, Prim's algorithm is typically analyzed as <InlineMath math="O(m\log n)" />.
@@ -1064,15 +1053,15 @@ while some vertex is outside the tree:
         Kruskal's algorithm sorts all edges by weight and scans from lightest to heaviest, adding an edge exactly when it connects two different
         components. Union-find, also called disjoint set union, supports this component tracking efficiently.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-sort edges by increasing weight
-for each edge (u, v):
-    if Find(u) != Find(v):
-        add (u, v) to the MST
-        Union(u, v)
-        `}
+      <AlgorithmBlock
+        title="Kruskal's Algorithm"
+        steps={[
+          'Sort edges by increasing weight.',
+          <span>Scan edges from lightest to heaviest.</span>,
+          <span>If an edge <InlineMath math="(u,v)" /> connects two different union-find components, add it to the MST.</span>,
+          <span>Union the two components after adding <InlineMath math="(u,v)" />.</span>,
+          <span>Skip edges whose endpoints are already in the same component.</span>,
+        ]}
       />
       <NoteParagraph>
         The main cost is sorting: <InlineMath math="O(m\log m)" />, which is also <InlineMath math="O(m\log n)" /> for simple graphs. Path
@@ -1211,13 +1200,15 @@ for each edge (u, v):
         The residual graph shows how a current flow can still be changed. A forward residual edge means more flow can be pushed. A backward
         residual edge means previous flow can be canceled and rerouted.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-while there is an s-t path in the residual graph:
-    let bottleneck be the minimum residual capacity on the path
-    augment that much flow along the path
-        `}
+      <AlgorithmBlock
+        title="Ford-Fulkerson"
+        steps={[
+          <span>Find an <InlineMath math="s\text{-}t" /> path in the residual graph.</span>,
+          'Let the bottleneck be the minimum residual capacity on that path.',
+          'Augment the flow by the bottleneck amount along the path.',
+          <span>Update forward and backward residual capacities.</span>,
+          <span>Stop when no residual <InlineMath math="s\text{-}t" /> path remains.</span>,
+        ]}
       />
       <NoteParagraph>
         With integral capacities, each augmentation increases the flow value by at least 1, so Ford-Fulkerson terminates. More refined choices of

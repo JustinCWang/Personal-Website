@@ -9,6 +9,7 @@ import {
   CodeBlock,
   InlineMath,
   InteractiveBlock,
+  MathBlock,
   NoteHeader,
   NoteParagraph,
   NoteSectionTitle,
@@ -574,7 +575,7 @@ function StackMachineExplorer() {
               <option key={key} value={key}>{value.label}</option>
             ))}
           </select>
-          <CodeBlock language="text" code={current.code} className="mb-0" />
+          <CodeBlock language="bytecode" code={current.code} className="mb-0" />
         </div>
         <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
           <ol className="mb-4 list-decimal space-y-2 pl-6 font-mono text-sm">
@@ -623,14 +624,14 @@ export default function ProgrammingLanguagesNote() {
         </NoteTopicBlock>
       </NoteTopicGroup>
 
-      <NoteSectionTitle id="ocaml-programming-model">2. OCaml Programming Model</NoteSectionTitle>
+      <NoteSectionTitle id="expression-oriented-core-model">2. Expression-Oriented Core Model</NoteSectionTitle>
       <NoteParagraph>
-        OCaml is useful for learning programming-language concepts because expression structure, types, functions, variants, pattern matching, and
-        recursion are visible and central. In the functional subset, the basic model is simple: every program is an expression, every expression has a
-        type, and every expression evaluates to a value.
+        Many programming-language ideas are clearest in a small expression-oriented core. The basic model is simple: a program fragment is an
+        expression, the type system predicts what kind of value it can produce, and evaluation computes that value. OCaml-style examples are used here
+        as compact notation; the dedicated OCaml note covers the language and tooling in detail.
       </NoteParagraph>
       <NoteTable
-        headers={['OCaml idea', 'meaning']}
+        headers={['core idea', 'meaning']}
         rows={[
           ['expression', 'A syntactic object that can be evaluated.'],
           ['type', 'A static classification of expressions, such as int, bool, or string.'],
@@ -640,19 +641,19 @@ export default function ProgrammingLanguagesNote() {
         ]}
       />
 
-      <NoteSectionTitle id="dune-and-ocaml-tooling">3. Dune and OCaml Tooling</NoteSectionTitle>
+      <NoteSectionTitle id="source-text-to-meaning">3. Source Text to Meaning</NoteSectionTitle>
       <NoteParagraph>
-        Dune is a build tool for OCaml projects. UTop is an interactive OCaml toplevel. These tools matter because programming-language implementations
-        are easiest to build when parsing, evaluation, typing, and testing are split into small, runnable pieces.
+        A language implementation turns source text into meaning through a sequence of representations. Keeping those representations separate makes
+        interpreters, compilers, type checkers, and tests easier to reason about.
       </NoteParagraph>
       <NoteTable
-        headers={['command', 'purpose']}
+        headers={['stage', 'what can go wrong']}
         rows={[
-          [<code>dune build</code>, 'Type-check and build the project.'],
-          [<code>dune utop</code>, 'Open a project-aware interactive toplevel.'],
-          [<code>dune test</code>, 'Run project tests.'],
-          [<code>dune exec NAME</code>, 'Run a project executable.'],
-          [<code>dune clean</code>, 'Remove build outputs.'],
+          ['lexing', 'characters are grouped into the wrong tokens'],
+          ['parsing', 'tokens form the wrong syntax tree or an ambiguous tree'],
+          ['type checking', 'an invalid program is accepted or a valid program is rejected'],
+          ['evaluation', 'the dynamic semantics compute the wrong value'],
+          ['testing', 'a stage works alone but disagrees with the next stage'],
         ]}
       />
 
@@ -904,13 +905,7 @@ let rec filter p l =
         A formal grammar defines which strings belong to a language. Parsing turns a token stream into a parse tree or abstract syntax tree according to
         the grammar.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`expr ::= INT
-       | expr PLUS expr
-       | IF expr THEN expr ELSE expr
-       | LET IDENT EQ expr IN expr`}
-      />
+      <MathBlock math="\begin{aligned}\mathtt{expr} &::= \mathtt{INT}\\&\mid \mathtt{expr}\ \mathtt{PLUS}\ \mathtt{expr}\\&\mid \mathtt{IF}\ \mathtt{expr}\ \mathtt{THEN}\ \mathtt{expr}\ \mathtt{ELSE}\ \mathtt{expr}\\&\mid \mathtt{LET}\ \mathtt{IDENT}\ \mathtt{EQ}\ \mathtt{expr}\ \mathtt{IN}\ \mathtt{expr}\end{aligned}" />
       <NoteTable
         headers={['piece', 'role']}
         rows={[
@@ -961,12 +956,7 @@ let rec filter p l =
         Small-step semantics describes one local computation step at a time. Repeating small steps gives an execution trace. This style is useful for
         reasoning about evaluation order, state, and machines.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`(2 + 3) * 4
--> 5 * 4
--> 20`}
-      />
+      <MathBlock math="\begin{aligned}(2+3)\cdot 4 &\to 5\cdot 4\\&\to 20\end{aligned}" />
       <NoteParagraph>
         A value is an expression that is already finished. A stuck expression is not a value and cannot take a step.
       </NoteParagraph>
@@ -975,12 +965,7 @@ let rec filter p l =
       <NoteParagraph>
         Lambda calculus is a tiny formal language for functions. Its core expressions are variables, lambda abstractions, and applications.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`e ::= x
-    | lambda x . e
-    | e e`}
-      />
+      <MathBlock math="e ::= x\mid \lambda x.e\mid e_1\ e_2" />
       <NoteTable
         headers={['form', 'meaning']}
         rows={[
@@ -998,20 +983,17 @@ let rec filter p l =
       <NoteTable
         headers={['notation', 'meaning']}
         rows={[
-          [<InlineMath math={'[e\\prime/x]e'} />, 'Substitute e prime for x in e.'],
+          [<InlineMath math={'[e\\prime/x]e'} />, <span>Substitute <InlineMath math="e'" /> for <InlineMath math="x" /> in <InlineMath math="e" />.</span>],
           [<InlineMath math={'FV(e)'} />, 'Free variables of e.'],
           ['capture', 'A free variable becomes accidentally bound after substitution.'],
           ['alpha-renaming', 'Rename bound variables to avoid capture.'],
         ]}
       />
-      <CodeBlock
-        language="text"
-        code={`Bad idea:
-[y / x](lambda y . x) = lambda y . y
-
-Capture-avoiding idea:
-rename bound y first, then substitute.`}
-      />
+      <MathBlock math="\text{bad:}\quad [y/x](\lambda y.x)=\lambda y.y" />
+      <NoteParagraph>
+        This is wrong because the free <InlineMath math="y" /> became captured. Capture-avoiding substitution first alpha-renames the bound
+        <InlineMath math="y" />, then substitutes.
+      </NoteParagraph>
 
       <NoteSectionTitle id="environment-model">25. Environment Model</NoteSectionTitle>
       <NoteParagraph>
@@ -1054,14 +1036,7 @@ rename bound y first, then substitute.`}
         The simply typed lambda calculus, or STLC, adds types to lambda calculus. It is small enough to reason about formally but rich enough to show
         functions, application, contexts, and type safety.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`types:
-tau ::= int | bool | tau -> tau
-
-expressions:
-e ::= x | lambda x : tau . e | e e`}
-      />
+      <MathBlock math="\begin{aligned}\tau &::= int\mid bool\mid \tau_1\to\tau_2\\e &::= x\mid \lambda x:\tau.e\mid e_1\ e_2\end{aligned}" />
 
       <NoteSectionTitle id="type-checking-and-type-inference">29. Type Checking and Type Inference</NoteSectionTitle>
       <NoteParagraph>

@@ -6,7 +6,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   NoteHeader,
@@ -631,7 +631,13 @@ function RankAggregationExplorer() {
             <option value="borda">Borda count</option>
             <option value="pairwise">pairwise wins</option>
           </select>
-          <CodeBlock language="text" code={sampleRankings.map((ranking, index) => `ranker ${index + 1}: ${ranking.join(' > ')}`).join('\n')} className="mb-0" />
+          <ol className="mb-0 space-y-2 text-sm">
+            {sampleRankings.map((ranking, index) => (
+              <li key={index} className="rounded border border-current/20 px-3 py-2">
+                <strong>ranker {index + 1}:</strong> {ranking.join(' > ')}
+              </li>
+            ))}
+          </ol>
         </div>
         <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
           <NoteTable
@@ -639,7 +645,7 @@ function RankAggregationExplorer() {
             rows={Object.entries(scores).map(([candidate, score]) => [candidate, score])}
           />
           <NoteParagraph className="mb-0 text-sm">
-            Winner under this method: <code>{winner}</code>. Different aggregation rules can choose different winners.
+            Winner under this method: <strong>{winner}</strong>. Different aggregation rules can choose different winners.
           </NoteParagraph>
         </div>
       </div>
@@ -1062,13 +1068,14 @@ export default function FoundationsDataScienceNote() {
         A stationary distribution satisfies <InlineMath math={'\\pi M=\\pi'} /> under row-vector convention. The power method repeatedly multiplies a
         distribution by the transition matrix until it converges.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`x = initial_distribution
-repeat:
-    x_next = x M
-    stop if x_next is close to x
-    x = x_next`}
+      <AlgorithmBlock
+        title="Power Method"
+        steps={[
+          <span>Choose an initial distribution <InlineMath math="x_0" />.</span>,
+          <span>Compute <InlineMath math="x_{k+1}=x_kM" />.</span>,
+          <span>Stop when <InlineMath math="x_{k+1}" /> is close to <InlineMath math="x_k" />.</span>,
+          <span>Otherwise set <InlineMath math="k\leftarrow k+1" /> and repeat.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="pagerank">29. PageRank</NoteSectionTitle>

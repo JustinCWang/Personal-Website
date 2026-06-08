@@ -6,6 +6,7 @@
 import { useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
+  AlgorithmBlock,
   CodeBlock,
   InlineMath,
   InteractiveBlock,
@@ -576,33 +577,22 @@ export default function DistributedSystemsNote() {
         </NoteTopicBlock>
       </NoteTopicGroup>
 
-      <NoteSectionTitle id="go-foundations-for-distributed-systems">2. Go Foundations for Distributed Systems</NoteSectionTitle>
+      <NoteSectionTitle id="processes-requests-and-local-state">2. Processes, Requests, and Local State</NoteSectionTitle>
       <NoteParagraph>
-        Go is a practical implementation language for distributed systems because it has simple syntax, static types, garbage collection, networking
-        libraries, tests, benchmarks, goroutines, channels, mutexes, and a race detector.
+        Each node in a distributed system is still an ordinary process with private memory. Nodes communicate by sending messages or RPC requests, and
+        each node updates its own local state based on what it receives. The distributed part begins when a correct local step depends on delayed,
+        duplicated, missing, or concurrent messages from other nodes.
       </NoteParagraph>
       <NoteTable
-        headers={['Go feature', 'distributed systems use']}
+        headers={['local idea', 'distributed systems use']}
         rows={[
-          ['goroutines', 'handle concurrent RPCs, timers, background replication, and worker pools'],
-          ['channels/select', 'coordinate messages, timeouts, task completion, and shutdown'],
-          ['mutexes', 'protect shared state inside one process'],
-          ['structs/interfaces', 'define service state, RPC arguments, replies, and abstractions'],
-          ['testing/race detector', 'exercise interleavings and catch observed data races'],
+          ['request type', 'defines what a client or peer is asking the node to do'],
+          ['reply type', 'defines what result, error, or retry signal comes back'],
+          ['local state', 'stores the node view of logs, terms, keys, locks, caches, or replica data'],
+          ['synchronization', 'protects shared state inside one process while concurrent handlers run'],
+          ['timeouts', 'turn silence into an observable event so the protocol can retry, elect, or fail over'],
+          ['tests and traces', 'exercise interleavings, dropped messages, repeated requests, and crash/restart paths'],
         ]}
-      />
-      <CodeBlock
-        language="go"
-        code={`
-type Args struct {
-    Key string
-}
-
-type Reply struct {
-    Value string
-    OK    bool
-}
-        `}
       />
 
       <NoteSectionTitle id="concurrency-vs-parallelism">3. Concurrency vs Parallelism</NoteSectionTitle>
@@ -650,16 +640,16 @@ for _, server := range servers {
         RPC, or Remote Procedure Call, lets code call a remote service through a local-looking function. The abstraction is useful, but it cannot
         make a remote call behave exactly like a local call because the network and remote process can fail independently.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-client application
-client stub
-RPC library
-network
-server dispatch
-server implementation
-        `}
+      <NoteTable
+        headers={['RPC path stage', 'role']}
+        rows={[
+          ['client application', 'Calls a local-looking function.'],
+          ['client stub', 'Marshals arguments into a request.'],
+          ['RPC library', 'Handles transport, timeouts, retries, and decoding.'],
+          ['network', 'May delay, drop, duplicate, or reorder communication depending on assumptions.'],
+          ['server dispatch', 'Routes the request to the right handler.'],
+          ['server implementation', 'Runs the actual operation and returns a reply.'],
+        ]}
       />
       <RpcFailureExplorer />
 
@@ -823,18 +813,15 @@ server implementation
       <NoteParagraph>
         Two-Phase Commit coordinates whether a distributed transaction commits or aborts. It has a coordinator and participants.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-phase 1: prepare / vote
-    coordinator asks each participant if it can commit
-    participant logs prepared state before voting yes
-
-phase 2: decision
-    if every participant votes yes, coordinator decides commit
-    otherwise coordinator decides abort
-    participants obey the final decision
-        `}
+      <AlgorithmBlock
+        title="Two-Phase Commit"
+        steps={[
+          'Prepare/vote phase: the coordinator asks each participant whether it can commit.',
+          'A participant logs prepared state before voting yes.',
+          'Decision phase: the coordinator commits only if every participant voted yes.',
+          'If any participant votes no or fails before preparing, the coordinator aborts.',
+          'Participants obey the final decision after learning it.',
+        ]}
       />
       <NoteParagraph>
         The key downside is blocking. A participant that voted yes cannot safely decide alone if the coordinator crashes before revealing the final
@@ -868,17 +855,13 @@ phase 2: decision
         MapReduce is a programming model and runtime for large-scale batch data processing. The programmer writes a map function and a reduce
         function; the runtime handles parallelism, scheduling, data partitioning, shuffle, failures, and load balancing.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-map(documentName, contents):
-    for each word w:
-        emit(w, 1)
-
-reduce(word, counts):
-    total = sum(counts)
-    emit(word, total)
-        `}
+      <AlgorithmBlock
+        title="Word Count MapReduce"
+        steps={[
+          <span>Map: for each word <InlineMath math="w" /> in a document, emit <InlineMath math="(w,1)" />.</span>,
+          'Shuffle: group all emitted values by key.',
+          <span>Reduce: for each word <InlineMath math="w" />, emit <InlineMath math="(w,\sum_i count_i)" />.</span>,
+        ]}
       />
       <MapReduceExplorer />
 

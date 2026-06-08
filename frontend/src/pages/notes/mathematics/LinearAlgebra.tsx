@@ -1,6 +1,6 @@
 /**
  * Linear Algebra Notes Page
- * A course-shaped overview based on CS132 Linear Algebra, Geometry, and Computation.
+ * Linear algebra notes focused on algebra, geometry, and computation.
  */
 
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
@@ -581,7 +581,7 @@ export default function LinearAlgebraNote() {
       <NoteSectionTitle id="numerical-computation">2. Numerical Computation</NoteSectionTitle>
       <NoteSubSectionTitle id="floating-point-thinking">2.1 Floating-Point Thinking</NoteSubSectionTitle>
       <NoteParagraph>
-        The course does not treat computation as an afterthought. Mathematical real numbers are ideal objects, but computers store finite
+        Computation is not an afterthought. Mathematical real numbers are ideal objects, but computers store finite
         representations. Most real numbers are rounded to nearby floating-point numbers, so exact algebraic identities can fail mechanically.
       </NoteParagraph>
       <NoteParagraph>
@@ -600,7 +600,7 @@ export default function LinearAlgebraNote() {
       <NoteSubSectionTitle id="flops-and-cost">2.2 Flops and Cost</NoteSubSectionTitle>
       <NoteParagraph>
         A flop is a floating-point operation such as addition, multiplication, division, subtraction, or square root. Runtime is the time an
-        algorithm takes to finish. For numerical algorithms, constants matter, so the course keeps track of leading constants rather than only
+        algorithm takes to finish. For numerical algorithms, constants matter, so it is useful to track leading constants rather than only
         using broad asymptotic notation.
       </NoteParagraph>
       <MathBlock math={String.raw`\text{Gaussian elimination on }n\times n\text{ systems costs about }\frac{2}{3}n^3\text{ flops}`} />
@@ -649,7 +649,7 @@ export default function LinearAlgebraNote() {
       <NoteSubSectionTitle id="vectors-in-rn">4.1 Vectors in Rn</NoteSubSectionTitle>
       <NoteParagraph>
         A vector is a column of numbers. The entries are called components. We can think of a vector as a point, as an arrow from the origin, or
-        as data with several coordinates. These views are all useful, and the course constantly moves between them.
+        as data with several coordinates. These views are all useful, and the note constantly moves between them.
       </NoteParagraph>
       <NoteTable
         headers={['Operation', 'Definition']}

@@ -6,7 +6,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -433,16 +432,12 @@ export default function InformationSecurityNote() {
         SQL injection occurs when attacker-controlled input is treated as SQL syntax instead of data. The root problem is code/data confusion: the
         server intended to search for a value, but the database parser received a different query structure.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`
-insecure idea:
-    query = "SELECT email FROM users WHERE name = '" + userInput + "'"
-
-secure idea:
-    prepare "SELECT email FROM users WHERE name = ?"
-    bind userInput as parameter 1
-        `}
+      <NoteTable
+        headers={['pattern', 'what happens']}
+        rows={[
+          ['insecure concatenation', <span>The query string is built with raw input, so attacker text can become SQL syntax.</span>],
+          ['prepared statement', <span>The database parses <code>SELECT email FROM users WHERE name = ?</code> first, then binds user input as data for the placeholder.</span>],
+        ]}
       />
       <NoteParagraph>
         Prepared statements parse the SQL structure first and bind user input later as data. Escaping is fragile because it depends on getting every

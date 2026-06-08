@@ -6,7 +6,7 @@
 import { useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -559,13 +559,15 @@ export default function CryptographyNote() {
       <NoteParagraph>
         Two-experiment and one-experiment indistinguishability definitions express the same idea. The two-experiment version compares the adversary's output distribution under two worlds. The one-experiment version samples a hidden bit <InlineMath math="b" /> and asks the adversary to guess it.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`sample b in {0,1}
-adversary chooses equal-length messages m0, m1
-challenger returns c = Enc(k, mb)
-adversary outputs guess b_hat
-win if b_hat = b`}
+      <AlgorithmBlock
+        title="One-Bit Indistinguishability Experiment"
+        steps={[
+          <span>Sample <InlineMath math="b\leftarrow\{0,1\}" />.</span>,
+          <span>The adversary chooses equal-length messages <InlineMath math="m_0,m_1" />.</span>,
+          <span>The challenger returns <InlineMath math="c=\operatorname{Enc}(k,m_b)" />.</span>,
+          <span>The adversary outputs a guess <InlineMath math="\hat{b}" />.</span>,
+          <span>The adversary wins when <InlineMath math="\hat{b}=b" />.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="pseudorandom-generators">9. Pseudorandom Generators</NoteSectionTitle>
@@ -597,12 +599,14 @@ win if b_hat = b`}
       <NoteParagraph>
         A one-way function is easy to compute but hard to invert on a random output. A one-way permutation is also bijective, so every output has exactly one preimage.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`challenger samples x
-y = f(x)
-adversary receives y
-adversary wins if it outputs x_hat with f(x_hat)=y`}
+      <AlgorithmBlock
+        title="One-Wayness Experiment"
+        steps={[
+          <span>The challenger samples <InlineMath math="x" />.</span>,
+          <span>The challenger gives <InlineMath math="y=f(x)" /> to the adversary.</span>,
+          <span>The adversary outputs <InlineMath math="\hat{x}" />.</span>,
+          <span>The adversary wins when <InlineMath math="f(\hat{x})=y" />.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="hardcore-predicates">13. Hardcore Predicates</NoteSectionTitle>
@@ -644,13 +648,13 @@ adversary wins if it outputs x_hat with f(x_hat)=y`}
       <NoteParagraph>
         A length-doubling PRG can build a PRF by viewing input bits as a path through a binary tree. If <InlineMath math="G(s)=G_0(s)\Vert G_1(s)" />, then each input bit chooses the left or right child seed.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`s = k
-for bit xi in input x:
-    if xi = 0: s = G0(s)
-    if xi = 1: s = G1(s)
-return s`}
+      <AlgorithmBlock
+        title="GGM Tree Evaluation"
+        steps={[
+          <span>Start with seed <InlineMath math="s=k" />.</span>,
+          <span>For each input bit <InlineMath math="x_i" />, update <InlineMath math="s\leftarrow G_{x_i}(s)" />.</span>,
+          <span>Return the final seed <InlineMath math="s" />.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="prgs-from-prfs">19. PRGs from PRFs</NoteSectionTitle>
@@ -761,16 +765,15 @@ return s`}
       <NoteParagraph>
         Encrypt-then-MAC first encrypts the message, then authenticates the ciphertext. Decryption verifies the tag before decrypting.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`c = Enc(kE, m)
-t = Tag(kM, c)
-send (c, t)
-
-on receipt:
-    verify t on c
-    reject if invalid
-    otherwise decrypt c`}
+      <AlgorithmBlock
+        title="Encrypt-then-MAC"
+        steps={[
+          <span>Encrypt with the encryption key: <InlineMath math="c=\operatorname{Enc}(k_E,m)" />.</span>,
+          <span>Authenticate the ciphertext: <InlineMath math="t=\operatorname{Tag}(k_M,c)" />.</span>,
+          <span>Send <InlineMath math="(c,t)" />.</span>,
+          <span>On receipt, verify <InlineMath math="t" /> before decrypting <InlineMath math="c" />.</span>,
+          'Reject immediately if verification fails.',
+        ]}
       />
       <NoteParagraph>
         This is the preferred generic composition: the MAC blocks malformed ciphertexts before they reach the decryption algorithm.

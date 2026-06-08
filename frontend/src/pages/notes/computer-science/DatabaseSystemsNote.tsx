@@ -6,6 +6,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
+  AlgorithmBlock,
   CodeBlock,
   InlineMath,
   InteractiveBlock,
@@ -1167,14 +1168,13 @@ return $course/title`}
         MapReduce is a model for processing large data sets across clusters. A map function emits intermediate key-value pairs. A reduce function
         aggregates all intermediate values for each key.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`Map(document_name, document_text):
-  for each word in document_text:
-    emit(word, 1)
-
-Reduce(word, counts):
-  emit(word, sum(counts))`}
+      <AlgorithmBlock
+        title="Word Count MapReduce"
+        steps={[
+          <span>Map: for each word <InlineMath math="w" /> in a document, emit <InlineMath math="(w,1)" />.</span>,
+          'Shuffle: group intermediate values by word.',
+          <span>Reduce: emit <InlineMath math="(w,\sum_i count_i)" /> for each word.</span>,
+        ]}
       />
       <NoteTopicGroup>
         <NoteTopicBlock title="Execution Flow">

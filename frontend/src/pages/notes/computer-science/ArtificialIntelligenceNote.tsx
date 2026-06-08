@@ -6,7 +6,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -618,11 +618,17 @@ export default function ArtificialIntelligenceNote() {
           </NoteParagraph>
         </NoteTopicBlock>
         <NoteTopicBlock title="Agent Loop">
-          <CodeBlock language="text" code={`observe state or percept
-update internal information
-choose action using objective
-environment changes
-repeat`} />
+          <AlgorithmBlock
+            title="Agent Loop"
+            steps={[
+              'Observe the current state or percept.',
+              'Update internal information.',
+              'Choose an action using the objective.',
+              'Let the environment change.',
+              'Repeat with the next percept.',
+            ]}
+            className="mb-0"
+          />
         </NoteTopicBlock>
       </NoteTopicGroup>
 
@@ -729,7 +735,7 @@ repeat`} />
       <NoteParagraph>
         A heuristic is <strong>admissible</strong> if it never overestimates the true remaining cost. It is <strong>consistent</strong> if it obeys a triangle-inequality-like rule across every action.
       </NoteParagraph>
-      <MathBlock math="h(n)\le true\_cost(n,goal)" />
+      <MathBlock math="h(n)\le \operatorname{trueCost}(n,\operatorname{goal})" />
       <MathBlock math="h(u)\le cost(u,a,v)+h(v)" />
       <NoteParagraph>
         Consistency implies admissibility. With a consistent admissible heuristic and nonnegative costs, A* is optimal while often expanding far fewer nodes than Dijkstra.
@@ -754,10 +760,15 @@ repeat`} />
       <NoteParagraph>
         Hill climbing repeatedly moves to a better neighbor. It is greedy, memory efficient, and often useful, but it can stop at local optima or plateaus.
       </NoteParagraph>
-      <CodeBlock language="text" code={`current = initial_state
-while some neighbor is better:
-    current = best neighbor
-return current`} />
+      <AlgorithmBlock
+        title="Hill Climbing"
+        steps={[
+          'Start with an initial state.',
+          'If some neighbor has a better objective value, move to the best such neighbor.',
+          'Repeat until no neighboring state improves the objective.',
+          'Return the final local optimum.',
+        ]}
+      />
       <LocalSearchLandscape />
 
       <NoteSectionTitle id="simulated-annealing">15. Simulated Annealing</NoteSectionTitle>
@@ -825,10 +836,7 @@ return current`} />
       <NoteParagraph>
         Minimax expands the game tree, evaluates terminal states, and backs values up to the root. MAX nodes take the maximum child value. MIN nodes take the minimum child value.
       </NoteParagraph>
-      <CodeBlock language="text" code={`value(state):
-    if terminal(state): return utility(state)
-    if state is MAX: return max(value(child) for child in children)
-    if state is MIN: return min(value(child) for child in children)`} />
+      <MathBlock math="\begin{aligned}V(s)&=U(s) && \text{if }s\text{ is terminal}\\V(s)&=\max_{c\in \operatorname{Children}(s)}V(c) && \text{if }s\text{ is a MAX node}\\V(s)&=\min_{c\in \operatorname{Children}(s)}V(c) && \text{if }s\text{ is a MIN node}\end{aligned}" />
       <NoteParagraph>
         Minimax assumes optimal play from both sides. The chosen action is the move whose backed-up value is best for MAX.
       </NoteParagraph>
@@ -909,28 +917,34 @@ return current`} />
       <NoteParagraph>
         AC-3 enforces arc consistency by repeatedly revising arcs. If revising <InlineMath math="X_i\to X_j" /> deletes a value from <InlineMath math="D_i" />, then arcs pointing into <InlineMath math="X_i" /> may need to be checked again.
       </NoteParagraph>
-      <CodeBlock language="text" code={`queue = all arcs
-while queue is not empty:
-    (Xi, Xj) = queue.pop()
-    if revise(Xi, Xj):
-        if Di is empty: fail
-        add arcs (Xk, Xi) back to queue for neighbors Xk`} />
+      <AlgorithmBlock
+        title="AC-3"
+        steps={[
+          <span>Initialize the queue with all directed arcs <InlineMath math="(X_i,X_j)" />.</span>,
+          <span>Remove one arc <InlineMath math="(X_i,X_j)" /> from the queue.</span>,
+          <span>Revise <InlineMath math="D_i" /> by deleting values that have no compatible value in <InlineMath math="D_j" />.</span>,
+          <span>If <InlineMath math="D_i=\varnothing" />, report failure.</span>,
+          <span>If <InlineMath math="D_i" /> changed, add arcs <InlineMath math="(X_k,X_i)" /> for neighboring variables <InlineMath math="X_k" />.</span>,
+          'Repeat until the queue is empty.',
+        ]}
+      />
 
       <NoteSectionTitle id="backtracking-search">31. Backtracking Search</NoteSectionTitle>
       <NoteParagraph>
         Backtracking search builds an assignment one variable at a time. If a partial assignment cannot lead to a solution, the algorithm undoes choices and tries another branch.
       </NoteParagraph>
-      <CodeBlock language="text" code={`backtrack(assignment):
-    if assignment is complete: return assignment
-    choose an unassigned variable
-    for each value in an ordered domain:
-        if value is consistent:
-            add value
-            run inference
-            result = backtrack(assignment)
-            if result succeeds: return result
-            undo value
-    return failure`} />
+      <AlgorithmBlock
+        title="Backtracking Search"
+        steps={[
+          'If the assignment is complete, return it.',
+          'Choose an unassigned variable.',
+          'Try domain values in the chosen order.',
+          'When a value is consistent, extend the assignment and run inference.',
+          'Recursively search from the extended assignment.',
+          'If the recursive search fails, undo the value and try the next one.',
+          'Return failure after every value has failed.',
+        ]}
+      />
 
       <NoteSectionTitle id="mrv-degree-heuristic-and-lcv">32. MRV, Degree Heuristic, and LCV</NoteSectionTitle>
       <NoteParagraph>
@@ -1049,9 +1063,14 @@ while queue is not empty:
       <NoteParagraph>
         Backpropagation computes gradients through a neural network efficiently using the chain rule. The forward pass computes predictions and loss. The backward pass propagates derivatives from the loss back through each layer.
       </NoteParagraph>
-      <CodeBlock language="text" code={`forward:  compute activations and loss
-backward: compute gradients by chain rule
-update:   parameters = parameters - learning_rate * gradients`} />
+      <AlgorithmBlock
+        title="Backpropagation"
+        steps={[
+          'Forward pass: compute activations and the loss.',
+          'Backward pass: compute gradients by repeated chain-rule applications.',
+          <span>Update parameters with a rule such as <InlineMath math="\theta\leftarrow\theta-\eta\nabla_\theta L" />.</span>,
+        ]}
+      />
 
       <NoteSectionTitle id="cnns-rnns-and-graph-neural-networks">44. CNNs, RNNs, and Graph Neural Networks</NoteSectionTitle>
       <NoteParagraph>
@@ -1075,8 +1094,8 @@ update:   parameters = parameters - learning_rate * gradients`} />
         rows={[
           [<InlineMath math="S" />, 'set of states'],
           [<InlineMath math="A(s)" />, 'actions available in state s'],
-          [<InlineMath math="P(s'\mid s,a)" />, 'probability of next state s prime after action a in state s'],
-          [<InlineMath math="R(s)" />, 'immediate reward for a state, or sometimes R(s,a,s prime) for a transition'],
+          [<InlineMath math="P(s'\mid s,a)" />, <span>probability of next state <InlineMath math="s'" /> after action <InlineMath math="a" /> in state <InlineMath math="s" /></span>],
+          [<InlineMath math="R(s)" />, <span>immediate reward for state <InlineMath math="s" />, or sometimes <InlineMath math="R(s,a,s')" /> for a transition reward</span>],
           [<InlineMath math="\gamma" />, 'discount factor for future rewards'],
         ]}
       />
@@ -1101,11 +1120,15 @@ update:   parameters = parameters - learning_rate * gradients`} />
       <NoteParagraph>
         Value iteration repeatedly applies Bellman updates until utilities stabilize. Terminal rewards propagate backward through the state space.
       </NoteParagraph>
-      <CodeBlock language="text" code={`initialize U(s)
-repeat:
-    for each state s:
-        U_new(s) = R(s) + gamma * max_a sum_s' P(s'|s,a) U(s')
-until changes are small`} />
+      <MathBlock math="U_{k+1}(s)=R(s)+\gamma\max_a\sum_{s'}P(s'\mid s,a)U_k(s')" />
+      <AlgorithmBlock
+        title="Value Iteration"
+        steps={[
+          <span>Initialize <InlineMath math="U_0(s)" /> for every state.</span>,
+          <span>Apply the Bellman update to produce <InlineMath math="U_{k+1}" /> from <InlineMath math="U_k" />.</span>,
+          'Repeat until the largest utility change is small.',
+        ]}
+      />
       <NoteParagraph>
         In discounted settings, the Bellman update is a contraction, so repeated updates converge to a unique fixed point.
       </NoteParagraph>
@@ -1114,11 +1137,15 @@ until changes are small`} />
       <NoteParagraph>
         Policy iteration alternates between evaluating the current policy and improving it.
       </NoteParagraph>
-      <CodeBlock language="text" code={`start with policy pi
-repeat:
-    policy evaluation: compute U_pi
-    policy improvement: pi(s) = argmax_a expected one-step value
-until policy stops changing`} />
+      <AlgorithmBlock
+        title="Policy Iteration"
+        steps={[
+          <span>Start with a policy <InlineMath math="\pi" />.</span>,
+          <span>Policy evaluation: compute <InlineMath math="U_\pi" /> for the current policy.</span>,
+          <span>Policy improvement: set <InlineMath math="\pi(s)=\arg\max_a \sum_{s'}P(s'\mid s,a)U_\pi(s')" />.</span>,
+          'Stop when the policy no longer changes.',
+        ]}
+      />
       <NoteParagraph>
         Policy iteration often converges in fewer high-level iterations than value iteration, but policy evaluation can be expensive.
       </NoteParagraph>
@@ -1171,7 +1198,13 @@ until policy stops changing`} />
       <NoteParagraph>
         A Q-function estimates the value of taking action <InlineMath math="a" /> in state <InlineMath math="s" />. Once <InlineMath math="Q(s,a)" /> is known, the policy can choose <InlineMath math="\arg\max_a Q(s,a)" />.
       </NoteParagraph>
+      <NoteParagraph className="mb-2">
+        <strong>Q-learning:</strong> off-policy update toward the greedy next action.
+      </NoteParagraph>
       <MathBlock math="Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma\max_{a'}Q(s',a')-Q(s,a)]" />
+      <NoteParagraph className="mb-2">
+        <strong>SARSA:</strong> on-policy update toward the action actually taken next.
+      </NoteParagraph>
       <MathBlock math="Q(s,a)\leftarrow Q(s,a)+\alpha[r+\gamma Q(s',a')-Q(s,a)]" />
       <QUpdateExplorer />
 
@@ -1188,7 +1221,7 @@ until policy stops changing`} />
       <NoteParagraph>
         Policy search directly optimizes a parameterized policy rather than trying to estimate the optimal Q-function first. Softmax policies turn action scores into differentiable probabilities:
       </NoteParagraph>
-      <MathBlock math="\pi(a\mid s)=\frac{e^{score(s,a)}}{\sum_b e^{score(s,b)}}" />
+      <MathBlock math="\pi(a\mid s)=\frac{e^{\operatorname{score}(s,a)}}{\sum_b e^{\operatorname{score}(s,b)}}" />
       <NoteParagraph>
         Softmax is useful because small parameter changes lead to smooth probability changes, which makes gradient-based optimization possible.
       </NoteParagraph>
@@ -1197,10 +1230,15 @@ until policy stops changing`} />
       <NoteParagraph>
         REINFORCE is a Monte Carlo policy-gradient method. It samples trajectories, computes reward-to-go, and increases the probability of actions that led to high returns.
       </NoteParagraph>
-      <CodeBlock language="text" code={`repeat:
-    sample a trajectory using the current policy
-    compute reward-to-go for each time step
-    increase log-probability of actions with high reward-to-go`} />
+      <AlgorithmBlock
+        title="REINFORCE"
+        steps={[
+          'Sample a trajectory using the current policy.',
+          'Compute reward-to-go for each time step.',
+          'Increase the log-probability of actions with high reward-to-go.',
+          'Repeat with new trajectories.',
+        ]}
+      />
 
       <NoteSectionTitle id="actor-critic-a2c-and-a3c">60. Actor-Critic, A2C, and A3C</NoteSectionTitle>
       <NoteParagraph>
@@ -1215,8 +1253,8 @@ until policy stops changing`} />
       <NoteParagraph>
         A neural network can approximate <InlineMath math="Q(s,a)" /> for large spaces. Because a network shares parameters across many state-action pairs, changing one estimate can affect others.
       </NoteParagraph>
-      <MathBlock math="target=r+\gamma\max_{a'}Q_\theta(s',a')" />
-      <MathBlock math="loss=(target-Q_\theta(s,a))^2" />
+      <MathBlock math="\operatorname{target}=r+\gamma\max_{a'}Q_\theta(s',a')" />
+      <MathBlock math="\operatorname{loss}=(\operatorname{target}-Q_\theta(s,a))^2" />
       <NoteParagraph>
         Training uses gradient descent on this TD-style loss. Practical deep RL often needs stabilizers such as replay buffers, target networks, and careful exploration schedules.
       </NoteParagraph>

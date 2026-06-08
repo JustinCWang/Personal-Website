@@ -608,16 +608,18 @@ export default function WebDevelopmentNote() {
         A user story describes a feature from the perspective of someone who benefits from it. The common shape is: as a user role, I want a capability,
         so that I get a specific value. Acceptance criteria turn that story into testable conditions.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`User story:
-As a volunteer, I want to filter available pickup times so that I can choose one that fits my schedule.
-
-Acceptance criteria:
-Given several pickup times
-When I select a date filter
-Then only matching pickup times are shown.`}
-      />
+      <NoteTopicGroup>
+        <NoteTopicBlock title="Example Story">
+          <NoteParagraph className="mb-3">
+            As a volunteer, I want to filter available pickup times so that I can choose one that fits my schedule.
+          </NoteParagraph>
+          <BulletList className="mb-0">
+            <li>Given several pickup times.</li>
+            <li>When I select a date filter.</li>
+            <li>Then only matching pickup times are shown.</li>
+          </BulletList>
+        </NoteTopicBlock>
+      </NoteTopicGroup>
       <NoteTopicGroup>
         <NoteTopicBlock title="Why This Helps">
           <BulletList className="mb-0">

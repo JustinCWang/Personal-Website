@@ -8,5 +8,5 @@ export { MathBlock, InlineMath } from './MathBlock';
 export { DiagramBlock } from './DiagramBlock';
 export { InteractiveBlock } from './InteractiveBlock';
 export { NoteTitle, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, NoteTopicGroup, NoteTopicBlock, NoteHeader } from './NoteTypography';
-export { BulletList, OrderedList, NoteTable, RelatedNotes } from './NoteElements';
+export { AlgorithmBlock, BulletList, OrderedList, NoteTable, RelatedNotes } from './NoteElements';
 export { NotesGuideModal } from './NotesGuideModal';

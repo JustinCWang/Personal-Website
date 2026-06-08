@@ -1,6 +1,6 @@
 /**
  * Discrete Mathematics Notes Page
- * A course-shaped overview based on Rosen's Discrete Mathematics and its Applications.
+ * Discrete mathematics notes focused on formal reasoning and discrete structures.
  */
 
 import { useMemo, useState, type ReactNode } from 'react';
@@ -724,7 +724,8 @@ export default function DiscreteMathNote() {
       <MathBlock math="p\leftrightarrow q \equiv (p\to q)\land(q\to p)" />
       <NoteParagraph>
         For two variables, XOR is true when exactly one input is true. For a longer XOR chain, it behaves like a parity check: the result is true
-        when an odd number of propositions are true. In the lecture framing, a long biconditional chain has the opposite parity behavior.
+        when an odd number of propositions are true. The biconditional is the complement of XOR for two inputs, so <InlineMath math="p\leftrightarrow q" />
+        is true when the two truth values match. For longer biconditional chains, use parentheses or state the parity convention explicitly.
       </NoteParagraph>
       <NoteParagraph>
         Operator precedence: <InlineMath math="\neg" /> first, then <InlineMath math="\land" />, then <InlineMath math="\lor" />, then{' '}
@@ -1255,7 +1256,7 @@ while i <= n:
           <BulletList>
             <li>Make the truth table.</li>
             <li>Find rows where the function is 0.</li>
-            <li>Convert each false row to a maxterm, also called a maximal clause in some course notes.</li>
+            <li>Convert each false row to a maxterm, a clause that is false on exactly that row.</li>
             <li>AND the clauses together.</li>
           </BulletList>
         </NoteTopicBlock>

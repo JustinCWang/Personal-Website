@@ -6,7 +6,7 @@
 import { useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -154,10 +154,8 @@ function ProjectionExplorer() {
   const { subtlePanelClass, primaryColor, secondaryColor, accentColor, mutedColor, textColor, panelFill } = useCVTheme();
   const [depth, setDepth] = useState(5);
   const [xWorld, setXWorld] = useState(1.2);
-  const [yWorld, setYWorld] = useState(0.6);
   const [focal, setFocal] = useState(1.6);
   const xImage = (focal * xWorld) / depth;
-  const yImage = (focal * yWorld) / depth;
   const cameraX = 70;
   const planeX = 155;
   const worldX = 430;
@@ -181,12 +179,6 @@ function ProjectionExplorer() {
           </label>
           <input id="cv-x-world" type="range" min="-2" max="2" step="0.1" value={xWorld} onChange={(event) => setXWorld(Number(event.target.value))} className="mb-5 w-full" />
 
-          <label className="mb-3 flex justify-between gap-3 text-sm" htmlFor="cv-y-world">
-            <span>World offset <InlineMath math="Y" /></span>
-            <span>{yWorld.toFixed(1)}</span>
-          </label>
-          <input id="cv-y-world" type="range" min="-2" max="2" step="0.1" value={yWorld} onChange={(event) => setYWorld(Number(event.target.value))} className="mb-5 w-full" />
-
           <label className="mb-3 flex justify-between gap-3 text-sm" htmlFor="cv-focal">
             <span>Focal length <InlineMath math="f" /></span>
             <span>{focal.toFixed(1)}</span>
@@ -208,12 +200,9 @@ function ProjectionExplorer() {
             <text x={worldX} y={worldY - 14} fill={textColor} fontSize="12" textAnchor="middle">3D point</text>
             <text x={planeX + 12} y={imageY - 10} fill={textColor} fontSize="12">projected point</text>
           </svg>
-          <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 text-sm">
             <div className={`rounded border p-3 ${subtlePanelClass}`}>
               <InlineMath math={`x=fX/Z=${xImage.toFixed(2)}`} />
-            </div>
-            <div className={`rounded border p-3 ${subtlePanelClass}`}>
-              <InlineMath math={`y=fY/Z=${yImage.toFixed(2)}`} />
             </div>
           </div>
         </div>
@@ -933,15 +922,15 @@ export default function ComputerVisionNote() {
         The Canny detector turns noisy gradient measurements into thin, connected edge curves. Its steps are smoothing, gradient estimation, non-maximum suppression, and hysteresis thresholding.
       </NoteParagraph>
       <CannyPipelineExplorer />
-      <CodeBlock
-        language="text"
-        code={`
-smooth image with a Gaussian
-compute gradient magnitude and direction
-thin wide responses by non-maximum suppression
-keep strong edges
-keep weak edges only when connected to strong edges
-        `}
+      <AlgorithmBlock
+        title="Canny Pipeline"
+        steps={[
+          <span>Smooth the image with a Gaussian filter <InlineMath math="G_\sigma" />.</span>,
+          <span>Compute gradient magnitude <InlineMath math="\|\nabla I\|" /> and direction.</span>,
+          'Thin wide responses using non-maximum suppression.',
+          'Keep strong edges.',
+          'Keep weak edges only when connected to strong edges.',
+        ]}
       />
 
       <NoteSectionTitle id="morphological-operations">23. Morphological Operations</NoteSectionTitle>

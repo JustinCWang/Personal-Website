@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
 type TableRow = ReactNode[];
+type AlgorithmStep = ReactNode | { content: ReactNode; depth?: number };
 
 function useNoteElementTheme() {
   const { isDarkMode } = useDarkMode();
@@ -77,6 +78,38 @@ export function NoteTable({ headers, rows }: { headers: ReactNode[]; rows: Table
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+export function AlgorithmBlock({
+  title = 'Procedure',
+  steps,
+  className = '',
+}: {
+  title?: string;
+  steps: AlgorithmStep[];
+  className?: string;
+}) {
+  const { isDarkMode, subtlePanelClass } = useNoteElementTheme();
+  const titleClass = isDarkMode ? 'text-green-300' : 'text-slate-800';
+  const markerClass = isDarkMode ? 'border-green-500/25 bg-black/20 text-green-300' : 'border-slate-200 bg-white text-slate-500';
+
+  return (
+    <div className={`mb-8 rounded-lg border p-4 font-mono text-sm ${subtlePanelClass} ${className}`}>
+      <div className={`mb-3 font-bold ${titleClass}`}>{title}</div>
+      <ol className="space-y-2">
+        {steps.map((step, index) => {
+          const content = typeof step === 'object' && step !== null && 'content' in step ? step.content : step;
+          const depth = typeof step === 'object' && step !== null && 'content' in step ? step.depth ?? 0 : 0;
+          return (
+            <li key={index} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3" style={{ paddingLeft: `${depth * 1.25}rem` }}>
+              <span className={`inline-flex h-6 w-6 items-center justify-center rounded border text-xs ${markerClass}`}>{index + 1}</span>
+              <span className="leading-relaxed">{content}</span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

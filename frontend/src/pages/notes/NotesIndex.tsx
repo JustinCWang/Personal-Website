@@ -1,7 +1,6 @@
 /**
  * Notes Index Page
- * The landing page for the digital notes section
- * Serves as a guide showcasing all available custom note components
+ * The landing page for the digital notes section.
  */
 
 import { NotesLayout } from '../../components/notes/NotesLayout';
@@ -9,8 +8,7 @@ import { NoteTitle, NoteParagraph } from '../../components/notes';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
 /**
- * Renders the index/welcome page for notes
- * @returns {JSX.Element} Welcome page for the digital notes section
+ * Renders the index page for notes.
  */
 export default function NotesIndex() {
   const { isDarkMode } = useDarkMode();
@@ -24,7 +22,7 @@ export default function NotesIndex() {
 
         <NoteTitle>My Notes</NoteTitle>
         <p className={`text-xl font-mono max-w-2xl ${isDarkMode ? 'text-green-300' : 'text-slate-500'}`}>
-          A personal repository of my Math and Computer Science knowledge.
+          A personal repository of math, computer science, and programming notes.
         </p>
       </div>
 
@@ -36,18 +34,18 @@ export default function NotesIndex() {
           In these notes, I share my personal explanations and intuition for the topics that I have learned.
         </p>
         <p className="leading-relaxed mb-4">
-          My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and Math.
+          My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and math.
         </p>
         <p className="leading-relaxed">
-          This is not meant to dive deep into any one subject or teach anything from scratch, but instead provide a comprehensive view for understanding. ~Enjoy!
+          These notes are meant to teach the concepts directly: define the notation, explain the intuition, show useful examples, and connect each topic to the next.
         </p>
       </div>
 
       <NoteParagraph className="text-center">
         Please select a topic from the sidebar on the left to get started. <br />
-        If you want to see how these pages are built, click the info button (ⓘ). <br />
+        If you want to see how these pages are built, click the info button in the note sidebar. <br />
         If you find any errors or have suggestions, please make a pull request on the GitHub repo! <br />
       </NoteParagraph>
-    </NotesLayout >
+    </NotesLayout>
   );
 }

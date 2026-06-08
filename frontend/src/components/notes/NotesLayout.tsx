@@ -927,6 +927,8 @@ const NOTE_TOPIC_GROUPS: NotesTopicGroup[] = [
         path: '/notes/programming-languages',
         subtopics: [
           { name: '1. Programming Languages Overview', hash: 'programming-languages-overview' },
+          { name: '2. Expression-Oriented Core Model', hash: 'expression-oriented-core-model' },
+          { name: '3. Source Text to Meaning', hash: 'source-text-to-meaning' },
           { name: '15. Inference Rules', hash: 'inference-rules' },
           { name: '16. Typing Judgments and Contexts', hash: 'typing-judgments-and-contexts' },
           { name: '17. Derivations', hash: 'derivations' },
@@ -1280,6 +1282,7 @@ const NOTE_TOPIC_GROUPS: NotesTopicGroup[] = [
         path: '/notes/distributed-systems',
         subtopics: [
           { name: '1. Distributed Systems Overview', hash: 'distributed-systems-overview' },
+          { name: '2. Processes, Requests, and Local State', hash: 'processes-requests-and-local-state' },
           { name: '3. Concurrency vs Parallelism', hash: 'concurrency-vs-parallelism' },
           { name: '5. RPC and Failure Semantics', hash: 'rpc-and-failure-semantics' },
           { name: '6. Time, Asynchrony, and Causality', hash: 'time-asynchrony-and-causality' },

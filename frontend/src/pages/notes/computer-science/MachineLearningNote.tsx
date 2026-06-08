@@ -6,7 +6,7 @@
 import { useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
-  CodeBlock,
+  AlgorithmBlock,
   InlineMath,
   InteractiveBlock,
   MathBlock,
@@ -720,10 +720,10 @@ export default function MachineLearningNote() {
       <NoteParagraph>
         The Beta distribution is a distribution over probabilities. It is conjugate to the Bernoulli likelihood, which means the posterior is also Beta.
       </NoteParagraph>
-      <MathBlock math="p\sim Beta(\alpha,\beta),\quad H\text{ successes},\quad T\text{ failures}" />
-      <MathBlock math="p\mid D\sim Beta(\alpha+H,\beta+T)" />
+      <MathBlock math="p\sim \operatorname{Beta}(\alpha,\beta),\quad H\text{ successes},\quad T\text{ failures}" />
+      <MathBlock math="p\mid D\sim \operatorname{Beta}(\alpha+H,\beta+T)" />
       <NoteParagraph>
-        With a symmetric prior <InlineMath math="Beta(c,c)" />, the posterior mean is additive smoothing:
+        With a symmetric prior <InlineMath math="\operatorname{Beta}(c,c)" />, the posterior mean is additive smoothing:
       </NoteParagraph>
       <MathBlock math="E[p\mid D]=\frac{H+c}{H+T+2c}" />
 
@@ -731,8 +731,8 @@ export default function MachineLearningNote() {
       <NoteParagraph>
         Bayesian linear regression places a prior on weights and updates it with observed data. A Gaussian prior on weights corresponds closely to L2-style regularization.
       </NoteParagraph>
-      <MathBlock math="y_i=w^Tx_i+\epsilon_i,\qquad \epsilon_i\sim N(0,\sigma^2)" />
-      <MathBlock math="w\sim N(0,S_0)" />
+      <MathBlock math="y_i=w^Tx_i+\epsilon_i,\qquad \epsilon_i\sim \mathcal{N}(0,\sigma^2)" />
+      <MathBlock math="w\sim \mathcal{N}(0,S_0)" />
       <NoteParagraph>
         Bayesian prediction averages over posterior uncertainty instead of using only one fitted vector.
       </NoteParagraph>
@@ -818,11 +818,13 @@ export default function MachineLearningNote() {
       <NoteParagraph>
         Backpropagation applies the chain rule backward through the computation graph so every parameter gradient can be computed efficiently.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`forward pass: compute predictions and loss
-backward pass: compute gradients by chain rule
-update: parameters = parameters - learning_rate * gradients`}
+      <AlgorithmBlock
+        title="Backpropagation"
+        steps={[
+          'Forward pass: compute predictions and loss.',
+          'Backward pass: compute gradients by the chain rule.',
+          <span>Update parameters, for example <InlineMath math="\theta\leftarrow\theta-\eta\nabla_\theta L" />.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="gradient-based-optimization">33. Gradient-Based Optimization</NoteSectionTitle>
@@ -843,7 +845,7 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         Recurrent neural networks process sequences by carrying hidden state forward through time.
       </NoteParagraph>
-      <MathBlock math="h_t=f(W_xx_t+W_hh_{t-1}+b)" />
+      <MathBlock math="h_t=f(W_x x_t+W_h h_{t-1}+b)" />
       <NoteParagraph>
         They are natural for time series and sequence tasks because earlier inputs can influence later predictions. Their weakness is training through long histories: gradients can vanish, explode, or fail to preserve long-range dependencies.
       </NoteParagraph>
@@ -861,7 +863,7 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         Attention lets a model decide which previous or neighboring representations are most relevant to the current token. Instead of compressing all history into one hidden state, attention computes a weighted mixture of value vectors.
       </NoteParagraph>
-      <MathBlock math="\text{Attention}(Q,K,V)=softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V" />
+      <MathBlock math="\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V" />
       <NoteParagraph>
         Transformers replace recurrence with stacked self-attention and feedforward blocks. They are highly parallelizable and strong for long-context representation, but they can be data-hungry and computationally expensive.
       </NoteParagraph>
@@ -921,7 +923,7 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         A Gaussian classifier models features in each class with a Gaussian distribution.
       </NoteParagraph>
-      <MathBlock math="p(x\mid y=k)=N(x\mid \mu_k,\Sigma_k)" />
+      <MathBlock math="p(x\mid y=k)=\mathcal{N}(x\mid \mu_k,\Sigma_k)" />
       <NoteParagraph>
         Equal class covariances produce linear decision boundaries. Different covariances can produce quadratic boundaries.
       </NoteParagraph>
@@ -946,11 +948,13 @@ update: parameters = parameters - learning_rate * gradients`}
         K-means partitions data into <InlineMath math="K" /> clusters by minimizing squared distance to cluster means.
       </NoteParagraph>
       <MathBlock math="J=\sum_i \|x_i-\mu_{z_i}\|_2^2" />
-      <CodeBlock
-        language="text"
-        code={`repeat:
-    assign each point to nearest center
-    recompute each center as the mean of assigned points`}
+      <AlgorithmBlock
+        title="K-Means"
+        steps={[
+          <span>Assign each point <InlineMath math="x_i" /> to its nearest center.</span>,
+          <span>Recompute each center <InlineMath math="\mu_k" /> as the mean of points assigned to cluster <InlineMath math="k" />.</span>,
+          'Repeat until assignments or centers stop changing.',
+        ]}
       />
       <NoteParagraph>
         Each assignment/update step cannot increase the objective, but the final answer can depend strongly on initialization.
@@ -960,7 +964,7 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         A Gaussian mixture model represents data as a weighted sum of Gaussian components.
       </NoteParagraph>
-      <MathBlock math="p(x)=\sum_k \pi_k N(x\mid \mu_k,\Sigma_k)" />
+      <MathBlock math="p(x)=\sum_k \pi_k \mathcal{N}(x\mid \mu_k,\Sigma_k)" />
       <NoteParagraph>
         Unlike k-means, GMMs use soft assignments, model covariance, and can represent overlapping or elliptical clusters.
       </NoteParagraph>
@@ -970,7 +974,7 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         Expectation-Maximization alternates between estimating hidden variables from parameters and estimating parameters from hidden variables.
       </NoteParagraph>
-      <MathBlock math="\gamma_{ik}=\frac{\pi_kN(x_i\mid \mu_k,\Sigma_k)}{\sum_j\pi_jN(x_i\mid \mu_j,\Sigma_j)}" />
+      <MathBlock math="\gamma_{ik}=\frac{\pi_k\mathcal{N}(x_i\mid \mu_k,\Sigma_k)}{\sum_j\pi_j\mathcal{N}(x_i\mid \mu_j,\Sigma_j)}" />
       <NoteParagraph>
         For GMMs, the E-step computes responsibilities and the M-step updates mixture weights, means, and covariances using those responsibilities.
       </NoteParagraph>
@@ -1015,25 +1019,28 @@ update: parameters = parameters - learning_rate * gradients`}
       <NoteParagraph>
         Value iteration repeatedly applies the Bellman optimality update until values stabilize, then extracts the greedy policy.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`initialize v(s)
-repeat:
-    v_new(s) = max_a [R(s,a) + gamma * sum_s' P(s'|s,a)v(s')]
-until convergence
-pi(s) = argmax_a [R(s,a) + gamma * sum_s' P(s'|s,a)v(s')]`}
+      <MathBlock math="v_{k+1}(s)=\max_a\left[R(s,a)+\gamma\sum_{s'}P(s'\mid s,a)v_k(s')\right]" />
+      <AlgorithmBlock
+        title="Value Iteration"
+        steps={[
+          <span>Initialize <InlineMath math="v_0(s)" />.</span>,
+          <span>Repeatedly apply the Bellman update to get <InlineMath math="v_{k+1}" /> from <InlineMath math="v_k" />.</span>,
+          'Stop after convergence.',
+          <span>Extract the greedy policy <InlineMath math="\pi(s)=\arg\max_a\left[R(s,a)+\gamma\sum_{s'}P(s'\mid s,a)v(s')\right]" />.</span>,
+        ]}
       />
 
       <NoteSectionTitle id="policy-iteration">54. Policy Iteration</NoteSectionTitle>
       <NoteParagraph>
         Policy iteration alternates policy evaluation and policy improvement. If improvement no longer changes the policy, the policy is optimal.
       </NoteParagraph>
-      <CodeBlock
-        language="text"
-        code={`repeat:
-    evaluate current policy pi
-    improve pi greedily using v_pi
-until pi stops changing`}
+      <AlgorithmBlock
+        title="Policy Iteration"
+        steps={[
+          <span>Evaluate the current policy <InlineMath math="\pi" /> to compute <InlineMath math="v_\pi" />.</span>,
+          <span>Improve <InlineMath math="\pi" /> greedily using <InlineMath math="v_\pi" />.</span>,
+          'Repeat until the policy stops changing.',
+        ]}
       />
 
       <NoteSectionTitle id="q-learning">55. Q-Learning</NoteSectionTitle>
