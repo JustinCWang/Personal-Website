@@ -3,7 +3,7 @@
  * Linear algebra notes focused on algebra, geometry, and computation.
  */
 
-import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { useId, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Coordinates, Line, Mafs, Point, Theme, Vector } from 'mafs';
 import 'mafs/core.css';
 import 'mafs/font.css';
@@ -64,12 +64,14 @@ function useLinearTheme() {
         '--mafs-bg': 'transparent',
         '--mafs-line-color': '#22c55e40',
         '--mafs-origin-color': '#4ade80',
+        '--mafs-line-stroke-dash-style': '6, 6',
       } as CSSProperties)
     : ({
         '--mafs-fg': '#1e293b',
         '--mafs-bg': 'transparent',
         '--mafs-line-color': '#cbd5e1',
         '--mafs-origin-color': '#64748b',
+        '--mafs-line-stroke-dash-style': '6, 6',
       } as CSSProperties);
 
   return {
@@ -247,6 +249,9 @@ function VectorCombinationExplorer() {
 
 function MatrixTransformExplorer() {
   const { isDarkMode, subtlePanelClass } = useLinearTheme();
+  const markerId = useId().replace(/:/g, '');
+  const blueArrowId = `linear-transform-arrow-blue-${markerId}`;
+  const orangeArrowId = `linear-transform-arrow-orange-${markerId}`;
   const presets: { name: string; matrix: Matrix2; math: string }[] = [
     { name: 'Identity', matrix: [[1, 0], [0, 1]], math: String.raw`\begin{bmatrix}1&0\\0&1\end{bmatrix}` },
     { name: 'Stretch', matrix: [[2, 0], [0, 0.75]], math: String.raw`\begin{bmatrix}2&0\\0&0.75\end{bmatrix}` },
@@ -329,10 +334,10 @@ function MatrixTransformExplorer() {
         <div className={`min-w-0 rounded-lg border p-3 ${subtlePanelClass}`}>
           <svg viewBox="-50 -40 390 300" className="h-[300px] w-full" role="img" aria-label="Matrix transformation of a unit square">
             <defs>
-              <marker id="linear-transform-arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <marker id={blueArrowId} markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
                 <path d="M0,0 L0,6 L9,3 z" fill={blue} />
               </marker>
-              <marker id="linear-transform-arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <marker id={orangeArrowId} markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
                 <path d="M0,0 L0,6 L9,3 z" fill={orange} />
               </marker>
             </defs>
@@ -340,10 +345,10 @@ function MatrixTransformExplorer() {
             <line x1={origin[0]} y1="250" x2={origin[0]} y2="-20" stroke={grid} strokeWidth="1.5" />
             <polygon points={toPointString(square)} fill={blue} fillOpacity="0.08" stroke={blue} strokeWidth="2.5" strokeDasharray="7 5" />
             <polygon points={toPointString(transformed)} fill={orange} fillOpacity="0.16" stroke={orange} strokeWidth="3" />
-            {renderSvgVector([1, 0], blue, 'linear-transform-arrow-blue')}
-            {renderSvgVector([0, 1], blue, 'linear-transform-arrow-blue')}
-            {renderSvgVector(e1, orange, 'linear-transform-arrow-orange', 4)}
-            {renderSvgVector(e2, orange, 'linear-transform-arrow-orange', 4)}
+            {renderSvgVector([1, 0], blue, blueArrowId)}
+            {renderSvgVector([0, 1], blue, blueArrowId)}
+            {renderSvgVector(e1, orange, orangeArrowId, 4)}
+            {renderSvgVector(e2, orange, orangeArrowId, 4)}
           </svg>
           <DiagramLegend
             items={[
@@ -512,7 +517,7 @@ function ProjectionExplorer() {
           <div className="rounded-lg overflow-hidden" style={mafsStyle}>
             <Mafs viewBox={{ x: [-5.25, 5.25], y: [-5.25, 5.25], padding: 0.2 }} height={300} zoom>
               <Coordinates.Cartesian />
-              <Line.ThroughPoints point1={[-4, -2]} point2={[4, 2]} color={Theme.green} />
+              <Line.ThroughPoints point1={[-4, -2]} point2={[4, 2]} color={Theme.green} style="dashed" />
               <MafsVector tip={b} color={Theme.blue} />
               <MafsVector tip={projection} color={Theme.orange} />
               <MafsVector tail={projection} tip={b} color={Theme.red} />
@@ -599,9 +604,9 @@ export default function LinearAlgebraNote() {
       />
       <NoteSubSectionTitle id="flops-and-cost">2.2 Flops and Cost</NoteSubSectionTitle>
       <NoteParagraph>
-        A flop is a floating-point operation such as addition, multiplication, division, subtraction, or square root. Runtime is the time an
-        algorithm takes to finish. For numerical algorithms, constants matter, so it is useful to track leading constants rather than only
-        using broad asymptotic notation.
+        A flop is usually a floating-point addition, subtraction, multiplication, or division. Square roots and other special functions are often
+        tracked separately because their cost depends more on the hardware and library. Runtime is the time an algorithm takes to finish. For
+        numerical algorithms, constants matter, so it is useful to track leading constants rather than only using broad asymptotic notation.
       </NoteParagraph>
       <MathBlock math={String.raw`\text{Gaussian elimination on }n\times n\text{ systems costs about }\frac{2}{3}n^3\text{ flops}`} />
 
@@ -683,8 +688,8 @@ export default function LinearAlgebraNote() {
       <NoteSubSectionTitle id="existence-and-uniqueness">5.2 Existence and Uniqueness</NoteSubSectionTitle>
       <NoteParagraph>
         The equation <InlineMath math="A\mathbf{x}=\mathbf{b}" /> is solvable exactly when <InlineMath math="\mathbf{b}" /> is in the column
-        span of <InlineMath math="A" />. It has a unique solution exactly when there are no free variables. These two questions - existence and
-        uniqueness - drive much of linear algebra.
+        span of <InlineMath math="A" />. When it is solvable, it has a unique solution exactly when there are no free variables. These two
+        questions - existence and uniqueness - drive much of linear algebra.
       </NoteParagraph>
       <NoteParagraph>
         The codomain is the target space where outputs are supposed to live. A map is onto, or surjective, when every vector in that target space is
@@ -777,6 +782,9 @@ export default function LinearAlgebraNote() {
         upper triangular. Once built, it lets us solve many systems with the same coefficient matrix efficiently.
       </NoteParagraph>
       <MathBlock math={String.raw`A\mathbf{x}=\mathbf{b},\quad A=LU\quad\Longrightarrow\quad L\mathbf{y}=\mathbf{b},\;U\mathbf{x}=\mathbf{y}`} />
+      <NoteParagraph>
+        When elimination needs row swaps, the factorization includes a permutation matrix, commonly written <InlineMath math="PA=LU" />.
+      </NoteParagraph>
 
       {/* 9. APPLICATIONS */}
       <NoteSectionTitle id="computational-applications">9. Computational Applications</NoteSectionTitle>
@@ -878,7 +886,7 @@ export default function LinearAlgebraNote() {
         Projection breaks a vector into the part that lies in a subspace and the error that points perpendicular to that subspace. In one
         dimension, projection onto the line through <InlineMath math="\mathbf{u}" /> has a simple formula.
       </NoteParagraph>
-      <MathBlock math={String.raw`\operatorname{proj}_{\mathbf{u}}\mathbf{b}=\frac{\mathbf{b}\cdot\mathbf{u}}{\mathbf{u}\cdot\mathbf{u}}\mathbf{u}`} />
+      <MathBlock math={String.raw`\operatorname{proj}_{\mathbf{u}}\mathbf{b}=\frac{\mathbf{b}\cdot\mathbf{u}}{\mathbf{u}\cdot\mathbf{u}}\mathbf{u},\qquad \mathbf{u}\ne\mathbf{0}`} />
       <ProjectionExplorer />
       <NoteSubSectionTitle id="orthogonal-bases">12.3 Orthogonal Bases</NoteSubSectionTitle>
       <NoteParagraph>
@@ -912,6 +920,10 @@ export default function LinearAlgebraNote() {
 # A has one row per observation and one column per feature.
 x_hat, residuals, rank, singular_values = np.linalg.lstsq(A, b, rcond=None)`}
       />
+      <NoteParagraph>
+        This assumes <InlineMath math="A" /> and <InlineMath math="\mathbf{b}" /> have already been built with compatible dimensions. The returned{' '}
+        <InlineMath math="\widehat{\mathbf{x}}" /> minimizes <InlineMath math="\|A\mathbf{x}-\mathbf{b}\|" />.
+      </NoteParagraph>
 
       {/* 14. SYMMETRIC MATRICES */}
       <NoteSectionTitle id="symmetric-matrices">14. Symmetric Matrices</NoteSectionTitle>

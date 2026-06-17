@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { projectsAPI, skillsAPI, type Project } from '../services/api.ts'
 import { useDarkMode, useAnimationFreeze } from '../hooks/useDarkMode.ts'
 import { useAnimationToggle } from '../hooks/useAnimationToggle.ts'
@@ -286,15 +287,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                 >
                   Contact
                 </a>
-                <a
-                  href="/notes"
+                <Link
+                  to="/notes"
                   className={`text-lg font-bold transition-colors hover:scale-105 font-mono ${isDarkMode
                       ? 'text-green-300 hover:text-green-400 hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]'
                       : 'text-slate-600 hover:text-slate-800'
                     }`}
                 >
                   My Notes
-                </a>
+                </Link>
               </nav>
 
               {/* Dark Mode Toggle */}

@@ -46,6 +46,18 @@ export default function CalculusNote() {
     violet: '#ae58ff',
     asymptote: '#9ca3af',
   };
+  const conceptPanelClass = `my-8 rounded-lg border p-4 font-mono sm:p-5 ${
+    isDarkMode ? 'border-green-500/25 bg-black/35 text-green-100' : 'border-slate-200 bg-white text-slate-700'
+  }`;
+  const conceptNodeClass = `flex min-h-24 flex-col justify-center rounded-lg border p-3 text-center text-sm leading-relaxed [&_.katex]:!text-inherit ${
+    isDarkMode ? 'border-green-500/25 bg-green-500/5 text-green-100' : 'border-slate-200 bg-slate-50 text-slate-700'
+  }`;
+  const conceptArrowClass = `flex items-center justify-center text-sm font-bold ${
+    isDarkMode ? 'text-green-300' : 'text-slate-500'
+  }`;
+  const conceptCaptionClass = `mt-4 text-sm leading-relaxed ${
+    isDarkMode ? 'text-green-100/80' : 'text-slate-600'
+  }`;
 
   return (
     <NotesLayout>
@@ -125,11 +137,11 @@ export default function CalculusNote() {
             <li><InlineMath math="f(x) - c" />: shift down <InlineMath math="c" /></li>
             <li><InlineMath math="f(x - c)" />: shift right <InlineMath math="c" /></li>
             <li><InlineMath math="f(x + c)" />: shift left <InlineMath math="c" /></li>
-            <li><InlineMath math="-a \cdot f(x)" />: reflect and stretch vertically</li>
+            <li><InlineMath math="-a \cdot f(x)" />: reflect across the x-axis and scale vertically</li>
             <li><InlineMath math="f(-x)" />: reflect across y-axis</li>
             <li><InlineMath math="-f(x) + c" />: reflect across x-axis and shift up</li>
             <li><InlineMath math="a \cdot f(x)" />: vertical stretch/compression</li>
-            <li><InlineMath math="f(ax)" />: horizontal compression/stretch</li>
+            <li><InlineMath math="f(ax)" />: horizontal scale change, with larger <InlineMath math="|a|" /> making the graph narrower</li>
           </ul>
           <NoteParagraph>
             The graph shows some basic transformations applied to <InlineMath math="f(x) = x^2" />.
@@ -369,14 +381,13 @@ export default function CalculusNote() {
 
       <NoteSubSectionTitle id="algebra-review">1.11 Algebra Review</NoteSubSectionTitle>
       <NoteParagraph>
-        While most of algebra is mostly common sense, there are a few concepts worth remembering before diving into calculus.
+        Calculus uses a small set of algebra moves repeatedly, so it helps to keep the most common ones close at hand.
       </NoteParagraph>
       <NoteTopicGroup>
         <NoteTopicBlock title="Factoring">
           <NoteParagraph>
-            Factoring rewrites an expression as a product. I've seen many ways factoring has been taught, but I find the fastest and most intuitive way
-            is to just look at the coefficients for the first and last term to see what combination of factors result in the middle terms. If this is not possible,
-            then you can always use the <strong>quadratic formula</strong>.
+            Factoring rewrites an expression as a product. For quadratics, we often look for two numbers whose product gives the constant term and whose sum gives
+            the linear coefficient. If clean factors are not visible, the <strong>quadratic formula</strong> is the reliable fallback.
           </NoteParagraph>
           <MathBlock math="x^2 + 5x + 6 = (x + 2)(x + 3)" />
         </NoteTopicBlock>
@@ -909,7 +920,7 @@ export default function CalculusNote() {
       <NoteTopicGroup>
         <NoteTopicBlock title="Notation to Know">
           <NoteParagraph>
-            A point where <InlineMath math="f'(x)=0" /> is called critical because the first-order motion has paused. The notation <InlineMath math="f''(x)" /> is the second derivative,
+            A critical point is where <InlineMath math="f'(x)=0" /> or where <InlineMath math="f'" /> does not exist; <InlineMath math="f'(x)=0" /> is the common case where first-order motion has paused. The notation <InlineMath math="f''(x)" /> is the second derivative,
             which tracks concavity, or how the slope itself changes.
           </NoteParagraph>
           <NoteParagraph className="mb-0">
@@ -1132,9 +1143,9 @@ export default function CalculusNote() {
                 fillOpacity={0.25}
               />
               <Plot.OfX y={(x) => 0.5 * x ** 2 + 0.5} domain={[0, 2]} color={Theme.blue} />
-              <Line.ThroughPoints point1={[0.5, 0]} point2={[0.5, 0.625]} color={Theme.orange} opacity={0.8} />
-              <Line.ThroughPoints point1={[1, 0]} point2={[1, 1]} color={Theme.orange} opacity={0.8} />
-              <Line.ThroughPoints point1={[1.5, 0]} point2={[1.5, 1.625]} color={Theme.orange} opacity={0.8} />
+              <Line.Segment point1={[0.5, 0]} point2={[0.5, 0.625]} color={Theme.orange} opacity={0.8} />
+              <Line.Segment point1={[1, 0]} point2={[1, 1]} color={Theme.orange} opacity={0.8} />
+              <Line.Segment point1={[1.5, 0]} point2={[1.5, 1.625]} color={Theme.orange} opacity={0.8} />
             </Mafs>
           </div>
         </div>
@@ -1444,9 +1455,9 @@ export default function CalculusNote() {
               />
               <Plot.OfX y={(x) => 4 - x ** 2} domain={[-2, 1]} color={Theme.blue} />
               <Plot.OfX y={(x) => x + 2} domain={[-2, 1]} color={Theme.red} />
-              <Line.ThroughPoints point1={[-1.5, 0.5]} point2={[-1.5, 1.75]} color={Theme.orange} opacity={0.9} />
-              <Line.ThroughPoints point1={[-0.5, 1.5]} point2={[-0.5, 3.75]} color={Theme.orange} opacity={0.9} />
-              <Line.ThroughPoints point1={[0.5, 2.5]} point2={[0.5, 3.75]} color={Theme.orange} opacity={0.9} />
+              <Line.Segment point1={[-1.5, 0.5]} point2={[-1.5, 1.75]} color={Theme.orange} opacity={0.9} />
+              <Line.Segment point1={[-0.5, 1.5]} point2={[-0.5, 3.75]} color={Theme.orange} opacity={0.9} />
+              <Line.Segment point1={[0.5, 2.5]} point2={[0.5, 3.75]} color={Theme.orange} opacity={0.9} />
               <Point x={-2} y={0} color={Theme.violet} />
               <Point x={1} y={3} color={Theme.violet} />
             </Mafs>
@@ -3413,7 +3424,7 @@ export default function CalculusNote() {
       </NoteParagraph>
       <NoteTopicGroup>
         <NoteTopicBlock title="Divergence">
-          <MathBlock math="\nabla\cdot\vec{F}=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}" />
+          <MathBlock math="\vec{F}=\langle P,Q,R\rangle,\qquad \nabla\cdot\vec{F}=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}" />
         </NoteTopicBlock>
       </NoteTopicGroup>
 
@@ -3503,10 +3514,38 @@ export default function CalculusNote() {
           </NoteParagraph>
         </NoteTopicBlock>
       </NoteTopicGroup>
-      <DiagramBlock chart={`graph LR
-        P["candidate path or function"] --> F["functional"]
-        F --> N["number to minimize or maximize"]
-        V["small variation"] --> P`} />
+      <div className={conceptPanelClass} aria-label="Variational calculus flow">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)] md:items-stretch">
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Candidate path</span>
+            <span><InlineMath math="y(x)" /></span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Functional</span>
+            <span><InlineMath math="J[y]=\int_a^b L(x,y,y')\,dx" /></span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Output number</span>
+            <span>length, action, energy, or cost</span>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)] md:items-stretch">
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Small variation</span>
+            <span><InlineMath math="y+\epsilon\eta" /></span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Stationary check</span>
+            <span><InlineMath math="\delta J=0" /></span>
+          </div>
+        </div>
+        <p className={conceptCaptionClass}>
+          Variational calculus changes an entire candidate path, then checks whether that small path-level change creates first-order change in the functional.
+        </p>
+      </div>
 
       <NoteSubSectionTitle id="functionals">18.1 Functionals</NoteSubSectionTitle>
       <NoteParagraph>
@@ -3586,11 +3625,38 @@ export default function CalculusNote() {
           </NoteParagraph>
         </NoteTopicBlock>
       </NoteTopicGroup>
-      <DiagramBlock chart={`graph LR
-        C["calculus idea"] --> A["algorithm"]
-        A --> E["approximation"]
-        E --> R["error control"]
-        R --> A`} />
+      <div className={conceptPanelClass} aria-label="Computational calculus flow">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)] md:items-stretch">
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Calculus idea</span>
+            <span>limit, derivative, integral, or gradient</span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Finite representation</span>
+            <span>step size <InlineMath math="h" />, samples, or computation graph</span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Computed result</span>
+            <span>approximate value or propagated derivative</span>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)] md:items-stretch">
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Error check</span>
+            <span>truncation, rounding, and stability</span>
+          </div>
+          <div className={conceptArrowClass}>-&gt;</div>
+          <div className={conceptNodeClass}>
+            <span className="font-bold">Refine the method</span>
+            <span>change <InlineMath math="h" />, improve the rule, or restructure the computation</span>
+          </div>
+        </div>
+        <p className={conceptCaptionClass}>
+          Computational calculus turns a limiting idea into a finite process, then uses error behavior to decide whether the process is accurate enough.
+        </p>
+      </div>
 
       <NoteSubSectionTitle id="finite-differences">19.1 Finite Differences</NoteSubSectionTitle>
       <NoteParagraph>
@@ -3610,7 +3676,7 @@ export default function CalculusNote() {
 
       <NoteSubSectionTitle id="automatic-differentiation">19.2 Automatic Differentiation</NoteSubSectionTitle>
       <NoteParagraph>
-        Automatic differentiation computes exact derivatives of code by repeatedly applying the chain rule to the operations that produced the output.
+        Automatic differentiation computes derivatives of the executed operations by repeatedly applying the chain rule to the computation that produced the output.
       </NoteParagraph>
       <NoteParagraph>
         This is not symbolic algebra and not numerical differencing. It is calculus applied directly to a computation graph.

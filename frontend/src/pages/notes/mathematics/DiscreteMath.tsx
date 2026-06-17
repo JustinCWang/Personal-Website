@@ -3,7 +3,7 @@
  * Discrete mathematics notes focused on formal reasoning and discrete structures.
  */
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useId, useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
   CodeBlock,
@@ -93,7 +93,8 @@ function FunctionMappingDiagram() {
   const stroke = isDarkMode ? '#86efac' : '#2563eb';
   const nodeFill = isDarkMode ? '#052e16' : '#eff6ff';
   const textFill = isDarkMode ? '#bbf7d0' : '#1e293b';
-  const arrowId = isDarkMode ? 'function-arrow-dark' : 'function-arrow-light';
+  const markerId = useId().replace(/:/g, '');
+  const arrowId = `function-arrow-${markerId}`;
 
   return (
     <div className={`mb-8 rounded-xl border p-4 ${subtlePanelClass}`}>
@@ -539,10 +540,11 @@ function NormalFormExplorer() {
     });
   }, [formula]);
 
-  const minterm = (p: boolean, q: boolean) => `${p ? 'p' : "p'"}${q ? 'q' : "q'"}`;
-  const maxterm = (p: boolean, q: boolean) => `(${p ? "p'" : 'p'} + ${q ? "q'" : 'q'})`;
-  const dnf = rows.filter((row) => row.value).map((row) => minterm(row.p, row.q)).join(' + ') || '0';
-  const cnf = rows.filter((row) => !row.value).map((row) => maxterm(row.p, row.q)).join(' * ') || '1';
+  const literal = (name: 'p' | 'q', positive: boolean) => positive ? name : `\\neg ${name}`;
+  const minterm = (p: boolean, q: boolean) => `${literal('p', p)}\\land ${literal('q', q)}`;
+  const maxterm = (p: boolean, q: boolean) => `(${literal('p', !p)}\\lor ${literal('q', !q)})`;
+  const dnf = rows.filter((row) => row.value).map((row) => `(${minterm(row.p, row.q)})`).join('\\lor ') || '0';
+  const cnf = rows.filter((row) => !row.value).map((row) => maxterm(row.p, row.q)).join('\\land ') || '1';
 
   return (
     <InteractiveBlock title="DNF and CNF Builder">
@@ -568,9 +570,9 @@ function NormalFormExplorer() {
               </button>
             ))}
           </div>
-          <div className="mt-4 space-y-2 text-sm">
-            <p><strong>DNF:</strong> {dnf}</p>
-            <p><strong>CNF:</strong> {cnf}</p>
+          <div className="mt-4 space-y-2 text-sm [&_span]:!text-inherit [&_.katex]:!text-inherit">
+            <p><strong>DNF:</strong> <InlineMath math={dnf} /></p>
+            <p><strong>CNF:</strong> <InlineMath math={cnf} /></p>
           </div>
         </div>
 
@@ -591,12 +593,20 @@ function NormalFormExplorer() {
                   <td className="px-3 py-2">{boolLabel(row.p)}</td>
                   <td className="px-3 py-2">{boolLabel(row.q)}</td>
                   <td className="px-3 py-2">{boolLabel(row.value)}</td>
-                  <td className="px-3 py-2">{row.value ? minterm(row.p, row.q) : '-'}</td>
-                  <td className="px-3 py-2">{!row.value ? maxterm(row.p, row.q) : '-'}</td>
+                  <td className="px-3 py-2 [&_span]:!text-inherit [&_.katex]:!text-inherit">
+                    {row.value ? <InlineMath math={minterm(row.p, row.q)} /> : '-'}
+                  </td>
+                  <td className="px-3 py-2 [&_span]:!text-inherit [&_.katex]:!text-inherit">
+                    {!row.value ? <InlineMath math={maxterm(row.p, row.q)} /> : '-'}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <p className={`mt-4 text-sm [&_span]:!text-inherit [&_.katex]:!text-inherit ${isDarkMode ? 'text-green-100/80' : 'text-slate-600'}`}>
+            The builder uses <InlineMath math="\neg,\land,\lor" /> notation. In Boolean algebra notation, these same rows become complements,
+            products, and sums.
+          </p>
         </div>
       </div>
     </InteractiveBlock>
@@ -921,6 +931,10 @@ def gcd(a, b):
     return abs(a)
         `}
       />
+      <NoteParagraph>
+        The usual precondition is that <InlineMath math="a" /> and <InlineMath math="b" /> are not both zero. The final absolute value makes the
+        returned gcd nonnegative even when one input is negative.
+      </NoteParagraph>
 
       {/* 6. SETS */}
       <NoteSectionTitle id="sets">6. Sets</NoteSectionTitle>

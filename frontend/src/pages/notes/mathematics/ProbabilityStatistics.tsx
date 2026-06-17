@@ -20,10 +20,21 @@ import {
 import { useDarkMode } from '../../../hooks/useDarkMode';
 
 type TableRow = ReactNode[];
+type DistributionView = 'pmf' | 'pdf' | 'cdf';
+type LegendItem = {
+  label: ReactNode;
+  color: string;
+  hollow?: boolean;
+};
 
 const round = (value: number, digits = 3) => Number(value.toFixed(digits));
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const percent = (value: number, digits = 1) => `${round(value * 100, digits)}%`;
+
+function pseudoUniform(index: number, seed = 0) {
+  const raw = Math.sin((index + seed * 101) * 12.9898 + 78.233 + seed * 37.719) * 43758.5453;
+  return raw - Math.floor(raw);
+}
 
 function choose(n: number, k: number) {
   if (k < 0 || k > n) return 0;
@@ -125,6 +136,28 @@ function NoteTable({ headers, rows }: { headers: ReactNode[]; rows: TableRow[] }
   );
 }
 
+function VisualLegend({ items }: { items: LegendItem[] }) {
+  const { isDarkMode } = useProbabilityTheme();
+
+  return (
+    <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+      {items.map((item, index) => (
+        <span key={index} className="inline-flex items-center gap-2">
+          <span
+            className="h-3 w-3 shrink-0 rounded-sm border"
+            style={{
+              backgroundColor: item.hollow ? 'transparent' : item.color,
+              borderColor: item.color,
+              opacity: item.hollow ? 1 : isDarkMode ? 0.9 : 0.75,
+            }}
+          />
+          <span>{item.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function NotationGuide() {
   return (
     <NoteTopicGroup>
@@ -148,39 +181,443 @@ function NotationGuide() {
   );
 }
 
-function UniformIntervalDiagram() {
-  const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
-  const start = 0.25;
-  const end = 0.7;
-  const left = 40;
-  const width = 360;
-  const x = (value: number) => left + value * width;
+function SampleSpaceDiagram() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const outcomes = ['HHH', 'HHT', 'HTH', 'HTT', 'THH', 'THT', 'TTH', 'TTT'];
+  const eventOptions = [
+    { label: 'Exactly one tail', description: 'exactly one tail', outcomes: ['HHT', 'HTH', 'THH'] },
+    { label: 'At least two heads', description: 'at least two heads', outcomes: ['HHH', 'HHT', 'HTH', 'THH'] },
+    { label: 'Starts with H', description: 'a first toss of heads', outcomes: ['HHH', 'HHT', 'HTH', 'HTT'] },
+    { label: 'All same', description: 'all tosses matching', outcomes: ['HHH', 'TTT'] },
+  ];
+  const [selectedEventIndex, setSelectedEventIndex] = useState(0);
+  const selectedEvent = eventOptions[selectedEventIndex];
+  const event = new Set(selectedEvent.outcomes);
+  const cellWidth = 78;
+  const cellHeight = 42;
+  const gap = 14;
+  const left = 35;
+  const top = 32;
+  const buttonClass = (selected: boolean) =>
+    `rounded-md border px-3 py-2 text-left text-xs font-bold transition-colors ${
+      selected
+        ? isDarkMode
+          ? 'border-green-400 bg-green-400 text-black'
+          : 'border-blue-500 bg-blue-500 text-white'
+        : isDarkMode
+          ? 'border-green-500/30 bg-black/30 text-green-200 hover:bg-green-500/10'
+          : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100'
+    }`;
 
   return (
     <div className={`mb-8 rounded-lg border p-4 ${subtlePanelClass}`}>
-      <p className="mb-3 text-sm font-bold uppercase tracking-wider">Uniform interval probability</p>
-      <svg viewBox="0 0 440 110" className="h-32 w-full" role="img" aria-label="Uniform probability on an interval">
-        <line x1={left} y1="55" x2={left + width} y2="55" stroke={axisColor} strokeWidth="4" strokeLinecap="round" />
-        <line x1={x(start)} y1="55" x2={x(end)} y2="55" stroke={secondaryColor} strokeWidth="12" strokeLinecap="round" />
-        {[0, start, end, 1].map((value) => (
-          <g key={value}>
-            <line x1={x(value)} y1="42" x2={x(value)} y2="70" stroke={value === start || value === end ? secondaryColor : primaryColor} strokeWidth="2" />
-            <text x={x(value)} y="92" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>
-              {value}
-            </text>
-          </g>
+      <p className="mb-3 text-sm font-bold uppercase tracking-wider">Sample space as cells</p>
+      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {eventOptions.map((option, index) => (
+          <button key={option.label} type="button" className={buttonClass(index === selectedEventIndex)} onClick={() => setSelectedEventIndex(index)}>
+            {option.label}
+          </button>
         ))}
+      </div>
+      <svg viewBox="0 0 425 162" className="h-44 w-full" role="img" aria-label="Coin toss sample space with an event highlighted">
+        <rect x="18" y="18" width="389" height="126" rx="8" fill="none" stroke={axisColor} strokeWidth="2" />
+        {outcomes.map((outcome, index) => {
+          const column = index % 4;
+          const row = Math.floor(index / 4);
+          const x = left + column * (cellWidth + gap);
+          const y = top + row * (cellHeight + gap);
+          const inEvent = event.has(outcome);
+
+          return (
+            <g key={outcome}>
+              <rect
+                x={x}
+                y={y}
+                width={cellWidth}
+                height={cellHeight}
+                rx="6"
+                fill={inEvent ? secondaryColor : primaryColor}
+                fillOpacity={inEvent ? 0.3 : 0.12}
+                stroke={inEvent ? secondaryColor : axisColor}
+                strokeWidth={inEvent ? 2.5 : 1.5}
+              />
+              <text x={x + cellWidth / 2} y={y + 26} textAnchor="middle" fontFamily="monospace" fontSize="15" fill={textColor}>
+                {outcome}
+              </text>
+            </g>
+          );
+        })}
       </svg>
+      <VisualLegend
+        items={[
+          { label: `event: ${selectedEvent.description}`, color: secondaryColor },
+          { label: 'other outcomes', color: primaryColor },
+          { label: <InlineMath math="\Omega" />, color: axisColor, hollow: true },
+        ]}
+      />
       <NoteParagraph className="mb-0 text-sm">
-        For <InlineMath math="X\sim\operatorname{Uniform}[0,1]" />, probability is length. Here{' '}
-        <InlineMath math="\Pr(0.25\le X\le 0.7)=0.45" />.
+        The highlighted event is {selectedEvent.description}. In the uniform model its probability is{' '}
+        <InlineMath math={`${selectedEvent.outcomes.length}/8`} /> because {selectedEvent.outcomes.length} of the eight equally likely outcomes
+        are in the event.
       </NoteParagraph>
     </div>
   );
 }
 
+function ProbabilityRulesDiagram() {
+  const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+
+  return (
+    <div className={`mb-8 rounded-lg border p-4 ${subtlePanelClass}`}>
+      <p className="mb-3 text-sm font-bold uppercase tracking-wider">Events as regions</p>
+      <svg viewBox="0 0 430 160" className="h-48 w-full" role="img" aria-label="Venn diagram for union and intersection">
+        <defs>
+          <clipPath id="probability-rules-a">
+            <circle cx="170" cy="82" r="56" />
+          </clipPath>
+        </defs>
+        <rect x="18" y="18" width="394" height="124" rx="10" fill="none" stroke={axisColor} strokeWidth="2" />
+        <circle cx="170" cy="82" r="56" fill={primaryColor} fillOpacity="0.26" stroke={primaryColor} strokeWidth="3" />
+        <circle cx="245" cy="82" r="56" fill={secondaryColor} fillOpacity="0.28" stroke={secondaryColor} strokeWidth="3" />
+        <g clipPath="url(#probability-rules-a)">
+          <circle cx="245" cy="82" r="56" fill={secondaryColor} fillOpacity="0.42" />
+        </g>
+        <text x="130" y="86" textAnchor="middle" fontFamily="monospace" fontSize="18" fill={textColor}>A</text>
+        <text x="286" y="86" textAnchor="middle" fontFamily="monospace" fontSize="18" fill={textColor}>B</text>
+      </svg>
+      <VisualLegend
+        items={[
+          { label: <InlineMath math="A" />, color: primaryColor },
+          { label: <InlineMath math="B" />, color: secondaryColor },
+          { label: <InlineMath math="A\cap B" />, color: secondaryColor },
+          { label: <InlineMath math="\Omega" />, color: axisColor, hollow: true },
+        ]}
+      />
+      <NoteParagraph className="mb-0 text-sm">
+        Inclusion-exclusion is a visual bookkeeping rule: add the two event regions, then subtract the overlap that was counted twice.
+      </NoteParagraph>
+    </div>
+  );
+}
+
+function ConditionalProbabilityDiagram() {
+  const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+
+  return (
+    <div className={`mb-8 rounded-lg border p-4 ${subtlePanelClass}`}>
+      <p className="mb-3 text-sm font-bold uppercase tracking-wider">Conditioning shrinks the universe</p>
+      <svg viewBox="0 0 520 215" className="h-64 w-full" role="img" aria-label="Conditioning changes the sample space from all outcomes to only event B">
+        <defs>
+          <clipPath id="conditional-left-b">
+            <circle cx="142" cy="105" r="52" />
+          </clipPath>
+          <marker id="conditional-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={axisColor} />
+          </marker>
+        </defs>
+
+        <rect x="18" y="26" width="195" height="158" rx="10" fill="none" stroke={axisColor} strokeWidth="2" />
+        <text x="30" y="50" fontFamily="monospace" fontSize="13" fill={textColor}>before</text>
+        <text x="192" y="173" textAnchor="end" fontFamily="monospace" fontSize="13" fill={axisColor}>Omega</text>
+        <circle cx="88" cy="105" r="52" fill={primaryColor} fillOpacity="0.18" stroke={primaryColor} strokeWidth="2.5" />
+        <circle cx="142" cy="105" r="52" fill={secondaryColor} fillOpacity="0.2" stroke={secondaryColor} strokeWidth="2.5" />
+        <g clipPath="url(#conditional-left-b)">
+          <circle cx="88" cy="105" r="52" fill={primaryColor} fillOpacity="0.34" stroke="none" />
+        </g>
+        <text x="58" y="111" textAnchor="middle" fontFamily="monospace" fontSize="16" fill={textColor}>A</text>
+        <text x="172" y="111" textAnchor="middle" fontFamily="monospace" fontSize="16" fill={textColor}>B</text>
+
+        <line x1="235" y1="105" x2="286" y2="105" stroke={axisColor} strokeWidth="2.5" markerEnd="url(#conditional-arrow)" />
+        <text x="260" y="89" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>learn B</text>
+
+        <rect x="310" y="26" width="195" height="158" rx="10" fill={secondaryColor} fillOpacity="0.08" stroke={secondaryColor} strokeWidth="3" />
+        <text x="322" y="50" fontFamily="monospace" fontSize="13" fill={textColor}>after</text>
+        <text x="486" y="173" textAnchor="end" fontFamily="monospace" fontSize="13" fill={secondaryColor}>new universe: B</text>
+        <rect x="340" y="72" width="136" height="72" rx="8" fill={secondaryColor} fillOpacity="0.12" stroke={axisColor} strokeWidth="1.5" />
+        <rect x="340" y="72" width="56" height="72" rx="8" fill={primaryColor} fillOpacity="0.34" stroke={primaryColor} strokeWidth="2.5" />
+        <line x1="396" y1="73" x2="396" y2="143" stroke={primaryColor} strokeWidth="2" strokeDasharray="5 5" />
+        <text x="368" y="112" textAnchor="middle" fontFamily="monospace" fontSize="13" fill={textColor}>{'A ∩ B'}</text>
+        <text x="438" y="112" textAnchor="middle" fontFamily="monospace" fontSize="13" fill={textColor}>{'B \\ A'}</text>
+      </svg>
+      <VisualLegend
+        items={[
+          { label: <InlineMath math="B" />, color: secondaryColor },
+          { label: <InlineMath math="A\cap B" />, color: primaryColor },
+          { label: 'removed outcomes outside B', color: axisColor, hollow: true },
+        ]}
+      />
+      <NoteParagraph className="mb-0 text-sm">
+        The left side shows the original sample space. After learning <InlineMath math="B" />, every outcome outside <InlineMath math="B" /> is
+        discarded, so the right side uses <InlineMath math="B" /> as the whole universe. Then <InlineMath math="\Pr(A\mid B)" /> is the fraction
+        of that new universe that also lies in <InlineMath math="A" />.
+      </NoteParagraph>
+    </div>
+  );
+}
+
+function ProductRuleTreeDiagram() {
+  const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const nodeRadius = 14;
+  const complement = (symbol: string) => (
+    <>
+      {symbol}
+      <tspan baselineShift="super" fontSize="9">c</tspan>
+    </>
+  );
+  const probability = (event: ReactNode) => <>P({event})</>;
+  const conditional = (event: ReactNode, given: ReactNode) => <>P({event}|{given})</>;
+  const node = (x: number, y: number, label: ReactNode, highlighted = false) => (
+    <g>
+      <circle cx={x} cy={y} r={nodeRadius} fill={highlighted ? secondaryColor : primaryColor} fillOpacity={highlighted ? 0.24 : 0.12} stroke={highlighted ? secondaryColor : primaryColor} strokeWidth="2.5" />
+      <text x={x} y={y + 5} textAnchor="middle" fontFamily="monospace" fontSize="13" fill={textColor}>{label}</text>
+    </g>
+  );
+  const branch = (x1: number, y1: number, x2: number, y2: number, label: ReactNode, highlighted = false) => (
+    (() => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const distance = Math.hypot(dx, dy);
+      const trimX = distance === 0 ? 0 : (dx / distance) * nodeRadius;
+      const trimY = distance === 0 ? 0 : (dy / distance) * nodeRadius;
+      const startX = x1 + trimX;
+      const startY = y1 + trimY;
+      const endX = x2 - trimX;
+      const endY = y2 - trimY;
+
+      return (
+        <g>
+          <line x1={startX} y1={startY} x2={endX} y2={endY} stroke={highlighted ? secondaryColor : axisColor} strokeWidth={highlighted ? 3 : 2} strokeLinecap="round" />
+          <text x={(startX + endX) / 2} y={(startY + endY) / 2 - 8} textAnchor="middle" fontFamily="monospace" fontSize="11" fill={highlighted ? secondaryColor : textColor}>
+            {label}
+          </text>
+        </g>
+      );
+    })()
+  );
+
+  return (
+    <div className={`mb-8 rounded-lg border p-4 ${subtlePanelClass}`}>
+      <p className="mb-3 text-sm font-bold uppercase tracking-wider">Tree paths multiply</p>
+      <svg viewBox="0 0 520 220" className="h-64 w-full" role="img" aria-label="Probability tree showing product rule along one path">
+        {branch(42, 110, 180, 64, probability('A'), true)}
+        {branch(42, 110, 180, 156, probability(complement('A')))}
+        {branch(180, 64, 360, 36, conditional('B', 'A'), true)}
+        {branch(180, 64, 360, 92, conditional(complement('B'), 'A'))}
+        {branch(180, 156, 360, 128, conditional('B', complement('A')))}
+        {branch(180, 156, 360, 184, conditional(complement('B'), complement('A')))}
+        {node(42, 110, 'S')}
+        <text x="42" y="142" textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>start</text>
+        {node(180, 64, 'A', true)}
+        {node(180, 156, complement('A'))}
+        {node(360, 36, 'B', true)}
+        {node(360, 92, complement('B'))}
+        {node(360, 128, 'B')}
+        {node(360, 184, complement('B'))}
+        <rect x="410" y="22" width="88" height="34" rx="7" fill={secondaryColor} fillOpacity="0.18" stroke={secondaryColor} strokeWidth="2" />
+        <text x="454" y="44" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{'A ∩ B'}</text>
+      </svg>
+      <VisualLegend
+        items={[
+          { label: 'chosen path', color: secondaryColor },
+          { label: 'other paths', color: axisColor, hollow: true },
+        ]}
+      />
+      <NoteParagraph className="mb-0 text-sm">
+        Each complete path is a joint event. The highlighted path has probability <InlineMath math="\Pr(A)\Pr(B\mid A)" />. The labels{' '}
+        <InlineMath math="A^c" /> and <InlineMath math="B^c" /> mark the complementary branches.
+      </NoteParagraph>
+    </div>
+  );
+}
+
+function UniformIntervalDiagram() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [leftEndpointPct, setLeftEndpointPct] = useState(25);
+  const [rightEndpointPct, setRightEndpointPct] = useState(70);
+  const lowerPct = Math.min(leftEndpointPct, rightEndpointPct);
+  const upperPct = Math.max(leftEndpointPct, rightEndpointPct);
+  const lower = lowerPct / 100;
+  const upper = upperPct / 100;
+  const intervalLength = upper - lower;
+  const axisLeft = 40;
+  const width = 360;
+  const x = (valuePct: number) => axisLeft + (valuePct / 100) * width;
+
+  return (
+    <InteractiveBlock title="Uniform Interval Probability">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm" htmlFor="uniform-left">
+            <span>First endpoint</span>
+            <span>{round(leftEndpointPct / 100, 2)}</span>
+          </label>
+          <input id="uniform-left" type="range" min="0" max="100" step="5" value={leftEndpointPct} onChange={(event) => setLeftEndpointPct(Number(event.target.value))} className="mb-4 w-full" />
+          <label className="mb-2 flex justify-between gap-3 text-sm" htmlFor="uniform-right">
+            <span>Second endpoint</span>
+            <span>{round(rightEndpointPct / 100, 2)}</span>
+          </label>
+          <input id="uniform-right" type="range" min="0" max="100" step="5" value={rightEndpointPct} onChange={(event) => setRightEndpointPct(Number(event.target.value))} className="w-full" />
+          <NoteParagraph className="mb-0 mt-4 text-sm">
+            The order of the endpoints does not matter. The probability is the distance between them.
+          </NoteParagraph>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox="0 0 440 140" className="h-40 w-full" role="img" aria-label="Uniform probability on an adjustable interval">
+            <line x1={axisLeft} y1="70" x2={axisLeft + width} y2="70" stroke={axisColor} strokeWidth="4" strokeLinecap="round" />
+            <line x1={x(lowerPct)} y1="70" x2={x(upperPct)} y2="70" stroke={secondaryColor} strokeWidth="14" strokeLinecap="round" />
+            {[0, 25, 50, 75, 100].map((value) => (
+              <g key={value}>
+                <line x1={x(value)} y1="56" x2={x(value)} y2="84" stroke={value === 0 || value === 100 ? primaryColor : axisColor} strokeWidth="1.5" />
+              </g>
+            ))}
+            {[lowerPct, upperPct].map((value, index) => (
+              <g key={`${value}-${index}`}>
+                <line x1={x(value)} y1="47" x2={x(value)} y2="93" stroke={secondaryColor} strokeWidth="2.5" />
+                <circle cx={x(value)} cy="70" r="5" fill={isDarkMode ? '#020617' : '#ffffff'} stroke={secondaryColor} strokeWidth="2.5" />
+              </g>
+            ))}
+            <text x={axisLeft} y="116" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>0</text>
+            <text x={axisLeft + width} y="116" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>1</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: <InlineMath math={`${round(lower, 2)}\\le X\\le ${round(upper, 2)}`} />, color: secondaryColor },
+              { label: 'outside interval', color: axisColor, hollow: true },
+            ]}
+          />
+          <NoteParagraph className="mb-0 text-sm">
+            For <InlineMath math="X\sim\operatorname{Uniform}[0,1]" />, probability is length:{' '}
+            <InlineMath math={`\\Pr(${round(lower, 2)}\\le X\\le ${round(upper, 2)})=${round(intervalLength, 2)}`} />.
+          </NoteParagraph>
+        </div>
+      </div>
+    </InteractiveBlock>
+  );
+}
+
+function DistributionShapeExplorer() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [view, setView] = useState<DistributionView>('pmf');
+  const chart = { width: 430, height: 230, left: 34, top: 20, plotWidth: 360, plotHeight: 160 };
+  const baseY = chart.top + chart.plotHeight;
+  const xCoord = (value: number) => chart.left + ((value + 3) / 6) * chart.plotWidth;
+  const yCoord = (value: number, maxValue = 1) => chart.top + chart.plotHeight - (value / maxValue) * chart.plotHeight;
+  const curvePoints = Array.from({ length: 120 }, (_, index) => {
+    const x = -3 + (6 * index) / 119;
+    return { x, pdf: normalPdf(x), cdf: normalCdf(x) };
+  });
+  const pdfPath = curvePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(point.x)} ${yCoord(point.pdf, normalPdf(0))}`).join(' ');
+  const cdfPath = curvePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(point.x)} ${yCoord(point.cdf)}`).join(' ');
+  const intervalPoints = curvePoints.filter((point) => point.x >= -1 && point.x <= 1);
+  const intervalPath = intervalPoints.length
+    ? `M ${xCoord(-1)} ${baseY} ${intervalPoints.map((point) => `L ${xCoord(point.x)} ${yCoord(point.pdf, normalPdf(0))}`).join(' ')} L ${xCoord(1)} ${baseY} Z`
+    : '';
+  const pmfRows = Array.from({ length: 9 }, (_, k) => ({ k, probability: choose(8, k) * 0.45 ** k * 0.55 ** (8 - k) }));
+  const maxPmf = Math.max(...pmfRows.map((row) => row.probability));
+  const pmfMaxK = pmfRows.length - 1;
+  const pmfBarWidth = Math.min(24, (chart.plotWidth / (pmfRows.length + 1)) * 0.72);
+  const pmfXCoord = (k: number) => chart.left + (k / pmfMaxK) * chart.plotWidth;
+  const buttonClass = (selected: boolean) =>
+    `rounded-md border px-3 py-2 text-sm font-bold transition-colors ${
+      selected
+        ? isDarkMode
+          ? 'border-green-400 bg-green-400 text-black'
+          : 'border-blue-500 bg-blue-500 text-white'
+        : isDarkMode
+          ? 'border-green-500/30 bg-black/30 text-green-200 hover:bg-green-500/10'
+          : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100'
+    }`;
+  const caption =
+    view === 'pmf'
+      ? 'A PMF puts probability mass on exact values.'
+      : view === 'pdf'
+        ? 'A PDF uses area over intervals; the curve height itself is not a point probability.'
+        : 'A CDF is accumulated probability, so it can only stay flat or increase.';
+
+  return (
+    <InteractiveBlock title="PMF, PDF, and CDF Shapes">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(220px,270px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">View</p>
+          <div className="grid grid-cols-3 gap-2">
+            {(['pmf', 'pdf', 'cdf'] as DistributionView[]).map((option) => (
+              <button key={option} type="button" className={buttonClass(view === option)} onClick={() => setView(option)}>
+                {option.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <NoteParagraph className="mb-0 mt-4 text-sm">{caption}</NoteParagraph>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label={`${view.toUpperCase()} shape`}>
+            <line x1={chart.left} y1={baseY} x2={chart.left + chart.plotWidth} y2={baseY} stroke={axisColor} strokeWidth="2" />
+            <line x1={chart.left} y1={chart.top} x2={chart.left} y2={baseY} stroke={axisColor} strokeWidth="2" />
+            {view === 'pmf' && (
+              <>
+                {pmfRows.map((row) => {
+                  const x = clamp(pmfXCoord(row.k) - pmfBarWidth / 2, chart.left, chart.left + chart.plotWidth - pmfBarWidth);
+                  const height = (row.probability / maxPmf) * chart.plotHeight;
+                  return (
+                    <rect
+                      key={row.k}
+                      x={x}
+                      y={baseY - height}
+                      width={pmfBarWidth}
+                      height={height}
+                      rx="2"
+                      fill={row.k <= 4 ? secondaryColor : primaryColor}
+                      opacity={isDarkMode ? 0.9 : 0.8}
+                    />
+                  );
+                })}
+                {[0, 4, 8].map((tick) => (
+                  <g key={tick}>
+                    <line x1={pmfXCoord(tick)} y1={baseY} x2={pmfXCoord(tick)} y2={baseY + 6} stroke={axisColor} strokeWidth="1.5" />
+                    <text x={pmfXCoord(tick)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{tick}</text>
+                  </g>
+                ))}
+              </>
+            )}
+            {view === 'pdf' && (
+              <>
+                <path d={intervalPath} fill={secondaryColor} fillOpacity="0.28" />
+                <path d={pdfPath} fill="none" stroke={primaryColor} strokeWidth="3" />
+                <line x1={xCoord(-1)} y1={baseY} x2={xCoord(-1)} y2={yCoord(normalPdf(-1), normalPdf(0))} stroke={secondaryColor} strokeWidth="2" />
+                <line x1={xCoord(1)} y1={baseY} x2={xCoord(1)} y2={yCoord(normalPdf(1), normalPdf(0))} stroke={secondaryColor} strokeWidth="2" />
+                <text x={xCoord(-1)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>a</text>
+                <text x={xCoord(1)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>b</text>
+              </>
+            )}
+            {view === 'cdf' && (
+              <>
+                <path d={cdfPath} fill="none" stroke={primaryColor} strokeWidth="3" />
+                <line x1={xCoord(0.8)} y1={baseY} x2={xCoord(0.8)} y2={yCoord(normalCdf(0.8))} stroke={secondaryColor} strokeWidth="2" strokeDasharray="5 4" />
+                <line x1={chart.left} y1={yCoord(normalCdf(0.8))} x2={xCoord(0.8)} y2={yCoord(normalCdf(0.8))} stroke={secondaryColor} strokeWidth="2" strokeDasharray="5 4" />
+                <text x={xCoord(0.8)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>x</text>
+              </>
+            )}
+          </svg>
+          <VisualLegend
+            items={[
+              { label: view.toUpperCase(), color: primaryColor },
+              { label: view === 'pmf' ? <InlineMath math="X\le 4" /> : view === 'pdf' ? <InlineMath math="a\le X\le b" /> : <InlineMath math="F_X(x)" />, color: secondaryColor },
+            ]}
+          />
+          <NoteParagraph className="mb-0 text-sm">
+            {view === 'pmf' && <>The shaded bars show <InlineMath math="\Pr(X\le 4)" /> for a discrete count.</>}
+            {view === 'pdf' && <>The shaded area shows <InlineMath math="\Pr(a\le X\le b)" /> for a continuous value.</>}
+            {view === 'cdf' && <>The curve height at <InlineMath math="x" /> is <InlineMath math="F_X(x)=\Pr(X\le x)" />.</>}
+          </NoteParagraph>
+        </div>
+      </div>
+    </InteractiveBlock>
+  );
+}
+
 function BayesExplorer() {
-  const { isDarkMode, subtlePanelClass } = useProbabilityTheme();
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor } = useProbabilityTheme();
   const [priorPct, setPriorPct] = useState(5);
   const [sensitivityPct, setSensitivityPct] = useState(95);
   const [falsePositivePct, setFalsePositivePct] = useState(10);
@@ -192,6 +629,23 @@ function BayesExplorer() {
   const posterior = evidence === 0 ? 0 : (sensitivity * prior) / evidence;
   const barClass = isDarkMode ? 'bg-green-400' : 'bg-blue-500';
   const trackClass = isDarkMode ? 'bg-black/40' : 'bg-slate-200';
+  const truePositiveCells = Math.round(sensitivity * prior * 100);
+  const falseNegativeCells = Math.round((1 - sensitivity) * prior * 100);
+  const falsePositiveCells = Math.round(falsePositive * (1 - prior) * 100);
+  const trueNegativeCells = Math.max(0, 100 - truePositiveCells - falseNegativeCells - falsePositiveCells);
+  const populationCells = [
+    ...Array.from({ length: truePositiveCells }, () => 'true-positive'),
+    ...Array.from({ length: falsePositiveCells }, () => 'false-positive'),
+    ...Array.from({ length: falseNegativeCells }, () => 'false-negative'),
+    ...Array.from({ length: trueNegativeCells }, () => 'true-negative'),
+  ];
+  const cellFill = (kind: string) => {
+    if (kind === 'true-positive') return secondaryColor;
+    if (kind === 'false-positive') return primaryColor;
+    if (kind === 'false-negative') return axisColor;
+    return 'transparent';
+  };
+  const cellStroke = (kind: string) => (kind === 'true-negative' ? axisColor : cellFill(kind));
 
   return (
     <InteractiveBlock title="Bayes Update">
@@ -215,6 +669,45 @@ function BayesExplorer() {
         </div>
 
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Expected cases out of 100</p>
+          <svg viewBox="0 0 180 150" className="mb-4 h-44 w-full" role="img" aria-label="Bayes population grid">
+            {populationCells.map((kind, index) => {
+              const column = index % 10;
+              const row = Math.floor(index / 10);
+              return (
+                <rect
+                  key={`${kind}-${index}`}
+                  x={12 + column * 16}
+                  y={12 + row * 14}
+                  width="11"
+                  height="11"
+                  rx="2"
+                  fill={cellFill(kind)}
+                  fillOpacity={kind === 'true-negative' ? 0 : 0.72}
+                  stroke={cellStroke(kind)}
+                  strokeOpacity={kind === 'true-negative' ? 0.35 : 0.9}
+                />
+              );
+            })}
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'true positive', color: secondaryColor },
+              { label: 'false positive', color: primaryColor },
+              { label: 'missed case', color: axisColor },
+              { label: 'negative', color: axisColor, hollow: true },
+            ]}
+          />
+          <div className="mb-4 grid gap-2 text-xs sm:grid-cols-2">
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold">Positive tests</div>
+              <div>{truePositiveCells + falsePositiveCells} out of 100</div>
+            </div>
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold">True positives</div>
+              <div>{truePositiveCells} out of 100</div>
+            </div>
+          </div>
           <MathBlock math={String.raw`\Pr(H\mid +)=\frac{\Pr(+\mid H)\Pr(H)}{\Pr(+\mid H)\Pr(H)+\Pr(+\mid H^c)\Pr(H^c)}`} />
           <div className="mb-4">
             <div className="mb-1 flex justify-between text-sm">
@@ -250,9 +743,10 @@ function BinomialExplorer() {
   const chart = { left: 30, right: 15, top: 20, bottom: 34, width: 390, height: 220 };
   const plotWidth = chart.width - chart.left - chart.right;
   const plotHeight = chart.height - chart.top - chart.bottom;
-  const barGap = 3;
-  const barWidth = Math.max(5, plotWidth / rows.length - barGap);
-  const meanX = chart.left + (mean / Math.max(1, n)) * plotWidth;
+  const xCoord = (value: number) => chart.left + (value / Math.max(1, n)) * plotWidth;
+  const barWidth = Math.min(20, Math.max(5, (plotWidth / (rows.length + 1)) * 0.72));
+  const meanX = xCoord(mean);
+  const xTicks = Array.from(new Set([0, Math.floor(n / 2), n]));
 
   return (
     <InteractiveBlock title="Binomial Distribution">
@@ -279,9 +773,9 @@ function BinomialExplorer() {
           <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="Binomial probability mass function">
             <line x1={chart.left} y1={chart.top + plotHeight} x2={chart.left + plotWidth} y2={chart.top + plotHeight} stroke={axisColor} strokeWidth="2" />
             <line x1={meanX} y1={chart.top} x2={meanX} y2={chart.top + plotHeight} stroke={secondaryColor} strokeWidth="2" strokeDasharray="5 4" />
-            {rows.map((row, index) => {
+            {rows.map((row) => {
               const height = maxProbability === 0 ? 0 : (row.probability / maxProbability) * plotHeight;
-              const x = chart.left + index * (plotWidth / rows.length) + barGap / 2;
+              const x = clamp(xCoord(row.k) - barWidth / 2, chart.left, chart.left + plotWidth - barWidth);
               const y = chart.top + plotHeight - height;
               return (
                 <rect
@@ -296,10 +790,19 @@ function BinomialExplorer() {
                 />
               );
             })}
-            <text x={chart.left} y={chart.height - 8} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>0</text>
-            <text x={chart.left + plotWidth} y={chart.height - 8} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{n}</text>
-            <text x={meanX} y="14" textAnchor="middle" fontFamily="monospace" fontSize="11" fill={secondaryColor}>mean</text>
+            {xTicks.map((tick) => (
+              <g key={tick}>
+                <line x1={xCoord(tick)} y1={chart.top + plotHeight} x2={xCoord(tick)} y2={chart.top + plotHeight + 6} stroke={axisColor} strokeWidth="1.5" />
+                <text x={xCoord(tick)} y={chart.height - 8} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{tick}</text>
+              </g>
+            ))}
           </svg>
+          <VisualLegend
+            items={[
+              { label: <InlineMath math="\Pr(X=k)" />, color: primaryColor },
+              { label: 'mean marker', color: secondaryColor },
+            ]}
+          />
           <NoteParagraph className="mb-0 text-sm">
             Each bar is <InlineMath math="\Pr(X=k)" />. Changing <InlineMath math="n" /> spreads out the count; changing <InlineMath math="p" /> shifts where successes concentrate.
           </NoteParagraph>
@@ -313,7 +816,10 @@ function NormalStandardizationExplorer() {
   const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
   const [mu, setMu] = useState(60);
   const [sigma, setSigma] = useState(20);
-  const [xValue, setXValue] = useState(80);
+  const [rawXValue, setXValue] = useState(80);
+  const xMin = Math.round(mu - 4 * sigma);
+  const xMax = Math.round(mu + 4 * sigma);
+  const xValue = clamp(rawXValue, xMin, xMax);
   const z = (xValue - mu) / sigma;
   const cdf = normalCdf(z);
   const points = Array.from({ length: 120 }, (_, index) => {
@@ -325,6 +831,15 @@ function NormalStandardizationExplorer() {
   const yCoord = (value: number) => chart.top + chart.plotHeight - (value / normalPdf(0)) * chart.plotHeight;
   const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(point.x)} ${yCoord(point.y)}`).join(' ');
   const zClamped = clamp(z, -4, 4);
+  const shadedPoints = points.filter((point) => point.x <= zClamped);
+  if (zClamped > -4 && shadedPoints[shadedPoints.length - 1]?.x !== zClamped) {
+    shadedPoints.push({ x: zClamped, y: normalPdf(zClamped) });
+  }
+  const shadedPath = shadedPoints.length
+    ? `M ${xCoord(-4)} ${chart.top + chart.plotHeight} ${shadedPoints
+        .map((point) => `L ${xCoord(point.x)} ${yCoord(point.y)}`)
+        .join(' ')} L ${xCoord(zClamped)} ${chart.top + chart.plotHeight} Z`
+    : '';
 
   return (
     <InteractiveBlock title="Normal Standardization">
@@ -344,19 +859,26 @@ function NormalStandardizationExplorer() {
             <span>Value <InlineMath math="x" /></span>
             <span>{xValue}</span>
           </label>
-          <input id="normal-x" type="range" min="0" max="120" value={xValue} onChange={(event) => setXValue(Number(event.target.value))} className="w-full" />
+          <input id="normal-x" type="range" min={xMin} max={xMax} value={xValue} onChange={(event) => setXValue(Number(event.target.value))} className="w-full" />
         </div>
 
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
           <MathBlock math={String.raw`z=\frac{x-\mu}{\sigma}=\frac{${xValue}-${mu}}{${sigma}}=${round(z, 3)}`} />
           <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="Standard normal curve with z score">
             <line x1={chart.left} y1={chart.top + chart.plotHeight} x2={chart.left + chart.plotWidth} y2={chart.top + chart.plotHeight} stroke={axisColor} strokeWidth="2" />
+            <path d={shadedPath} fill={secondaryColor} fillOpacity="0.24" />
             <path d={path} fill="none" stroke={primaryColor} strokeWidth="3" />
             <line x1={xCoord(0)} y1={chart.top} x2={xCoord(0)} y2={chart.top + chart.plotHeight} stroke={axisColor} strokeWidth="1.5" strokeDasharray="4 4" />
             <line x1={xCoord(zClamped)} y1={chart.top} x2={xCoord(zClamped)} y2={chart.top + chart.plotHeight} stroke={secondaryColor} strokeWidth="3" />
             <text x={xCoord(0)} y={chart.height - 10} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>0</text>
-            <text x={xCoord(zClamped)} y="14" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={secondaryColor}>z</text>
           </svg>
+          <VisualLegend
+            items={[
+              { label: 'standard normal curve', color: primaryColor },
+              { label: <InlineMath math="\Pr(Z\le z)" />, color: secondaryColor },
+              { label: 'zero line', color: axisColor, hollow: true },
+            ]}
+          />
           <NoteParagraph className="mb-0 text-sm">
             <InlineMath math={`\\Pr(X\\le ${xValue})`} /> becomes <InlineMath math={`\\Pr(Z\\le ${round(z, 3)})`} />, which is about{' '}
             <strong>{percent(cdf, 2)}</strong>.
@@ -367,8 +889,156 @@ function NormalStandardizationExplorer() {
   );
 }
 
+function EmpiricalConvergenceExplorer() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [pPct, setPPct] = useState(60);
+  const [trials, setTrials] = useState(200);
+  const [seed, setSeed] = useState(0);
+  const p = pPct / 100;
+  const step = Math.max(1, Math.floor(trials / 140));
+  let successes = 0;
+  const points: { trial: number; estimate: number }[] = [];
+
+  for (let trial = 1; trial <= trials; trial += 1) {
+    if (pseudoUniform(trial, seed) < p) successes += 1;
+    if (trial === 1 || trial === trials || trial % step === 0) {
+      points.push({ trial, estimate: successes / trial });
+    }
+  }
+
+  const estimate = successes / trials;
+  const chart = { width: 430, height: 230, left: 38, top: 18, plotWidth: 350, plotHeight: 160 };
+  const xCoord = (trial: number) => chart.left + (trial / trials) * chart.plotWidth;
+  const yCoord = (value: number) => chart.top + chart.plotHeight - value * chart.plotHeight;
+  const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(point.trial)} ${yCoord(point.estimate)}`).join(' ');
+
+  return (
+    <InteractiveBlock title="Simulation Settles Toward a Distribution">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm" htmlFor="simulation-p">
+            <span>Success probability <InlineMath math="p" /></span>
+            <span>{pPct}%</span>
+          </label>
+          <input id="simulation-p" type="range" min="10" max="90" step="5" value={pPct} onChange={(event) => setPPct(Number(event.target.value))} className="mb-4 w-full" />
+          <label className="mb-2 flex justify-between gap-3 text-sm" htmlFor="simulation-trials">
+            <span>Trials</span>
+            <span>{trials}</span>
+          </label>
+          <input id="simulation-trials" type="range" min="20" max="1000" step="20" value={trials} onChange={(event) => setTrials(Number(event.target.value))} className="w-full" />
+          <button
+            type="button"
+            className={`mt-4 w-full rounded-md border px-3 py-2 text-sm font-bold transition-colors ${
+              isDarkMode
+                ? 'border-green-500/30 bg-black/30 text-green-200 hover:bg-green-500/10'
+                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+            }`}
+            onClick={() => setSeed((value) => value + 1)}
+          >
+            New sample path
+          </button>
+          <NoteParagraph className="mb-0 mt-4 text-sm">
+            The final simulated estimate is <strong>{percent(estimate, 2)}</strong>. The target probability is <strong>{percent(p, 0)}</strong>.
+          </NoteParagraph>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="Running sample proportion approaching true probability">
+            <line x1={chart.left} y1={chart.top + chart.plotHeight} x2={chart.left + chart.plotWidth} y2={chart.top + chart.plotHeight} stroke={axisColor} strokeWidth="2" />
+            <line x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.top + chart.plotHeight} stroke={axisColor} strokeWidth="2" />
+            <line x1={chart.left} y1={yCoord(p)} x2={chart.left + chart.plotWidth} y2={yCoord(p)} stroke={secondaryColor} strokeWidth="2" strokeDasharray="6 5" />
+            <path d={path} fill="none" stroke={primaryColor} strokeWidth="3" />
+            <circle cx={xCoord(trials)} cy={yCoord(estimate)} r="4" fill={primaryColor} />
+            <text x={chart.left - 8} y={yCoord(1) + 4} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>1</text>
+            <text x={chart.left - 8} y={yCoord(0.5) + 4} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>.5</text>
+            <text x={chart.left - 8} y={yCoord(0) + 4} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>0</text>
+            <text x={chart.left + chart.plotWidth} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{trials}</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'running estimate', color: primaryColor },
+              { label: 'true probability', color: secondaryColor },
+            ]}
+          />
+          <NoteParagraph className="mb-0 text-sm">
+            The running proportion can wander early. More trials usually make the empirical estimate fluctuate on a smaller scale.
+          </NoteParagraph>
+        </div>
+      </div>
+    </InteractiveBlock>
+  );
+}
+
+function ChebyshevExplorer() {
+  const { subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [k, setK] = useState(2);
+  const bound = 1 / (k * k);
+  const normalTail = 2 * (1 - normalCdf(k));
+  const chart = { width: 430, height: 230, left: 34, top: 20, plotWidth: 360, plotHeight: 160 };
+  const baseY = chart.top + chart.plotHeight;
+  const xCoord = (value: number) => chart.left + ((value + 4) / 8) * chart.plotWidth;
+  const yCoord = (value: number) => chart.top + chart.plotHeight - (value / normalPdf(0)) * chart.plotHeight;
+  const points = Array.from({ length: 140 }, (_, index) => {
+    const x = -4 + (8 * index) / 139;
+    return { x, y: normalPdf(x) };
+  });
+  const curvePath = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(point.x)} ${yCoord(point.y)}`).join(' ');
+  const leftTail = [...points.filter((point) => point.x <= -k), { x: -k, y: normalPdf(-k) }];
+  const rightTail = [{ x: k, y: normalPdf(k) }, ...points.filter((point) => point.x >= k)];
+  const tailPath = (tailPoints: { x: number; y: number }[]) =>
+    tailPoints.length
+      ? `M ${xCoord(tailPoints[0].x)} ${baseY} ${tailPoints
+          .map((point) => `L ${xCoord(point.x)} ${yCoord(point.y)}`)
+          .join(' ')} L ${xCoord(tailPoints[tailPoints.length - 1].x)} ${baseY} Z`
+      : '';
+
+  return (
+    <InteractiveBlock title="Chebyshev as a Tail Bound">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm" htmlFor="chebyshev-k">
+            <span>Distance from mean <InlineMath math="k\sigma" /></span>
+            <span>{round(k, 1)} sigma</span>
+          </label>
+          <input id="chebyshev-k" type="range" min="1.5" max="4" step="0.5" value={k} onChange={(event) => setK(Number(event.target.value))} className="mb-4 w-full" />
+          <MathBlock math={String.raw`\Pr(|X-\mu|\ge ${round(k, 1)}\sigma)\le \frac{1}{${round(k, 1)}^2}=${round(bound, 3)}`} />
+          <NoteParagraph className="mb-0 text-sm">
+            The drawn curve is only a shape guide. Chebyshev's bound works even when the distribution is not bell-shaped.
+          </NoteParagraph>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="Distribution tails outside k standard deviations">
+            <line x1={chart.left} y1={baseY} x2={chart.left + chart.plotWidth} y2={baseY} stroke={axisColor} strokeWidth="2" />
+            <path d={tailPath(leftTail)} fill={secondaryColor} fillOpacity="0.26" />
+            <path d={tailPath(rightTail)} fill={secondaryColor} fillOpacity="0.26" />
+            <path d={curvePath} fill="none" stroke={primaryColor} strokeWidth="3" />
+            <line x1={xCoord(-k)} y1={chart.top} x2={xCoord(-k)} y2={baseY} stroke={secondaryColor} strokeWidth="2" strokeDasharray="5 4" />
+            <line x1={xCoord(k)} y1={chart.top} x2={xCoord(k)} y2={baseY} stroke={secondaryColor} strokeWidth="2" strokeDasharray="5 4" />
+            <line x1={xCoord(0)} y1={chart.top} x2={xCoord(0)} y2={baseY} stroke={axisColor} strokeWidth="1.5" strokeDasharray="4 4" />
+            <text x={xCoord(0)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>mu</text>
+            <text x={xCoord(-k)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>-k</text>
+            <text x={xCoord(k)} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>k</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'reference curve', color: primaryColor },
+              { label: 'outside tail area', color: secondaryColor },
+              { label: 'mean line', color: axisColor, hollow: true },
+            ]}
+          />
+          <NoteParagraph className="mb-0 text-sm">
+            For a normal-shaped variable the outside area would be about {percent(normalTail, 2)}, but Chebyshev only promises it is at most{' '}
+            {percent(bound, 2)}.
+          </NoteParagraph>
+        </div>
+      </div>
+    </InteractiveBlock>
+  );
+}
+
 function PollingExplorer() {
-  const { isDarkMode, subtlePanelClass } = useProbabilityTheme();
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
   const [pPct, setPPct] = useState(50);
   const [n, setN] = useState(1000);
   const [errorPct, setErrorPct] = useState(4);
@@ -380,6 +1050,10 @@ function PollingExplorer() {
   const guarantee = 1 - conservative;
   const barClass = isDarkMode ? 'bg-green-400' : 'bg-blue-500';
   const trackClass = isDarkMode ? 'bg-black/40' : 'bg-slate-200';
+  const intervalChart = { left: 38, width: 350, height: 120 };
+  const intervalX = (value: number) => intervalChart.left + clamp(value, 0, 1) * intervalChart.width;
+  const lower = clamp(p - error, 0, 1);
+  const upper = clamp(p + error, 0, 1);
 
   return (
     <InteractiveBlock title="Polling Estimator">
@@ -404,13 +1078,41 @@ function PollingExplorer() {
 
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
           <MathBlock math={String.raw`\widehat p=\frac{1}{n}\sum_{i=1}^n X_i,\qquad \operatorname{Var}(\widehat p)=\frac{p(1-p)}{n}`} />
-          <NoteTable
-            headers={['Quantity', 'Value']}
-            rows={[
-              [<InlineMath math="\mathbb E[\widehat p]" />, <InlineMath math={`${round(p, 3)}`} />],
-              [<InlineMath math="\operatorname{Var}(\widehat p)" />, <InlineMath math={`${round(variance, 6)}`} />],
-              [<InlineMath math="\Pr(|\widehat p-p|\ge a)" />, <span>at most {percent(chebyshev, 2)} using actual <InlineMath math="p" /></span>],
-              [<InlineMath math="\Pr(|\widehat p-p|<a)" />, <span>at least {percent(guarantee, 2)} using <InlineMath math="p(1-p)\le 1/4" /></span>],
+          <div className="mb-4 grid gap-2 text-xs sm:grid-cols-2">
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold"><InlineMath math="\mathbb E[\widehat p]" /></div>
+              <div><InlineMath math={`${round(p, 3)}`} /></div>
+            </div>
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold"><InlineMath math="\operatorname{Var}(\widehat p)" /></div>
+              <div><InlineMath math={`${round(variance, 6)}`} /></div>
+            </div>
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold">Outside tolerance</div>
+              <div>At most {percent(chebyshev, 2)} using actual <InlineMath math="p" />.</div>
+            </div>
+            <div className={`rounded-md border p-2 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/70'}`}>
+              <div className="font-bold">Inside tolerance</div>
+              <div>At least {percent(guarantee, 2)} using <InlineMath math="p(1-p)\le 1/4" />.</div>
+            </div>
+          </div>
+          <svg viewBox={`0 0 430 ${intervalChart.height}`} className="mb-4 h-32 w-full" role="img" aria-label="Polling tolerance interval around true support">
+            <line x1={intervalChart.left} y1="56" x2={intervalChart.left + intervalChart.width} y2="56" stroke={axisColor} strokeWidth="4" strokeLinecap="round" />
+            <rect x={intervalX(lower)} y="43" width={Math.max(2, intervalX(upper) - intervalX(lower))} height="26" rx="6" fill={secondaryColor} fillOpacity="0.28" stroke={secondaryColor} strokeWidth="2" />
+            <line x1={intervalX(p)} y1="28" x2={intervalX(p)} y2="86" stroke={primaryColor} strokeWidth="3" />
+            {[0, 0.5, 1].map((tick) => (
+              <g key={tick}>
+                <line x1={intervalX(tick)} y1="47" x2={intervalX(tick)} y2="65" stroke={axisColor} strokeWidth="1.5" />
+                <text x={intervalX(tick)} y="104" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>
+                  {tick === 0.5 ? '.5' : tick}
+                </text>
+              </g>
+            ))}
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'true support', color: primaryColor },
+              { label: <InlineMath math={`p\\pm ${round(error, 2)}`} />, color: secondaryColor },
             ]}
           />
           <div className="mb-2 flex justify-between text-sm">
@@ -474,6 +1176,7 @@ export default function ProbabilityStatisticsNote() {
           ['Event', 'set of outcomes we care about', <InlineMath math="E=\{HHT,HTH,THH\}" />],
         ]}
       />
+      <SampleSpaceDiagram />
       <NoteParagraph>
         The event example above is "exactly one tail." The important move is turning English into a set. Probability attaches to events, so a lot
         of probability is set reasoning with a numeric layer on top.
@@ -509,6 +1212,7 @@ export default function ProbabilityStatisticsNote() {
           ['Inclusion-exclusion', <InlineMath math="\Pr(A\cup B)=\Pr(A)+\Pr(B)-\Pr(A\cap B)" />, 'subtract overlap counted twice'],
         ]}
       />
+      <ProbabilityRulesDiagram />
 
       <NoteSubSectionTitle id="uniform-models">2.4 Uniform Models</NoteSubSectionTitle>
       <NoteParagraph>
@@ -542,6 +1246,7 @@ export default function ProbabilityStatisticsNote() {
         Conditioning shrinks the universe. Once <InlineMath math="B" /> is known, the relevant sample space is <InlineMath math="B" />. Inside
         that restricted world, <InlineMath math="A" /> happens exactly on <InlineMath math="A\cap B" />.
       </NoteParagraph>
+      <ConditionalProbabilityDiagram />
       <NoteParagraph>
         Monty Hall is a warning that conditioning is not "split evenly among what remains" unless the remaining cases are actually equally likely
         after the new information. The host's behavior is part of the probability model.
@@ -556,6 +1261,7 @@ export default function ProbabilityStatisticsNote() {
         For sequential experiments, a tree diagram keeps the conditions straight. Multiply along a complete path. Add the path probabilities for
         every path that belongs to the event.
       </NoteParagraph>
+      <ProductRuleTreeDiagram />
       <MathBlock math={String.raw`\Pr(E_1\cap E_2\cap E_3)=\Pr(E_1)\Pr(E_2\mid E_1)\Pr(E_3\mid E_1\cap E_2)`} />
 
       <NoteSubSectionTitle id="total-probability">3.3 Law of Total Probability</NoteSubSectionTitle>
@@ -667,6 +1373,7 @@ export default function ProbabilityStatisticsNote() {
         The PMF/PDF is local probability information. The CDF is accumulated probability up to <InlineMath math="x" />. Once the distribution is
         known, many different experiments can be studied with the same formulas.
       </NoteParagraph>
+      <DistributionShapeExplorer />
 
       <NoteSubSectionTitle id="simulation-and-empirical-distributions">5.4 Simulation and Empirical Distributions</NoteSubSectionTitle>
       <NoteParagraph>
@@ -674,6 +1381,7 @@ export default function ProbabilityStatisticsNote() {
         empirical distribution. The hot-hand examples show a key lesson: randomness naturally creates streaks, so seeing streaks does not by itself
         prove dependence.
       </NoteParagraph>
+      <EmpiricalConvergenceExplorer />
 
       {/* 6. DISCRETE DISTRIBUTIONS */}
       <NoteSectionTitle id="discrete-distributions">6. Discrete Distributions</NoteSectionTitle>
@@ -892,6 +1600,7 @@ export default function ProbabilityStatisticsNote() {
         For polling, <InlineMath math="p(1-p)\le 1/4" /> gives the conservative bound{' '}
         <InlineMath math="\Pr(|\widehat p-p|\ge a)\le 1/(4na^2)" />. This explains how sample size controls reliability.
       </NoteParagraph>
+      <ChebyshevExplorer />
 
       {/* 11. COMPUTING APPLICATIONS */}
       <NoteSectionTitle id="computing-applications">11. Computing Applications</NoteSectionTitle>
@@ -913,7 +1622,9 @@ export default function ProbabilityStatisticsNote() {
       </NoteParagraph>
       <CodeBlock
         language="python"
-        code={`sample = None
+        code={`import random
+
+sample = None
 
 for i, item in enumerate(stream, start=1):
     if random.random() < 1 / i:

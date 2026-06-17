@@ -1640,7 +1640,7 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className={`flex min-h-screen flex-col transition-all duration-300 md:flex-row ${
+      className={`flex min-h-screen w-full max-w-full flex-col overflow-x-hidden transition-all duration-300 md:flex-row ${
         isDarkMode ? 'page-bg-dark text-green-100' : 'page-bg-light text-slate-800'
       }`}
       style={{ scrollBehavior: 'smooth' }}
@@ -1774,11 +1774,11 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
       </aside>
 
       <main
-        className={`mx-auto w-full max-w-7xl flex-1 px-6 py-10 pb-24 transition-all duration-300 md:px-12 ${
+        className={`mx-auto min-w-0 w-full max-w-full flex-1 px-6 py-10 pb-24 transition-all duration-300 md:max-w-7xl md:px-12 ${
           mobileMenuOpen ? 'hidden md:block' : ''
         }`}
       >
-        <div className="w-full font-mono">{children}</div>
+        <div className="min-w-0 w-full font-mono">{children}</div>
       </main>
 
       <NotesGuideModal isOpen={guideOpen} onClose={() => setGuideOpen(false)} />
