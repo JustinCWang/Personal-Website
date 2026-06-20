@@ -4,13 +4,386 @@
  * Demonstrates the use of NoteTypography, MathBlock, DiagramBlock, and Mafs graph components
  */
 
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
-import { MathBlock, InlineMath, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, NoteTopicGroup, NoteTopicBlock, DiagramBlock } from '../../../components/notes';
+import { MathBlock, InlineMath, NoteHeader, NoteSectionTitle, NoteSubSectionTitle, NoteParagraph, NoteTopicGroup, NoteTopicBlock, DiagramBlock, InteractiveBlock, CodeBlock } from '../../../components/notes';
 import { Mafs, Coordinates, Plot, Theme, Line, Circle, Polygon, Point, Vector } from 'mafs';
 import 'mafs/core.css';
 import 'mafs/font.css';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { getRunnerPlayLabel, toggleOrReplayRunner, useAutoRunner } from '../../../components/notes/useAutoRunner';
+
+const formatCalcNumber = (value: number, digits = 3) => {
+  const rounded = Number(value.toFixed(digits));
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded).replace(/0+$/, '').replace(/\.$/, '');
+};
+
+const newtonMethodCode = `
+def newton(f, df, x0, tol=1e-8, max_iter=12):
+    x = x0
+    for k in range(max_iter):
+        fx = f(x)
+        slope = df(x)
+        if abs(slope) < 1e-12:
+            raise ZeroDivisionError("flat tangent")
+        x_next = x - fx / slope
+        yield k, x, fx, x_next
+        if abs(f(x_next)) < tol or abs(x_next - x) < tol:
+            break
+        x = x_next
+`;
+
+const gradientDescentCode = `
+def fit_line_with_gradient_descent(points, eta=0.04, tol=1e-3, max_iter=90):
+    m, b = -1.0, 3.0
+    n = len(points)
+    for k in range(max_iter):
+        errors = [(m * x + b) - y for x, y in points]
+        loss = sum(e * e for e in errors) / n
+        grad_m = 2 * sum(e * x for e, (x, y) in zip(errors, points)) / n
+        grad_b = 2 * sum(errors) / n
+        yield k, m, b, loss, grad_m, grad_b
+        if (grad_m * grad_m + grad_b * grad_b) ** 0.5 < tol:
+            break
+        m -= eta * grad_m
+        b -= eta * grad_b
+`;
+
+function NewtonMethodRunner() {
+  const { isDarkMode } = useDarkMode();
+  const [start, setStart] = useState(3.2);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const f = (x: number) => x ** 3 - 2 * x - 5;
+  const derivative = (x: number) => 3 * x * x - 2;
+  const steps = (() => {
+    const result: { x: number; y: number; nextX: number; residual: number; delta: number }[] = [];
+    let x = start;
+    for (let index = 0; index < 12; index += 1) {
+      const y = f(x);
+      const nextX = x - y / derivative(x);
+      result.push({ x, y, nextX, residual: Math.abs(f(nextX)), delta: Math.abs(nextX - x) });
+      if (Math.abs(f(nextX)) < 1e-8 || Math.abs(nextX - x) < 1e-8) break;
+      x = nextX;
+    }
+    return result;
+  })();
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const converged = current.residual < 1e-6 || current.delta < 1e-6;
+  const atEnd = boundedStep === steps.length - 1 || converged;
+  const xMin = 1;
+  const xMax = 3.6;
+  const yMin = -8;
+  const yMax = 32;
+  const width = 440;
+  const height = 260;
+  const left = 44;
+  const top = 18;
+  const plotWidth = 360;
+  const plotHeight = 202;
+  const xCoord = (x: number) => left + ((x - xMin) / (xMax - xMin)) * plotWidth;
+  const yCoord = (y: number) => top + plotHeight - ((y - yMin) / (yMax - yMin)) * plotHeight;
+  const curvePoints = Array.from({ length: 140 }, (_, index) => {
+    const x = xMin + ((xMax - xMin) * index) / 139;
+    return `${xCoord(x)},${yCoord(f(x))}`;
+  }).join(' ');
+  const tangentStartX = Math.max(xMin, current.x - 1.25);
+  const tangentEndX = Math.min(xMax, current.x + 1.25);
+  const tangentY = (x: number) => current.y + derivative(current.x) * (x - current.x);
+  const axisColor = isDarkMode ? '#86efac66' : '#94a3b8';
+  const textColor = isDarkMode ? '#bbf7d0' : '#334155';
+  const primaryColor = isDarkMode ? '#4ade80' : '#2563eb';
+  const secondaryColor = isDarkMode ? '#fb923c' : '#ea580c';
+  const labelFill = isDarkMode ? '#052e16' : '#ffffff';
+  const subtlePanelClass = isDarkMode
+    ? 'bg-green-500/5 border-green-500/20 text-green-100'
+    : 'bg-slate-50 border-slate-200 text-slate-700';
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 700,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Newton's Method Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,310px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="newton-start">
+            <span>Start x0</span>
+            <span>{formatCalcNumber(start, 1)}</span>
+          </label>
+          <input
+            id="newton-start"
+            type="range"
+            min="1.4"
+            max="3.4"
+            step="0.1"
+            value={start}
+            onChange={(event) => {
+              setPlaying(false);
+              setStart(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="w-full"
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 text-sm">
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              <InlineMath math={`x_${boundedStep}=${formatCalcNumber(current.x)}`} />
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              <InlineMath math={`x_${boundedStep + 1}=${formatCalcNumber(current.nextX)}`} />
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              residual <InlineMath math="|f(x_{k+1})|" />: <strong>{formatCalcNumber(current.residual, 6)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${width} ${height}`} className="h-72 w-full" role="img" aria-label="Newton method tangent line steps for a cubic equation">
+            <line x1={left} y1={yCoord(0)} x2={left + plotWidth} y2={yCoord(0)} stroke={axisColor} strokeWidth="2" />
+            <line x1={left} y1={top} x2={left} y2={top + plotHeight} stroke={axisColor} strokeWidth="2" />
+            <polyline points={curvePoints} fill="none" stroke={primaryColor} strokeWidth="3" />
+            <line
+              x1={xCoord(tangentStartX)}
+              y1={yCoord(tangentY(tangentStartX))}
+              x2={xCoord(tangentEndX)}
+              y2={yCoord(tangentY(tangentEndX))}
+              stroke={secondaryColor}
+              strokeWidth="2.5"
+              strokeDasharray="7 5"
+            />
+            <line x1={xCoord(current.x)} y1={yCoord(current.y)} x2={xCoord(current.x)} y2={yCoord(0)} stroke={secondaryColor} strokeWidth="1.5" strokeDasharray="4 4" />
+            <circle cx={xCoord(current.x)} cy={yCoord(current.y)} r="5" fill={secondaryColor} />
+            <circle cx={xCoord(current.nextX)} cy={yCoord(0)} r="5" fill={primaryColor} />
+            <rect x={xCoord(current.nextX) - 26} y={yCoord(0) + 8} width="52" height="17" rx="4" fill={labelFill} fillOpacity="0.88" />
+            <text x={xCoord(current.nextX)} y={yCoord(0) + 20} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>next x</text>
+          </svg>
+          <MathBlock math={String.raw`f(x)=x^3-2x-5,\qquad x_{k+1}=x_k-\frac{f(x_k)}{f'(x_k)}`} />
+        </div>
+      </div>
+      <CodeBlock language="python" code={newtonMethodCode} />
+    </InteractiveBlock>
+  );
+}
+
+function GradientDescentRunner() {
+  const { isDarkMode } = useDarkMode();
+  const [learningRate, setLearningRate] = useState(0.04);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const data: [number, number][] = [
+    [-3, -4.4],
+    [-2.4, -3.5],
+    [-1.7, -2.1],
+    [-1, -1.4],
+    [-0.3, -0.4],
+    [0.4, 0.8],
+    [1.1, 1.6],
+    [1.9, 3],
+    [2.6, 4],
+    [3.2, 5.1],
+  ];
+  const predict = (m: number, b: number, x: number) => m * x + b;
+  const loss = (m: number, b: number) =>
+    data.reduce((sum, [x, y]) => {
+      const error = predict(m, b, x) - y;
+      return sum + error * error;
+    }, 0) / data.length;
+  const gradient = (m: number, b: number): [number, number] => {
+    const [gradM, gradB] = data.reduce(
+      ([sumM, sumB], [x, y]) => {
+        const error = predict(m, b, x) - y;
+        return [sumM + error * x, sumB + error];
+      },
+      [0, 0],
+    );
+    return [(2 * gradM) / data.length, (2 * gradB) / data.length];
+  };
+  const trace = (() => {
+    const result: { m: number; b: number; loss: number; gradM: number; gradB: number }[] = [];
+    let m = -1;
+    let b = 3;
+    for (let index = 0; index < 90; index += 1) {
+      const [gradM, gradB] = gradient(m, b);
+      result.push({ m, b, loss: loss(m, b), gradM, gradB });
+      if (Math.hypot(gradM, gradB) < 1e-3) break;
+      m -= learningRate * gradM;
+      b -= learningRate * gradB;
+    }
+    return result;
+  })();
+  const boundedStep = Math.min(stepIndex, trace.length - 1);
+  const current = trace[boundedStep];
+  const gradientNorm = Math.hypot(current.gradM, current.gradB);
+  const converged = gradientNorm < 1e-3;
+  const atEnd = boundedStep === trace.length - 1 || converged;
+  const xMin = -3.4;
+  const xMax = 3.4;
+  const yMin = -5.7;
+  const yMax = 6.6;
+  const width = 460;
+  const height = 300;
+  const left = 44;
+  const top = 18;
+  const plotWidth = 372;
+  const plotHeight = 238;
+  const xCoord = (x: number) => left + ((x - xMin) / (xMax - xMin)) * plotWidth;
+  const yCoord = (y: number) => top + plotHeight - ((y - yMin) / (yMax - yMin)) * plotHeight;
+  const fittedLeft = predict(current.m, current.b, xMin);
+  const fittedRight = predict(current.m, current.b, xMax);
+  const lossChart = { width: 460, height: 110, left: 44, top: 12, plotWidth: 372, plotHeight: 68 };
+  const visibleLosses = trace.slice(0, boundedStep + 1);
+  const maxLoss = Math.max(...trace.map((state) => state.loss), 1);
+  const minLoss = Math.min(...trace.map((state) => state.loss));
+  const lossX = (index: number) => lossChart.left + (index / Math.max(1, trace.length - 1)) * lossChart.plotWidth;
+  const lossY = (value: number) =>
+    lossChart.top + lossChart.plotHeight - ((value - minLoss) / Math.max(1e-9, maxLoss - minLoss)) * lossChart.plotHeight;
+  const lossPath = visibleLosses.map((state, index) => `${index === 0 ? 'M' : 'L'} ${lossX(index)} ${lossY(state.loss)}`).join(' ');
+  const axisColor = isDarkMode ? '#86efac66' : '#94a3b8';
+  const textColor = isDarkMode ? '#bbf7d0' : '#334155';
+  const primaryColor = isDarkMode ? '#4ade80' : '#2563eb';
+  const secondaryColor = isDarkMode ? '#fb923c' : '#ea580c';
+  const subtlePanelClass = isDarkMode
+    ? 'bg-green-500/5 border-green-500/20 text-green-100'
+    : 'bg-slate-50 border-slate-200 text-slate-700';
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 420,
+    onAdvance: () => setStepIndex((step) => Math.min(trace.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Gradient Descent Line Fitting">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,310px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="gd-rate">
+            <span>Learning rate</span>
+            <span>{formatCalcNumber(learningRate, 2)}</span>
+          </label>
+          <input
+            id="gd-rate"
+            type="range"
+            min="0.01"
+            max="0.10"
+            step="0.01"
+            value={learningRate}
+            onChange={(event) => {
+              setPlaying(false);
+              setLearningRate(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="w-full"
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(trace.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 text-sm">
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              iteration: <strong>{boundedStep}</strong> of <strong>{trace.length - 1}</strong>
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              <InlineMath math={`\\hat y=${formatCalcNumber(current.m, 3)}x+${formatCalcNumber(current.b, 3)}`} />
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              <InlineMath math={`\\|\\nabla f\\|=${formatCalcNumber(gradientNorm, 4)}`} />
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              mean squared error: <strong>{formatCalcNumber(current.loss, 4)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${width} ${height}`} className="h-80 w-full" role="img" aria-label="Gradient descent fitting a line to data points">
+            <line x1={left} y1={yCoord(0)} x2={left + plotWidth} y2={yCoord(0)} stroke={axisColor} strokeWidth="2" />
+            <line x1={xCoord(0)} y1={top} x2={xCoord(0)} y2={top + plotHeight} stroke={axisColor} strokeWidth="2" />
+            {data.map(([x, y]) => {
+              const predicted = predict(current.m, current.b, x);
+              return (
+                <line
+                  key={`residual-${x}-${y}`}
+                  x1={xCoord(x)}
+                  y1={yCoord(y)}
+                  x2={xCoord(x)}
+                  y2={yCoord(predicted)}
+                  stroke={secondaryColor}
+                  strokeWidth="1.6"
+                  strokeDasharray="4 4"
+                  opacity="0.7"
+                />
+              );
+            })}
+            <line x1={xCoord(xMin)} y1={yCoord(fittedLeft)} x2={xCoord(xMax)} y2={yCoord(fittedRight)} stroke={primaryColor} strokeWidth="3.5" strokeLinecap="round" />
+            {data.map(([x, y]) => (
+              <circle key={`${x}-${y}`} cx={xCoord(x)} cy={yCoord(y)} r="5" fill={textColor} stroke={isDarkMode ? '#052e16' : '#ffffff'} strokeWidth="1.5" />
+            ))}
+            <text x={left + plotWidth - 4} y={top + plotHeight + 26} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>feature x</text>
+            <text x={left + 6} y={top + 16} fontFamily="monospace" fontSize="12" fill={textColor}>response y</text>
+          </svg>
+          <svg viewBox={`0 0 ${lossChart.width} ${lossChart.height}`} className="h-28 w-full" role="img" aria-label="Gradient descent loss history">
+            <line x1={lossChart.left} y1={lossChart.top + lossChart.plotHeight} x2={lossChart.left + lossChart.plotWidth} y2={lossChart.top + lossChart.plotHeight} stroke={axisColor} strokeWidth="2" />
+            <line x1={lossChart.left} y1={lossChart.top} x2={lossChart.left} y2={lossChart.top + lossChart.plotHeight} stroke={axisColor} strokeWidth="2" />
+            <path d={lossPath} fill="none" stroke={secondaryColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx={lossX(boundedStep)} cy={lossY(current.loss)} r="4" fill={secondaryColor} />
+            <text x={lossChart.left} y={lossChart.height - 8} fontFamily="monospace" fontSize="12" fill={textColor}>iteration</text>
+            <text x={lossChart.left + lossChart.plotWidth} y={lossChart.top + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>loss</text>
+          </svg>
+          <MathBlock math={String.raw`\theta_{k+1}=\theta_k-\eta\nabla L(\theta_k),\qquad L(m,b)=\frac1n\sum_i(mx_i+b-y_i)^2`} />
+        </div>
+      </div>
+      <CodeBlock language="python" code={gradientDescentCode} />
+    </InteractiveBlock>
+  );
+}
 
 /**
  * Renders the Calculus notes content
@@ -1102,6 +1475,7 @@ export default function CalculusNote() {
           <MathBlock math="x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}" />
         </NoteTopicBlock>
       </NoteTopicGroup>
+      <NewtonMethodRunner />
 
       {/* 5. INTEGRALS SECTION */}
       <NoteSectionTitle id="integrals">5. Integrals</NoteSectionTitle>
@@ -3091,6 +3465,7 @@ export default function CalculusNote() {
           <MathBlock math="\vec{x}_{n+1}=\vec{x}_n-\eta\nabla f(\vec{x}_n)" />
         </NoteTopicBlock>
       </NoteTopicGroup>
+      <GradientDescentRunner />
 
       {/* 16. MULTIVARIABLE INTEGRALS SECTION */}
       <NoteSectionTitle id="multivariable-integrals">16. Multivariable Integrals</NoteSectionTitle>

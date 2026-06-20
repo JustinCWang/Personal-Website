@@ -21,6 +21,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { getRunnerPlayLabel, toggleOrReplayRunner, useAutoRunner } from '../../../components/notes/useAutoRunner';
 
 type TableRow = ReactNode[];
 type Vec2 = [number, number];
@@ -43,6 +44,49 @@ const distance = ([x1, y1]: Vec2, [x2, y2]: Vec2) => Math.hypot(x2 - x1, y2 - y1
 const isVisibleVector = (tail: Vec2, tip: Vec2) => distance(tail, tip) > 0.03;
 const matrixVector = ([x, y]: Vec2) => String.raw`\begin{bmatrix}${formatNumber(x)}\\${formatNumber(y)}\end{bmatrix}`;
 const transform = ([[a, b], [c, d]]: Matrix2, [x, y]: Vec2): Vec2 => [a * x + b * y, c * x + d * y];
+
+const gaussianEliminationCode = `
+def rref(augmented):
+    A = [row[:] for row in augmented]
+    pivot_row = 0
+    yield "start", A
+    for pivot_col in range(len(A[0]) - 1):
+        best = max(range(pivot_row, len(A)), key=lambda r: abs(A[r][pivot_col]))
+        if abs(A[best][pivot_col]) < 1e-12:
+            continue
+        if best != pivot_row:
+            A[pivot_row], A[best] = A[best], A[pivot_row]
+            yield "swap", A
+        pivot = A[pivot_row][pivot_col]
+        A[pivot_row] = [value / pivot for value in A[pivot_row]]
+        yield "normalize", A
+        for r in range(len(A)):
+            if r == pivot_row:
+                continue
+            factor = A[r][pivot_col]
+            if abs(factor) < 1e-12:
+                continue
+            A[r] = [A[r][c] - factor * A[pivot_row][c] for c in range(len(A[r]))]
+            yield "clear", A
+        pivot_row += 1
+    return A
+`;
+
+const luFactorizationCode = `
+def lu(A):
+    n = len(A)
+    L = [[1 if i == j else 0 for j in range(n)] for i in range(n)]
+    U = [row[:] for row in A]
+    yield "start", L, U
+    for pivot in range(n - 1):
+        for row in range(pivot + 1, n):
+            m = U[row][pivot] / U[pivot][pivot]
+            L[row][pivot] = m
+            for col in range(pivot, n):
+                U[row][col] -= m * U[pivot][col]
+            yield "eliminate", L, U
+    return L, U
+`;
 
 function useLinearTheme() {
   const { isDarkMode } = useDarkMode();
@@ -539,6 +583,345 @@ function ProjectionExplorer() {
   );
 }
 
+function MatrixDisplay({
+  matrix,
+  augmented = false,
+  highlight,
+  rowHighlights = [],
+}: {
+  matrix: number[][];
+  augmented?: boolean;
+  highlight?: [number, number];
+  rowHighlights?: number[];
+}) {
+  const { isDarkMode } = useLinearTheme();
+
+  return (
+    <div className="overflow-x-auto">
+      <table className={`w-full table-fixed border-collapse text-center text-sm ${isDarkMode ? 'text-green-100' : 'text-slate-700'}`}>
+        <tbody>
+          {matrix.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((value, columnIndex) => {
+                const isHighlighted = highlight?.[0] === rowIndex && highlight?.[1] === columnIndex;
+                const isRowHighlighted = rowHighlights.includes(rowIndex);
+                return (
+                  <td
+                    key={`${rowIndex}-${columnIndex}`}
+                    className={`h-11 border px-2 py-2 ${
+                      isDarkMode ? 'border-green-500/20' : 'border-slate-200'
+                    } ${
+                      augmented && columnIndex === row.length - 1
+                        ? isDarkMode
+                          ? 'border-l-2 border-l-green-400/70'
+                          : 'border-l-2 border-l-slate-400'
+                        : ''
+                    } ${
+                      isHighlighted
+                        ? isDarkMode
+                          ? 'bg-green-400 text-black'
+                          : 'bg-blue-500 text-white'
+                        : isRowHighlighted
+                          ? isDarkMode
+                            ? 'bg-green-500/15'
+                            : 'bg-blue-50'
+                          : ''
+                    }`}
+                  >
+                    {formatNumber(value)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+type GaussianStep = {
+  title: string;
+  operation: string;
+  matrix: number[][];
+  highlight: [number, number];
+  rowHighlights: number[];
+};
+
+type LuStep = {
+  title: string;
+  operation: string;
+  l: number[][];
+  u: number[][];
+  multiplier: string | null;
+  rowHighlights: number[];
+};
+
+const cloneMatrix = (matrix: number[][]) => matrix.map((row) => [...row]);
+const snapshotMatrix = (matrix: number[][]) => matrix.map((row) => row.map(cleanNumber));
+
+function buildGaussianEliminationSteps(initialMatrix: number[][]): GaussianStep[] {
+  const matrix = cloneMatrix(initialMatrix);
+  const rows = matrix.length;
+  const variableColumns = matrix[0].length - 1;
+  const result: GaussianStep[] = [
+    {
+      title: 'Start',
+      operation: 'Use the augmented matrix for a 4-variable system.',
+      matrix: snapshotMatrix(matrix),
+      highlight: [0, 0],
+      rowHighlights: [],
+    },
+  ];
+
+  let pivotRow = 0;
+  for (let pivotColumn = 0; pivotColumn < variableColumns && pivotRow < rows; pivotColumn += 1) {
+    let bestRow = pivotRow;
+    for (let row = pivotRow + 1; row < rows; row += 1) {
+      if (Math.abs(matrix[row][pivotColumn]) > Math.abs(matrix[bestRow][pivotColumn])) {
+        bestRow = row;
+      }
+    }
+
+    if (Math.abs(matrix[bestRow][pivotColumn]) < 1e-10) continue;
+
+    if (bestRow !== pivotRow) {
+      [matrix[pivotRow], matrix[bestRow]] = [matrix[bestRow], matrix[pivotRow]];
+      result.push({
+        title: `Swap pivot row ${pivotRow + 1}`,
+        operation: `R${pivotRow + 1} <-> R${bestRow + 1}`,
+        matrix: snapshotMatrix(matrix),
+        highlight: [pivotRow, pivotColumn],
+        rowHighlights: [pivotRow, bestRow],
+      });
+    }
+
+    const pivot = matrix[pivotRow][pivotColumn];
+    if (Math.abs(pivot - 1) > 1e-10) {
+      for (let column = pivotColumn; column < matrix[pivotRow].length; column += 1) {
+        matrix[pivotRow][column] /= pivot;
+      }
+      result.push({
+        title: `Normalize pivot ${pivotRow + 1}`,
+        operation: `R${pivotRow + 1} <- R${pivotRow + 1} / ${formatNumber(pivot)}`,
+        matrix: snapshotMatrix(matrix),
+        highlight: [pivotRow, pivotColumn],
+        rowHighlights: [pivotRow],
+      });
+    }
+
+    for (let row = 0; row < rows; row += 1) {
+      if (row === pivotRow) continue;
+      const factor = matrix[row][pivotColumn];
+      if (Math.abs(factor) < 1e-10) continue;
+      for (let column = pivotColumn; column < matrix[row].length; column += 1) {
+        matrix[row][column] -= factor * matrix[pivotRow][column];
+      }
+      result.push({
+        title: `Clear column ${pivotColumn + 1}`,
+        operation: `R${row + 1} <- R${row + 1} - (${formatNumber(factor)})R${pivotRow + 1}`,
+        matrix: snapshotMatrix(matrix),
+        highlight: [pivotRow, pivotColumn],
+        rowHighlights: [row],
+      });
+    }
+
+    pivotRow += 1;
+  }
+
+  return result;
+}
+
+function buildLuFactorizationSteps(initialMatrix: number[][]): LuStep[] {
+  const n = initialMatrix.length;
+  const l: number[][] = Array.from({ length: n }, (_, row) => Array.from({ length: n }, (_, column) => (row === column ? 1 : 0)));
+  const u = cloneMatrix(initialMatrix);
+  const result: LuStep[] = [
+    {
+      title: 'Start',
+      operation: 'Put A in U and start L as the identity matrix.',
+      l: snapshotMatrix(l),
+      u: snapshotMatrix(u),
+      multiplier: null,
+      rowHighlights: [],
+    },
+  ];
+
+  for (let pivot = 0; pivot < n - 1; pivot += 1) {
+    for (let row = pivot + 1; row < n; row += 1) {
+      const multiplier = u[row][pivot] / u[pivot][pivot];
+      l[row][pivot] = multiplier;
+      for (let column = pivot; column < n; column += 1) {
+        u[row][column] -= multiplier * u[pivot][column];
+      }
+      result.push({
+        title: `Eliminate row ${row + 1}`,
+        operation: `m${row + 1}${pivot + 1} = ${formatNumber(multiplier)}, then R${row + 1} <- R${row + 1} - (${formatNumber(multiplier)})R${pivot + 1}.`,
+        l: snapshotMatrix(l),
+        u: snapshotMatrix(u),
+        multiplier: `L${row + 1}${pivot + 1} = ${formatNumber(multiplier)}`,
+        rowHighlights: [row],
+      });
+    }
+  }
+
+  return result;
+}
+
+function GaussianEliminationRunner() {
+  const { isDarkMode, subtlePanelClass } = useLinearTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const steps = useMemo(
+    () =>
+      buildGaussianEliminationSteps([
+        [2, 1, -1, 1, 4],
+        [1, 3, 2, -1, 1],
+        [3, -1, -1, 2, 12],
+        [1, 2, 3, 1, 13],
+      ]),
+    [],
+  );
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const atEnd = boundedStep === steps.length - 1;
+  const solution = steps[steps.length - 1].matrix.map((row) => row[row.length - 1]);
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 700,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Gaussian Elimination Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(230px,280px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-2 text-sm font-bold uppercase tracking-wider">{current.title}</p>
+          <p className="mb-4 text-sm leading-relaxed">{current.operation}</p>
+          <p className="mb-4 text-sm">
+            Step <strong>{boundedStep}</strong> of <strong>{steps.length - 1}</strong>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+        </div>
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <MatrixDisplay matrix={current.matrix} augmented highlight={current.highlight} rowHighlights={current.rowHighlights} />
+          <div className={`mt-4 rounded-md border p-3 text-sm ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+            {boundedStep === steps.length - 1 ? (
+              <InlineMath math={String.raw`x_1=${formatNumber(solution[0])},\quad x_2=${formatNumber(solution[1])},\quad x_3=${formatNumber(solution[2])},\quad x_4=${formatNumber(solution[3])}`} />
+            ) : (
+              <>Highlighted cells show the active pivot and the row affected by this operation.</>
+            )}
+          </div>
+        </div>
+      </div>
+      <CodeBlock language="python" code={gaussianEliminationCode} />
+    </InteractiveBlock>
+  );
+}
+
+function LuFactorizationRunner() {
+  const { isDarkMode, subtlePanelClass } = useLinearTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const steps = useMemo(
+    () =>
+      buildLuFactorizationSteps([
+        [4, 3, 2, 1],
+        [8, 7, 5, 3],
+        [4, 8, 9, 5],
+        [2, 3, 5, 7],
+      ]),
+    [],
+  );
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const atEnd = boundedStep === steps.length - 1;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 750,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="LU Factorization Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(230px,280px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-2 text-sm font-bold uppercase tracking-wider">{current.title}</p>
+          <p className="mb-3 text-sm leading-relaxed">{current.operation}</p>
+          <p className="mb-4 text-sm">
+            Step <strong>{boundedStep}</strong> of <strong>{steps.length - 1}</strong>
+          </p>
+          {current.multiplier && (
+            <div className={`mb-4 rounded-md border p-3 text-sm font-bold ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              {current.multiplier}
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+        </div>
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+            <p className="mb-3 text-sm font-bold uppercase tracking-wider">L</p>
+            <MatrixDisplay matrix={current.l} rowHighlights={current.rowHighlights} />
+          </div>
+          <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+            <p className="mb-3 text-sm font-bold uppercase tracking-wider">U</p>
+            <MatrixDisplay matrix={current.u} rowHighlights={current.rowHighlights} />
+          </div>
+        </div>
+      </div>
+      <CodeBlock language="python" code={luFactorizationCode} />
+    </InteractiveBlock>
+  );
+}
+
 export default function LinearAlgebraNote() {
   return (
     <NotesLayout>
@@ -648,6 +1031,7 @@ export default function LinearAlgebraNote() {
           </BulletList>
         </NoteTopicBlock>
       </NoteTopicGroup>
+      <GaussianEliminationRunner />
 
       {/* 4. VECTORS */}
       <NoteSectionTitle id="vectors-and-linear-combinations">4. Vectors and Linear Combinations</NoteSectionTitle>
@@ -785,6 +1169,7 @@ export default function LinearAlgebraNote() {
       <NoteParagraph>
         When elimination needs row swaps, the factorization includes a permutation matrix, commonly written <InlineMath math="PA=LU" />.
       </NoteParagraph>
+      <LuFactorizationRunner />
 
       {/* 9. APPLICATIONS */}
       <NoteSectionTitle id="computational-applications">9. Computational Applications</NoteSectionTitle>

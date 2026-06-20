@@ -18,6 +18,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { getRunnerPlayLabel, toggleOrReplayRunner, useAutoRunner } from '../../../components/notes/useAutoRunner';
 
 type TableRow = ReactNode[];
 type DistributionView = 'pmf' | 'pdf' | 'cdf';
@@ -30,6 +31,33 @@ type LegendItem = {
 const round = (value: number, digits = 3) => Number(value.toFixed(digits));
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const percent = (value: number, digits = 1) => `${round(value * 100, digits)}%`;
+const reservoirStream = Array.from({ length: 24 }, (_, index) => String.fromCharCode(65 + index));
+
+const couponCollectorCode = `
+def collect_all_coupon_types(types, rng, max_draws=180):
+    seen = set()
+    yield 0, None, False, 0
+    for draw in range(1, max_draws + 1):
+        coupon = rng.randrange(types)
+        is_new = coupon not in seen
+        seen.add(coupon)
+        yield draw, coupon, is_new, len(seen)
+        if len(seen) == types:
+            break
+`;
+
+const reservoirSamplingCode = `
+def reservoir_sample(stream, k, rng):
+    reservoir = []
+    for i, item in enumerate(stream, start=1):
+        if i <= k:
+            reservoir.append(item)
+        else:
+            j = rng.randrange(i)
+            if j < k:
+                reservoir[j] = item
+        yield i, item, list(reservoir)
+`;
 
 function pseudoUniform(index: number, seed = 0) {
   const raw = Math.sin((index + seed * 101) * 12.9898 + 78.233 + seed * 37.719) * 43758.5453;
@@ -1128,6 +1156,332 @@ function PollingExplorer() {
   );
 }
 
+function CouponCollectorRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [types, setTypes] = useState(10);
+  const [seed, setSeed] = useState(3);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+
+  const states = useMemo(() => {
+    const seen = new Set<number>();
+    const result: { draw: number; coupon: number | null; collected: Set<number>; isNew: boolean }[] = [
+      { draw: 0, coupon: null, collected: new Set<number>(), isNew: false },
+    ];
+
+    for (let draw = 1; draw <= 180; draw += 1) {
+      const coupon = Math.floor(pseudoUniform(draw, seed) * types);
+      const isNew = !seen.has(coupon);
+      seen.add(coupon);
+      result.push({ draw, coupon, collected: new Set(seen), isNew });
+      if (seen.size === types) break;
+    }
+
+    return result;
+  }, [seed, types]);
+
+  const boundedStep = Math.min(stepIndex, states.length - 1);
+  const current = states[boundedStep];
+  const atEnd = boundedStep === states.length - 1;
+  const expectedDraws = types * Array.from({ length: types }, (_, index) => 1 / (index + 1)).reduce((sum, value) => sum + value, 0);
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 260,
+    onAdvance: () => setStepIndex((step) => Math.min(states.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+  const progressPoints = states
+    .slice(0, boundedStep + 1)
+    .map((state, index) => {
+      const x = 26 + (index / Math.max(1, states.length - 1)) * 318;
+      const y = 128 - (state.collected.size / types) * 94;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <InteractiveBlock title="Coupon Collector Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,310px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="coupon-types">
+            <span>Types</span>
+            <span>{types}</span>
+          </label>
+          <input
+            id="coupon-types"
+            type="range"
+            min="3"
+            max="10"
+            value={types}
+            onChange={(event) => {
+              setPlaying(false);
+              setTypes(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="mb-4 w-full"
+          />
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="coupon-seed">
+            <span>Run</span>
+            <span>{seed}</span>
+          </label>
+          <input
+            id="coupon-seed"
+            type="range"
+            min="1"
+            max="8"
+            value={seed}
+            onChange={(event) => {
+              setPlaying(false);
+              setSeed(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="w-full"
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(states.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Draw
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 text-sm">
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              Draws so far: <strong>{current.draw}</strong>
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              Expected total: <strong>{round(expectedDraws, 2)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {Array.from({ length: types }, (_, coupon) => {
+              const collected = current.collected.has(coupon);
+              const isCurrent = current.coupon === coupon;
+              return (
+                <div
+                  key={coupon}
+                  className={`rounded-md border p-3 text-center text-sm font-bold ${
+                    collected
+                      ? isDarkMode
+                        ? 'border-green-400 bg-green-400 text-black'
+                        : 'border-blue-500 bg-blue-500 text-white'
+                      : isDarkMode
+                        ? 'border-green-500/20 bg-black/20 text-green-100/70'
+                        : 'border-slate-200 bg-white/75 text-slate-500'
+                  } ${isCurrent ? 'ring-2 ring-orange-500' : ''}`}
+                >
+                  {coupon + 1}
+                </div>
+              );
+            })}
+          </div>
+          <svg viewBox="0 0 370 150" className="h-40 w-full" role="img" aria-label="Unique coupon count over draws">
+            <line x1="26" y1="128" x2="344" y2="128" stroke={axisColor} strokeWidth="2" />
+            <line x1="26" y1="34" x2="26" y2="128" stroke={axisColor} strokeWidth="2" />
+            <polyline points={progressPoints} fill="none" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <circle
+              cx={26 + (boundedStep / Math.max(1, states.length - 1)) * 318}
+              cy={128 - (current.collected.size / types) * 94}
+              r="4"
+              fill={secondaryColor}
+            />
+            <text x="30" y="24" fontFamily="monospace" fontSize="12" fill={textColor}>collected</text>
+            <text x="344" y="145" textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>draws</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: current.coupon === null ? 'no draw yet' : current.isNew ? 'new type collected' : 'duplicate draw', color: secondaryColor },
+              { label: `${current.collected.size}/${types} types collected`, color: primaryColor },
+            ]}
+          />
+          <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+            {states.slice(Math.max(1, boundedStep - 9), boundedStep + 1).map((state) => (
+              <div key={state.draw} className={`rounded border px-2 py-1 text-center ${state.isNew ? (isDarkMode ? 'border-green-400 bg-green-400/15' : 'border-blue-500 bg-blue-50') : 'border-current/20'}`}>
+                <div>draw {state.draw}</div>
+                <strong>{state.coupon === null ? '-' : state.coupon + 1}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <CodeBlock language="python" code={couponCollectorCode} />
+    </InteractiveBlock>
+  );
+}
+
+function ReservoirSamplingRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, axisColor, textColor } = useProbabilityTheme();
+  const [seed, setSeed] = useState(2);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const reservoirSize = 3;
+
+  const states = useMemo(() => {
+    const reservoir: string[] = [];
+    return reservoirStream.map((item, index) => {
+      const i = index + 1;
+      const threshold = Math.min(1, reservoirSize / i);
+      let randomValue = 0;
+      let candidateIndex: number | null = null;
+      let replaceIndex: number | null = null;
+
+      if (i <= reservoirSize) {
+        reservoir.push(item);
+        replaceIndex = i - 1;
+      } else {
+        randomValue = pseudoUniform(i, seed);
+        candidateIndex = Math.floor(randomValue * i);
+        if (candidateIndex < reservoirSize) {
+          replaceIndex = candidateIndex;
+          reservoir[candidateIndex] = item;
+        }
+      }
+
+      return { i, item, threshold, randomValue, candidateIndex, replaceIndex, reservoir: [...reservoir] };
+    });
+  }, [seed]);
+
+  const boundedStep = Math.min(stepIndex, states.length - 1);
+  const current = states[boundedStep];
+  const atEnd = boundedStep === states.length - 1;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 650,
+    onAdvance: () => setStepIndex((step) => Math.min(states.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Reservoir Sampling Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,310px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="reservoir-seed">
+            <span>Run</span>
+            <span>{seed}</span>
+          </label>
+          <input
+            id="reservoir-seed"
+            type="range"
+            min="1"
+            max="8"
+            value={seed}
+            onChange={(event) => {
+              setPlaying(false);
+              setSeed(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="w-full"
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(states.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Process item
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 text-sm">
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              item <strong>{current.i}</strong>: {current.item}
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              reservoir: <strong>{current.reservoir.join(', ')}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {reservoirStream.map((item, index) => {
+              const processed = index <= boundedStep;
+              const active = index === boundedStep;
+              const selected = current.reservoir.includes(item);
+              return (
+                <span
+                  key={item}
+                  className={`flex h-10 min-w-10 items-center justify-center rounded-md border px-3 text-sm font-bold ${
+                    selected
+                      ? isDarkMode
+                        ? 'border-green-400 bg-green-400 text-black'
+                        : 'border-blue-500 bg-blue-500 text-white'
+                      : active
+                        ? 'border-orange-500 bg-orange-500/15 text-orange-500'
+                        : processed
+                          ? isDarkMode
+                            ? 'border-green-500/20 bg-black/20 text-green-100'
+                            : 'border-slate-300 bg-white text-slate-700'
+                          : isDarkMode
+                            ? 'border-green-500/10 bg-black/10 text-green-100/40'
+                            : 'border-slate-200 bg-white/50 text-slate-400'
+                  }`}
+                >
+                  {item}
+                </span>
+              );
+            })}
+          </div>
+          <svg viewBox="0 0 420 110" className="h-32 w-full" role="img" aria-label="Reservoir sampling random threshold comparison">
+            <line x1="34" y1="62" x2="386" y2="62" stroke={axisColor} strokeWidth="2" />
+            <rect x="34" y="50" width={current.threshold * 352} height="24" rx="5" fill={primaryColor} fillOpacity="0.25" stroke={primaryColor} />
+            <line x1={34 + current.randomValue * 352} y1="42" x2={34 + current.randomValue * 352} y2="82" stroke={secondaryColor} strokeWidth="3" />
+            <text x="34" y="95" fontFamily="monospace" fontSize="12" fill={textColor}>0</text>
+            <text x="386" y="95" textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>1</text>
+            <text x="34" y="25" fontFamily="monospace" fontSize="12" fill={textColor}>
+              replace when u &lt; k/i
+            </text>
+          </svg>
+          <div className="grid gap-2 text-sm sm:grid-cols-3">
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              <InlineMath math={`k/i=${round(current.threshold, 3)}`} />
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              u = <strong>{round(current.randomValue, 3)}</strong>
+            </div>
+            <div className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+              {current.replaceIndex === null ? 'keep' : `slot ${current.replaceIndex + 1}`}
+            </div>
+          </div>
+        </div>
+      </div>
+      <CodeBlock language="python" code={reservoirSamplingCode} />
+    </InteractiveBlock>
+  );
+}
+
 export default function ProbabilityStatisticsNote() {
   return (
     <NotesLayout>
@@ -1615,6 +1969,7 @@ export default function ProbabilityStatisticsNote() {
         Early coupons are easy. The last few are slow. That long tail creates the <InlineMath math="n\log n" /> behavior. In computing, this models
         router ID collection when each packet samples one router on a path.
       </NoteParagraph>
+      <CouponCollectorRunner />
 
       <NoteSubSectionTitle id="reservoir-sampling">11.2 Reservoir Sampling</NoteSubSectionTitle>
       <NoteParagraph>
@@ -1635,6 +1990,7 @@ for i, item in enumerate(stream, start=1):
         probability directly. An old item was stored with probability <InlineMath math="1/(i-1)" /> and survives with probability{' '}
         <InlineMath math="(i-1)/i" />, so its final probability is also <InlineMath math="1/i" />.
       </NoteParagraph>
+      <ReservoirSamplingRunner />
 
       <NoteSubSectionTitle id="randomized-algorithms-and-systems">11.3 Randomized Algorithms and Systems</NoteSubSectionTitle>
       <NoteParagraph>

@@ -18,11 +18,24 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { getRunnerPlayLabel, toggleOrReplayRunner, useAutoRunner } from '../../../components/notes/useAutoRunner';
 
 type TableRow = ReactNode[];
 
 const boolLabel = (value: boolean) => (value ? 'T' : 'F');
 const mod = (value: number, modulus: number) => ((value % modulus) + modulus) % modulus;
+
+const euclideanAlgorithmCode = `
+def gcd(a, b):
+    a, b = abs(a), abs(b)
+    yield a, b, None, None
+    while b != 0:
+        q = a // b
+        r = a % b
+        yield a, b, q, r
+        a, b = b, r
+    return a
+`;
 
 function useDiscreteTheme() {
   const { isDarkMode } = useDarkMode();
@@ -658,6 +671,184 @@ function PigeonholeExplorer() {
   );
 }
 
+function EuclideanAlgorithmRunner() {
+  const { isDarkMode, subtlePanelClass } = useDiscreteTheme();
+  const [a, setA] = useState(4181);
+  const [b, setB] = useState(2584);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+
+  const steps = useMemo(() => {
+    const result: {
+      a: number;
+      b: number;
+      q: number | null;
+      r: number | null;
+      description: string;
+    }[] = [];
+    let currentA = Math.abs(a);
+    let currentB = Math.abs(b);
+
+    result.push({
+      a: currentA,
+      b: currentB,
+      q: null,
+      r: null,
+      description: 'Start with the two nonnegative inputs.',
+    });
+
+    while (currentB !== 0) {
+      const q = Math.floor(currentA / currentB);
+      const r = currentA % currentB;
+      result.push({
+        a: currentB,
+        b: r,
+        q,
+        r,
+        description: `${currentA} = ${currentB} * ${q} + ${r}; replace (a,b) with (${currentB},${r}).`,
+      });
+      currentA = currentB;
+      currentB = r;
+    }
+
+    return result;
+  }, [a, b]);
+
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const gcd = steps[steps.length - 1].a;
+  const atEnd = boundedStep === steps.length - 1;
+  const maxValue = Math.max(a, b, 1);
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 700,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Euclidean Algorithm Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,290px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="euclid-a">
+            <span>a</span>
+            <span>{a}</span>
+          </label>
+          <input
+            id="euclid-a"
+            type="range"
+            min="1"
+            max="5000"
+            value={a}
+            onChange={(event) => {
+              setPlaying(false);
+              setA(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="mb-4 w-full"
+          />
+          <label className="mb-2 flex justify-between gap-3 text-sm font-bold" htmlFor="euclid-b">
+            <span>b</span>
+            <span>{b}</span>
+          </label>
+          <input
+            id="euclid-b"
+            type="range"
+            min="1"
+            max="5000"
+            value={b}
+            onChange={(event) => {
+              setPlaying(false);
+              setB(Number(event.target.value));
+              setStepIndex(0);
+            }}
+            className="w-full"
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
+            {[
+              ['a', current.a],
+              ['b', current.b],
+            ].map(([label, value]) => (
+              <div key={label as string}>
+                <div className="mb-1 flex justify-between text-sm">
+                  <span>{label}</span>
+                  <span>{value}</span>
+                </div>
+                <div className={isDarkMode ? 'h-4 rounded bg-black/40' : 'h-4 rounded bg-slate-200'}>
+                  <div
+                    className={label === 'a' ? (isDarkMode ? 'h-4 rounded bg-green-400' : 'h-4 rounded bg-blue-500') : 'h-4 rounded bg-orange-500'}
+                    style={{ width: `${Math.max(4, (Number(value) / maxValue) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mb-3 text-sm">
+            Step <strong>{boundedStep}</strong> of <strong>{steps.length - 1}</strong>
+          </p>
+          <p className="mb-4 text-sm leading-relaxed">{current.description}</p>
+          {current.q !== null && current.r !== null && (
+            <MathBlock math={String.raw`q=${current.q},\quad r=${current.r}`} />
+          )}
+          <div className={`rounded-md border p-3 text-sm ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+            <InlineMath math={`\\gcd(${a},${b})=${gcd}`} />
+          </div>
+          <div className="mt-4 max-h-52 overflow-y-auto rounded-md border border-current/15">
+            <table className="w-full border-collapse text-xs">
+              <thead className={isDarkMode ? 'bg-green-500/10' : 'bg-slate-100'}>
+                <tr>
+                  {['k', 'a', 'b', 'q', 'r'].map((heading) => (
+                    <th key={heading} className="px-2 py-2 text-left">{heading}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {steps.map((step, index) => (
+                  <tr key={index} className={index === boundedStep ? (isDarkMode ? 'bg-green-400/20' : 'bg-blue-50') : ''}>
+                    <td className="px-2 py-1">{index}</td>
+                    <td className="px-2 py-1">{step.a}</td>
+                    <td className="px-2 py-1">{step.b}</td>
+                    <td className="px-2 py-1">{step.q ?? '-'}</td>
+                    <td className="px-2 py-1">{step.r ?? '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <CodeBlock language="python" code={euclideanAlgorithmCode} />
+    </InteractiveBlock>
+  );
+}
+
 export default function DiscreteMathNote() {
   return (
     <NotesLayout>
@@ -935,6 +1126,7 @@ def gcd(a, b):
         The usual precondition is that <InlineMath math="a" /> and <InlineMath math="b" /> are not both zero. The final absolute value makes the
         returned gcd nonnegative even when one input is negative.
       </NoteParagraph>
+      <EuclideanAlgorithmRunner />
 
       {/* 6. SETS */}
       <NoteSectionTitle id="sets">6. Sets</NoteSectionTitle>

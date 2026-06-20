@@ -1640,13 +1640,13 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className={`flex min-h-screen w-full max-w-full flex-col overflow-x-hidden transition-all duration-300 md:flex-row ${
+      className={`flex min-h-screen w-full max-w-full flex-col overflow-x-hidden transition-all duration-300 ${
         isDarkMode ? 'page-bg-dark text-green-100' : 'page-bg-light text-slate-800'
       }`}
       style={{ scrollBehavior: 'smooth' }}
     >
       <div
-        className={`sticky top-0 z-40 flex items-center justify-between border-b px-6 py-4 md:hidden ${
+        className={`fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b px-6 py-4 md:hidden ${
           isDarkMode ? 'border-green-500/30 bg-black/90' : 'border-slate-200 bg-white/90'
         } backdrop-blur-md`}
       >
@@ -1698,9 +1698,9 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
       </div>
 
       <aside
-        className={`w-full flex-shrink-0 border-r transition-all custom-scrollbar md:sticky md:top-0 md:h-screen md:w-64 md:overflow-y-auto ${
+        className={`fixed inset-x-0 top-[72px] z-40 h-[calc(100dvh-72px)] w-full flex-shrink-0 overflow-y-auto border-b border-r transition-all custom-scrollbar backdrop-blur-md md:inset-y-0 md:left-0 md:right-auto md:top-0 md:block md:h-screen md:w-64 md:border-b-0 md:backdrop-blur-none ${
           mobileMenuOpen ? 'block' : 'hidden md:block'
-        } ${isDarkMode ? 'border-green-500/30 bg-black/50 md:bg-transparent' : 'border-slate-200 bg-white md:bg-transparent'}`}
+        } ${isDarkMode ? 'border-green-500/30 bg-black/95 md:bg-black/50' : 'border-slate-200 bg-white/95 md:bg-white'}`}
       >
         <div className="p-6">
           <div className="mb-8 hidden items-center justify-between md:flex">
@@ -1774,11 +1774,9 @@ export const NotesLayout: React.FC<NotesLayoutProps> = ({ children }) => {
       </aside>
 
       <main
-        className={`mx-auto min-w-0 w-full max-w-full flex-1 px-6 py-10 pb-24 transition-all duration-300 md:max-w-7xl md:px-12 ${
-          mobileMenuOpen ? 'hidden md:block' : ''
-        }`}
+        className="min-w-0 w-full max-w-full flex-1 px-6 pt-24 pb-24 transition-all duration-300 md:ml-64 md:min-h-screen md:w-[calc(100%-16rem)] md:px-12 md:py-10"
       >
-        <div className="min-w-0 w-full font-mono">{children}</div>
+        <div className="mx-auto min-w-0 w-full max-w-7xl font-mono">{children}</div>
       </main>
 
       <NotesGuideModal isOpen={guideOpen} onClose={() => setGuideOpen(false)} />

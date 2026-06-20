@@ -7,6 +7,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { NotesLayout } from '../../../components/notes/NotesLayout';
 import {
   AlgorithmBlock,
+  CodeBlock,
   InlineMath,
   InteractiveBlock,
   NoteHeader,
@@ -16,6 +17,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { getRunnerPlayLabel, toggleOrReplayRunner, useAutoRunner } from '../../../components/notes/useAutoRunner';
 
 type TableRow = ReactNode[];
 type LegendItem = {
@@ -28,8 +30,222 @@ const round = (value: number, digits = 3) => Number(value.toFixed(digits));
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const percent = (value: number, digits = 1) => `${round(value * 100, digits)}%`;
 
+const emLoopCode = `
+def em_gaussian_mixture(xs, means, priors, variance, max_iter=24):
+    for step in range(max_iter):
+        gammas = []
+        for x in xs:
+            left = priors[0] * normal_pdf(x, means[0], variance)
+            right = priors[1] * normal_pdf(x, means[1], variance)
+            gammas.append(left / (left + right))
+        yield means, priors, gammas
+        left_mass = sum(gammas)
+        right_mass = len(xs) - left_mass
+        means = [
+            sum(g * x for g, x in zip(gammas, xs)) / left_mass,
+            sum((1 - g) * x for g, x in zip(gammas, xs)) / right_mass,
+        ]
+        priors = [left_mass / len(xs), right_mass / len(xs)]
+`;
+
+const kMeansCode = `
+def squared_distance(a, b):
+    return sum((x - y) ** 2 for x, y in zip(a, b))
+
+def mean_point(points):
+    dimension = len(points[0])
+    return tuple(sum(point[d] for point in points) / len(points) for d in range(dimension))
+
+def kmeans(points, centers, max_iter=20, tol=1e-4):
+    for step in range(max_iter):
+        assignments = [
+            min(range(len(centers)), key=lambda c: squared_distance(point, centers[c]))
+            for point in points
+        ]
+        inertia = sum(squared_distance(point, centers[a]) for point, a in zip(points, assignments))
+        updated = []
+        for c, old_center in enumerate(centers):
+            cluster = [point for point, a in zip(points, assignments) if a == c]
+            updated.append(mean_point(cluster) if cluster else old_center)
+        yield step, centers, assignments, updated, inertia
+        shift = max(squared_distance(a, b) ** 0.5 for a, b in zip(centers, updated))
+        if shift < tol:
+            break
+        centers = updated
+`;
+
+const dbscanCode = `
+def distance(a, b):
+    return sum((x - y) ** 2 for x, y in zip(a, b)) ** 0.5
+
+def dbscan(points, epsilon, min_pts):
+    labels = [None] * len(points)
+    visited = [False] * len(points)
+    cluster_id = 0
+    yield "start", None, [], [], list(labels)
+
+    def neighbors(i):
+        return [
+            j for j, point in enumerate(points)
+            if distance(points[i], point) <= epsilon
+        ]
+
+    for i in range(len(points)):
+        if visited[i]:
+            continue
+        visited[i] = True
+        seeds = neighbors(i)
+        yield "inspect", i, list(seeds), [], list(labels)
+        if len(seeds) < min_pts:
+            labels[i] = "noise"
+            yield "noise", i, list(seeds), [], list(labels)
+            continue
+
+        cluster_id += 1
+        labels[i] = cluster_id
+        queue = [j for j in seeds if j != i]
+        queued = set(queue)
+        yield "start_cluster", i, list(seeds), list(queue), list(labels)
+        while queue:
+            j = queue.pop(0)
+            expanded = neighbors(j)
+            if not visited[j]:
+                visited[j] = True
+                yield "expand", j, list(expanded), list(queue), list(labels)
+                if len(expanded) >= min_pts:
+                    for candidate in expanded:
+                        if candidate != i and candidate not in queued:
+                            queue.append(candidate)
+                            queued.add(candidate)
+                    yield "queue", j, list(expanded), list(queue), list(labels)
+            if labels[j] is None or labels[j] == "noise":
+                labels[j] = cluster_id
+                yield "assign", j, list(expanded), list(queue), list(labels)
+    return labels
+`;
+
+const editDistanceCode = `
+def edit_distance(source, target):
+    dp = [[0] * (len(target) + 1) for _ in range(len(source) + 1)]
+    for i in range(len(source) + 1):
+        for j in range(len(target) + 1):
+            if i == 0:
+                dp[i][j] = j
+            elif j == 0:
+                dp[i][j] = i
+            else:
+                cost = 0 if source[i - 1] == target[j - 1] else 1
+                dp[i][j] = min(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j - 1] + cost
+                )
+            yield i, j, [row[:] for row in dp]
+    return dp[-1][-1]
+`;
+
+const agglomerativeCode = `
+def agglomerative_single_link(points):
+    clusters = [{point} for point in points]
+    yield clusters
+    while len(clusters) > 1:
+        best = min(
+            ((i, j) for i in range(len(clusters)) for j in range(i + 1, len(clusters))),
+            key=lambda pair: single_link_distance(clusters[pair[0]], clusters[pair[1]])
+        )
+        i, j = best
+        clusters[i] = clusters[i] | clusters[j]
+        clusters.pop(j)
+        yield clusters
+`;
+
+const powerMethodCode = `
+def power_method(M, x, tol=1e-4, max_iter=30):
+    yield 0, x, 0.0
+    for step in range(max_iter):
+        x_next = [sum(x[r] * M[r][c] for r in range(len(x))) for c in range(len(x))]
+        delta = sum(abs(a - b) for a, b in zip(x_next, x))
+        yield step + 1, x_next, delta
+        if delta < tol:
+            break
+        x = x_next
+`;
+
+const topKThresholdCode = `
+def threshold_top_k(sorted_lists, score, k):
+    seen = set()
+    for depth in range(1, len(sorted_lists[0]) + 1):
+        for ranked_list in sorted_lists:
+            seen.add(ranked_list[depth - 1].object_id)
+        known = sorted(seen, key=score, reverse=True)
+        threshold = sum(ranked_list[depth - 1].score for ranked_list in sorted_lists)
+        yield depth, known, threshold
+        if len(known) >= k and score(known[k - 1]) >= threshold:
+            return known[:k]
+`;
+
+const pageRankCode = `
+def pagerank_power_iteration(outlinks, alpha=0.85, tol=1e-5, max_iter=80):
+    pages = list(outlinks)
+    n = len(pages)
+    rank = {page: 1 / n for page in pages}
+    yield 0, rank, None
+    for step in range(1, max_iter + 1):
+        next_rank = {page: (1 - alpha) / n for page in pages}
+        sink_mass = sum(rank[page] for page in pages if not outlinks[page])
+        for page in pages:
+            next_rank[page] += alpha * sink_mass / n
+        for page, links in outlinks.items():
+            if links:
+                share = alpha * rank[page] / len(links)
+                for target in links:
+                    next_rank[target] += share
+        delta = sum(abs(next_rank[page] - rank[page]) for page in pages)
+        yield step, next_rank, delta
+        if delta < tol:
+            break
+        rank = next_rank
+`;
+
+const logisticGradientDescentCode = `
+from math import exp, log
+
+def fit_logistic_regression(points, eta=0.08, tol=1e-3, max_iter=90):
+    w = [-0.8, 0.4]
+    b = -0.2
+    n = len(points)
+    for step in range(max_iter):
+        grad = [0.0, 0.0]
+        grad_b = 0.0
+        loss = 0.0
+        for x1, x2, y in points:
+            z = w[0] * x1 + w[1] * x2 + b
+            p = 1 / (1 + exp(-z))
+            loss += -(y * log(p + 1e-12) + (1 - y) * log(1 - p + 1e-12))
+            error = p - y
+            grad[0] += error * x1
+            grad[1] += error * x2
+            grad_b += error
+        grad = [g / n for g in grad]
+        grad_b /= n
+        grad_norm = (grad[0] ** 2 + grad[1] ** 2 + grad_b ** 2) ** 0.5
+        yield step, w, b, loss / n, grad_norm
+        if grad_norm < tol:
+            break
+        w = [w[0] - eta * grad[0], w[1] - eta * grad[1]]
+        b -= eta * grad_b
+`;
+
 function normalPdf(x: number, mean: number, variance: number) {
   return Math.exp(-((x - mean) ** 2) / (2 * variance)) / Math.sqrt(2 * Math.PI * variance);
+}
+
+function logisticSigmoid(value: number) {
+  return 1 / (1 + Math.exp(-value));
+}
+
+function squaredDistance2D(left: Point2D, right: Point2D) {
+  return (left.x - right.x) ** 2 + (left.y - right.y) ** 2;
 }
 
 function useDataScienceTheme() {
@@ -418,113 +634,66 @@ function EMResponsibilityExplorer() {
   );
 }
 
-const kmeansPoints = [0, 1, 2, 7, 8, 9];
+type Point2D = { id: string; x: number; y: number };
 
-function KMeansExplorer() {
-  const { subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor } = useDataScienceTheme();
-  const [leftCenter, setLeftCenter] = useState(1);
-  const [rightCenter, setRightCenter] = useState(8);
-  const assignments = kmeansPoints.map((point) => (Math.abs(point - leftCenter) <= Math.abs(point - rightCenter) ? 0 : 1));
-  const leftPoints = kmeansPoints.filter((_, index) => assignments[index] === 0);
-  const rightPoints = kmeansPoints.filter((_, index) => assignments[index] === 1);
-  const mean = (values: number[], fallback: number) =>
-    values.length === 0 ? fallback : values.reduce((sum, value) => sum + value, 0) / values.length;
-  const updatedLeft = mean(leftPoints, leftCenter);
-  const updatedRight = mean(rightPoints, rightCenter);
-  const chart = { width: 430, height: 220, left: 36, top: 28, axisY: 112, plotWidth: 358 };
-  const domain = { min: -1, max: 10 };
-  const xCoord = (value: number) => chart.left + ((value - domain.min) / (domain.max - domain.min)) * chart.plotWidth;
-  const centers = [
-    { id: 'left', value: leftCenter, updated: updatedLeft, color: primaryColor },
-    { id: 'right', value: rightCenter, updated: updatedRight, color: secondaryColor },
-  ];
+const kmeansPoints: Point2D[] = [
+  { id: 'A', x: 3.471, y: 3.647 },
+  { id: 'B', x: 5.358, y: 6.016 },
+  { id: 'C', x: 6.438, y: 2.532 },
+  { id: 'D', x: 4.03, y: 8.014 },
+  { id: 'E', x: 2.17, y: 4.057 },
+  { id: 'F', x: 1.777, y: 4.858 },
+  { id: 'G', x: 3.11, y: 7.615 },
+  { id: 'H', x: 8.457, y: 2.125 },
+  { id: 'I', x: 5.006, y: 2.355 },
+  { id: 'J', x: 5.143, y: 3.876 },
+  { id: 'K', x: 4.594, y: 3.828 },
+  { id: 'L', x: 4.232, y: 6.828 },
+  { id: 'M', x: 1.666, y: 3.607 },
+  { id: 'N', x: 6.256, y: 7.579 },
+  { id: 'O', x: 6.644, y: 2.506 },
+  { id: 'P', x: 7.501, y: 2.481 },
+  { id: 'Q', x: 4.789, y: 4.029 },
+  { id: 'R', x: 6.58, y: 1.817 },
+];
 
-  return (
-    <InteractiveBlock title="One KMeans Iteration">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
-        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <label className="mb-2 block text-sm font-bold" htmlFor="left-center">Center 1: {leftCenter.toFixed(1)}</label>
-          <input
-            id="left-center"
-            type="range"
-            min="-1"
-            max="5"
-            step="0.1"
-            value={leftCenter}
-            onChange={(event) => setLeftCenter(Number(event.target.value))}
-            className="mb-4 w-full"
-          />
-          <label className="mb-2 block text-sm font-bold" htmlFor="right-center">Center 2: {rightCenter.toFixed(1)}</label>
-          <input
-            id="right-center"
-            type="range"
-            min="4"
-            max="10"
-            step="0.1"
-            value={rightCenter}
-            onChange={(event) => setRightCenter(Number(event.target.value))}
-            className="w-full"
-          />
-          <div className="mt-4 grid gap-2">
-            <MetricTile label="cluster 1 points" value={leftPoints.join(', ') || 'empty'} />
-            <MetricTile label="cluster 2 points" value={rightPoints.join(', ') || 'empty'} />
-          </div>
-        </div>
-        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-60 w-full" role="img" aria-label="KMeans points assigned to nearest center with updated means">
-            <line x1={chart.left} y1={chart.axisY} x2={chart.left + chart.plotWidth} y2={chart.axisY} stroke={mutedColor} strokeWidth="2" />
-            {Array.from({ length: 12 }, (_, index) => index - 1).map((tick) => (
-              <g key={tick}>
-                <line x1={xCoord(tick)} y1={chart.axisY - 5} x2={xCoord(tick)} y2={chart.axisY + 5} stroke={mutedColor} strokeWidth="1.3" />
-                {tick % 2 === 0 && (
-                  <text x={xCoord(tick)} y={chart.axisY + 24} textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>{tick}</text>
-                )}
-              </g>
-            ))}
-            {kmeansPoints.map((point, index) => {
-              const color = assignments[index] === 0 ? primaryColor : secondaryColor;
-              return (
-                <g key={point}>
-                  <line x1={xCoord(point)} y1={chart.axisY - 16} x2={xCoord(point)} y2={chart.axisY + 16} stroke={color} strokeOpacity="0.25" strokeWidth="2" />
-                  <circle cx={xCoord(point)} cy={chart.axisY} r="7" fill={color} fillOpacity="0.82" />
-                  <text x={xCoord(point)} y={chart.axisY - 24} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{point}</text>
-                </g>
-              );
-            })}
-            {centers.map((center) => (
-              <g key={center.id}>
-                <line x1={xCoord(center.value)} y1={chart.top} x2={xCoord(center.value)} y2={chart.axisY - 22} stroke={center.color} strokeWidth="2.5" />
-                <path
-                  d={`M ${xCoord(center.value)} ${chart.axisY - 34} l 9 9 l -9 9 l -9 -9 Z`}
-                  fill={center.color}
-                  fillOpacity="0.85"
-                />
-                <circle cx={xCoord(center.updated)} cy={chart.axisY + 52} r="8" fill="transparent" stroke={center.color} strokeWidth="3" />
-                <line x1={xCoord(center.updated)} y1={chart.axisY + 28} x2={xCoord(center.updated)} y2={chart.axisY + 44} stroke={center.color} strokeWidth="2" strokeDasharray="4 4" />
-                <text x={xCoord(center.updated)} y={chart.axisY + 78} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>
-                  {center.updated.toFixed(2)}
-                </text>
-              </g>
-            ))}
-            <text x={chart.left + chart.plotWidth / 2} y={chart.axisY + 44} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>
-              one-dimensional feature value
-            </text>
-          </svg>
-          <VisualLegend
-            items={[
-              { label: 'cluster 1 points', color: primaryColor },
-              { label: 'cluster 2 points', color: secondaryColor },
-              { label: 'updated mean', color: textColor, hollow: true },
-            ]}
-          />
-          <NoteParagraph className="mb-0 text-sm">
-            KMeans alternates hard assignment to the nearest center and center update to the assigned mean.
-          </NoteParagraph>
-        </div>
-      </div>
-    </InteractiveBlock>
-  );
-}
+const initialKMeansCenters: Point2D[] = [
+  { id: 'C1', x: 6.455, y: 7.086 },
+  { id: 'C2', x: 8.846, y: 1.101 },
+  { id: 'C3', x: 9.355, y: 3.355 },
+];
+
+const emMixtureData = [-2, -1.5, -1, -0.4, 0.2, 0.8, 1.4, 2.1, 2.7, 3.4, 4.1, 4.8, 5.4, 6];
+const powerMethodMatrix = [
+  [0.8, 0.2, 0],
+  [0.1, 0.7, 0.2],
+  [0.2, 0.2, 0.6],
+];
+
+const pageRankPages = ['A', 'B', 'C', 'D', 'E'];
+const pageRankOutlinks: Record<string, string[]> = {
+  A: ['B', 'C', 'D'],
+  B: ['A', 'C'],
+  C: ['A', 'D'],
+  D: ['A', 'E'],
+  E: ['D'],
+};
+const pageRankIndex = new Map(pageRankPages.map((page, index) => [page, index]));
+
+const logisticTrainingExamples = [
+  { x: 1.0, y: 1.4, label: 0 },
+  { x: 1.5, y: 2.4, label: 0 },
+  { x: 2.2, y: 1.1, label: 0 },
+  { x: 2.8, y: 2.7, label: 0 },
+  { x: 3.2, y: 1.8, label: 0 },
+  { x: 3.6, y: 3.0, label: 0 },
+  { x: 5.4, y: 5.2, label: 1 },
+  { x: 5.8, y: 6.5, label: 1 },
+  { x: 6.6, y: 4.8, label: 1 },
+  { x: 7.2, y: 6.2, label: 1 },
+  { x: 7.9, y: 5.5, label: 1 },
+  { x: 8.4, y: 7.0, label: 1 },
+];
 
 const dbscanPoints = [
   { id: 'a', x: 2.0, y: 4.2 },
@@ -542,33 +711,112 @@ const dbscanPoints = [
 ];
 
 function DbscanExplorer() {
-  const { subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
   const [epsilon, setEpsilon] = useState(1.35);
-  const minPts = 3;
-  const focusPoint = dbscanPoints[1];
-  const distance = (first: (typeof dbscanPoints)[number], second: (typeof dbscanPoints)[number]) =>
-    Math.hypot(first.x - second.x, first.y - second.y);
-  const neighborCounts = dbscanPoints.map((point, index) =>
-    dbscanPoints.filter((other, otherIndex) => otherIndex !== index && distance(point, other) <= epsilon).length,
-  );
-  const isCore = neighborCounts.map((count) => count >= minPts);
-  const pointTypes = dbscanPoints.map((point, index) => {
-    if (isCore[index]) return 'core';
-    const touchesCore = dbscanPoints.some((other, otherIndex) => isCore[otherIndex] && distance(point, other) <= epsilon);
-    return touchesCore ? 'border' : 'noise';
-  });
-  const counts = pointTypes.reduce(
-    (acc, type) => ({ ...acc, [type]: acc[type as keyof typeof acc] + 1 }),
-    { core: 0, border: 0, noise: 0 },
-  );
-  const colors = { core: primaryColor, border: secondaryColor, noise: mutedColor };
-  const chart = { width: 430, height: 270, left: 44, top: 24, plotSize: 205 };
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const minPts = 4;
+  const clusterColors = [primaryColor, secondaryColor, '#a855f7'];
+  const steps = useMemo(() => {
+    const labels: (number | 'noise' | null)[] = Array.from({ length: dbscanPoints.length }, () => null);
+    const visited = Array.from({ length: dbscanPoints.length }, () => false);
+    const result: {
+      message: string;
+      activeIndex: number | null;
+      neighborhood: number[];
+      queue: number[];
+      labels: (number | 'noise' | null)[];
+      visited: boolean[];
+      clusterId: number;
+    }[] = [];
+    let clusterId = 0;
+    const neighborsOf = (index: number) =>
+      dbscanPoints
+        .map((_, candidateIndex) => candidateIndex)
+        .filter((candidateIndex) => Math.sqrt(squaredDistance2D(dbscanPoints[index], dbscanPoints[candidateIndex])) <= epsilon);
+    const pushStep = (message: string, activeIndex: number | null, neighborhood: number[], queue: number[]) => {
+      result.push({
+        message,
+        activeIndex,
+        neighborhood: [...neighborhood],
+        queue: [...queue],
+        labels: [...labels],
+        visited: [...visited],
+        clusterId,
+      });
+    };
+
+    pushStep('start with every point unvisited', null, [], []);
+    for (let index = 0; index < dbscanPoints.length; index += 1) {
+      if (visited[index]) continue;
+      visited[index] = true;
+      const seeds = neighborsOf(index);
+      pushStep(`inspect point ${dbscanPoints[index].id}`, index, seeds, []);
+      if (seeds.length < minPts) {
+        labels[index] = 'noise';
+        pushStep(`${dbscanPoints[index].id} has too few neighbors, so mark it noise for now`, index, seeds, []);
+        continue;
+      }
+
+      clusterId += 1;
+      labels[index] = clusterId;
+      const queue = seeds.filter((candidateIndex) => candidateIndex !== index);
+      const queued = new Set(queue);
+      pushStep(`start cluster ${clusterId} from core point ${dbscanPoints[index].id}`, index, seeds, queue);
+
+      for (let queueIndex = 0; queueIndex < queue.length; queueIndex += 1) {
+        const pointIndex = queue[queueIndex];
+        let neighborhood = neighborsOf(pointIndex);
+        if (!visited[pointIndex]) {
+          visited[pointIndex] = true;
+          pushStep(`expand from ${dbscanPoints[pointIndex].id}`, pointIndex, neighborhood, queue.slice(queueIndex + 1));
+          if (neighborhood.length >= minPts) {
+            neighborhood.forEach((candidateIndex) => {
+              if (!queued.has(candidateIndex) && candidateIndex !== index) {
+                queue.push(candidateIndex);
+                queued.add(candidateIndex);
+              }
+            });
+            pushStep(`${dbscanPoints[pointIndex].id} is core, so add its neighbors to the queue`, pointIndex, neighborhood, queue.slice(queueIndex + 1));
+          }
+        } else {
+          neighborhood = neighborsOf(pointIndex);
+        }
+
+        if (labels[pointIndex] === null || labels[pointIndex] === 'noise') {
+          labels[pointIndex] = clusterId;
+          pushStep(`assign ${dbscanPoints[pointIndex].id} to cluster ${clusterId}`, pointIndex, neighborhood, queue.slice(queueIndex + 1));
+        }
+      }
+    }
+
+    pushStep('finished: every reachable dense region has been expanded', null, [], []);
+    return result;
+  }, [epsilon]);
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const atEnd = boundedStep === steps.length - 1;
+  const assignedCount = current.labels.filter((label) => typeof label === 'number').length;
+  const noiseCount = current.labels.filter((label) => label === 'noise').length;
+  const activePoint = current.activeIndex === null ? null : dbscanPoints[current.activeIndex];
+  const chart = { width: 460, height: 310, left: 44, top: 24, plotSize: 230 };
   const xCoord = (value: number) => chart.left + (value / 10) * chart.plotSize;
   const yCoord = (value: number) => chart.top + (1 - value / 10) * chart.plotSize;
   const epsilonRadius = (epsilon / 10) * chart.plotSize;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 620,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
 
   return (
-    <InteractiveBlock title="DBSCAN Neighborhoods">
+    <InteractiveBlock title="DBSCAN Expansion Runner">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
           <label className="mb-2 block text-sm font-bold" htmlFor="dbscan-epsilon">Radius epsilon: {epsilon.toFixed(2)}</label>
@@ -579,69 +827,106 @@ function DbscanExplorer() {
             max="2.1"
             step="0.05"
             value={epsilon}
-            onChange={(event) => setEpsilon(Number(event.target.value))}
+            onChange={(event) => {
+              setPlaying(false);
+              setEpsilon(Number(event.target.value));
+              setStepIndex(0);
+            }}
             className="w-full"
           />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }} disabled={atEnd}>
+              Expand
+            </button>
+          </div>
           <div className="mt-4 grid gap-2">
             <MetricTile label={<InlineMath math={'\\epsilon'} />} value={epsilon.toFixed(2)} />
             <MetricTile label="minPts" value={minPts} />
-            <MetricTile label="core / border / noise" value={`${counts.core} / ${counts.border} / ${counts.noise}`} />
+            <MetricTile label="step" value={`${boundedStep} of ${steps.length - 1}`} />
+            <MetricTile label="active point" value={activePoint ? activePoint.id : 'none'} />
+            <MetricTile label="neighbors / queue" value={`${current.neighborhood.length} / ${current.queue.length}`} />
+            <MetricTile label="assigned / noise" value={`${assignedCount} / ${noiseCount}`} />
           </div>
+          <p className="mt-4 text-sm">{current.message}</p>
         </div>
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="DBSCAN points in feature space with feature 1 and feature 2 axes">
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-80 w-full" role="img" aria-label="DBSCAN cluster expansion in feature space">
             <rect x={chart.left} y={chart.top} width={chart.plotSize} height={chart.plotSize} rx="8" fill={panelFill} stroke={mutedColor} strokeWidth="1.5" />
             <text x={chart.left + chart.plotSize / 2} y={chart.top + chart.plotSize + 24} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 1</text>
             <text transform={`translate(18 ${chart.top + chart.plotSize / 2}) rotate(-90)`} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 2</text>
-            <circle
-              cx={xCoord(focusPoint.x)}
-              cy={yCoord(focusPoint.y)}
-              r={epsilonRadius}
-              fill={primaryColor}
-              fillOpacity="0.08"
-              stroke={primaryColor}
-              strokeWidth="2"
-              strokeDasharray="5 4"
-            />
+            {activePoint && (
+              <circle
+                cx={xCoord(activePoint.x)}
+                cy={yCoord(activePoint.y)}
+                r={epsilonRadius}
+                fill={primaryColor}
+                fillOpacity="0.08"
+                stroke={primaryColor}
+                strokeWidth="2"
+                strokeDasharray="5 4"
+              />
+            )}
+            {activePoint &&
+              current.neighborhood.map((neighborIndex) => {
+                const neighbor = dbscanPoints[neighborIndex];
+                return (
+                  <line
+                    key={`neighbor-${neighbor.id}`}
+                    x1={xCoord(activePoint.x)}
+                    y1={yCoord(activePoint.y)}
+                    x2={xCoord(neighbor.x)}
+                    y2={yCoord(neighbor.y)}
+                    stroke={primaryColor}
+                    strokeOpacity="0.22"
+                    strokeWidth="1.5"
+                  />
+                );
+              })}
             {dbscanPoints.map((point, index) => {
-              const type = pointTypes[index] as keyof typeof colors;
+              const label = current.labels[index];
+              const clusterColor = typeof label === 'number' ? clusterColors[(label - 1) % clusterColors.length] : null;
+              const isActive = index === current.activeIndex;
+              const isQueued = current.queue.includes(index);
+              const isNeighbor = current.neighborhood.includes(index);
               return (
-                <circle
-                  key={point.id}
-                  cx={xCoord(point.x)}
-                  cy={yCoord(point.y)}
-                  r={point.id === focusPoint.id ? 7 : 5.5}
-                  fill={colors[type]}
-                  fillOpacity={type === 'noise' ? 0.5 : 0.86}
-                  stroke={point.id === focusPoint.id ? textColor : 'transparent'}
-                  strokeWidth="2"
-                />
-              );
-            })}
-            {(['core', 'border', 'noise'] as const).map((type, index) => {
-              const y = 58 + index * 48;
-              return (
-                <g key={type}>
-                  <text x="292" y={y + 14} fontFamily="monospace" fontSize="12" fill={textColor}>{type}</text>
-                  <rect x="352" y={y} width="46" height="18" rx="6" fill={colors[type]} fillOpacity="0.22" stroke={colors[type]} strokeWidth="1.5" />
-                  <text x="375" y={y + 14} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{counts[type]}</text>
+                <g key={point.id}>
+                  <circle
+                    cx={xCoord(point.x)}
+                    cy={yCoord(point.y)}
+                    r={isActive ? 8 : isQueued ? 7 : 5.8}
+                    fill={clusterColor ?? (label === 'noise' ? mutedColor : panelFill)}
+                    fillOpacity={clusterColor ? 0.88 : label === 'noise' ? 0.5 : 1}
+                    stroke={isActive ? textColor : isQueued ? secondaryColor : isNeighbor ? primaryColor : mutedColor}
+                    strokeWidth={isActive || isQueued ? 3 : 1.5}
+                  />
                 </g>
               );
             })}
-            <text x="292" y="215" fontFamily="monospace" fontSize="11" fill={textColor}>shown: one neighborhood</text>
+            <rect x="306" y="39" width="124" height="22" rx="5" fill={panelFill} fillOpacity="0.88" stroke={mutedColor} strokeOpacity="0.35" />
+            <text x="314" y="54" fontFamily="monospace" fontSize="12" fill={textColor}>cluster count: {current.clusterId}</text>
           </svg>
           <VisualLegend
             items={[
-              { label: 'core point', color: primaryColor },
-              { label: 'border point', color: secondaryColor },
-              { label: 'noise point', color: mutedColor },
+              { label: 'active epsilon-neighborhood', color: primaryColor },
+              { label: 'queued point', color: secondaryColor },
+              { label: 'noise', color: mutedColor },
             ]}
           />
           <NoteParagraph className="mb-0 text-sm">
-            DBSCAN first identifies dense cores, then keeps nearby border points and leaves isolated points as noise.
+            DBSCAN expands a cluster from each dense core; points can move from temporary noise into a cluster if reached later.
           </NoteParagraph>
         </div>
       </div>
+      <CodeBlock language="python" code={dbscanCode} />
     </InteractiveBlock>
   );
 }
@@ -735,37 +1020,69 @@ function SvdEnergyExplorer() {
 }
 
 function PageRankExplorer() {
-  const { subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
   const [alpha, setAlpha] = useState(0.85);
-  const ranks = useMemo(() => {
-    const linkMatrix = [
-      [0, 0.5, 0.5],
-      [1, 0, 0],
-      [1, 0, 0],
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const states = useMemo(() => {
+    let ranks = pageRankPages.map(() => 1 / pageRankPages.length);
+    const result: { iteration: number; ranks: number[]; delta: number | null }[] = [
+      { iteration: 0, ranks: [...ranks], delta: null },
     ];
-    let vector = [1 / 3, 1 / 3, 1 / 3];
-    for (let iteration = 0; iteration < 20; iteration += 1) {
-      const next = [0, 0, 0];
-      for (let i = 0; i < 3; i += 1) {
-        for (let j = 0; j < 3; j += 1) {
-          next[j] += alpha * vector[i] * linkMatrix[i][j];
+
+    for (let iteration = 1; iteration <= 80; iteration += 1) {
+      const next = pageRankPages.map(() => (1 - alpha) / pageRankPages.length);
+      pageRankPages.forEach((page, sourceIndex) => {
+        const links = pageRankOutlinks[page];
+        if (links.length === 0) {
+          const sinkShare = (alpha * ranks[sourceIndex]) / pageRankPages.length;
+          for (let targetIndex = 0; targetIndex < pageRankPages.length; targetIndex += 1) {
+            next[targetIndex] += sinkShare;
+          }
+          return;
         }
-      }
-      const teleport = (1 - next.reduce((sum, value) => sum + value, 0)) / 3;
-      vector = next.map((value) => value + teleport);
+        const share = (alpha * ranks[sourceIndex]) / links.length;
+        links.forEach((target) => {
+          const targetIndex = pageRankIndex.get(target);
+          if (targetIndex !== undefined) next[targetIndex] += share;
+        });
+      });
+      const delta = next.reduce((sum, value, index) => sum + Math.abs(value - ranks[index]), 0);
+      result.push({ iteration, ranks: next, delta });
+      ranks = next;
+      if (delta < 1e-5) break;
     }
-    return vector;
+    return result;
   }, [alpha]);
-  const nodeRadius = 24;
+  const boundedStep = Math.min(stepIndex, states.length - 1);
+  const current = states[boundedStep];
+  const atEnd = boundedStep === states.length - 1 || (current.delta !== null && current.delta < 1e-5);
+  const maxRank = Math.max(...current.ranks);
   const nodes = [
-    { id: 'A', x: 136, y: 80, rank: ranks[0], color: primaryColor },
-    { id: 'B', x: 70, y: 170, rank: ranks[1], color: secondaryColor },
-    { id: 'C', x: 202, y: 170, rank: ranks[2], color: secondaryColor },
+    { id: 'A', x: 118, y: 76, rank: current.ranks[0], color: primaryColor },
+    { id: 'B', x: 58, y: 162, rank: current.ranks[1], color: secondaryColor },
+    { id: 'C', x: 166, y: 178, rank: current.ranks[2], color: secondaryColor },
+    { id: 'D', x: 238, y: 82, rank: current.ranks[3], color: primaryColor },
+    { id: 'E', x: 238, y: 174, rank: current.ranks[4], color: secondaryColor },
   ];
-  const bars = nodes.map((node, index) => ({ ...node, x: 286, y: 58 + index * 52, width: 110 * (node.rank / Math.max(...ranks)) }));
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const edgePairs = pageRankPages.flatMap((source) => pageRankOutlinks[source].map((target) => [source, target] as const));
+  const bars = nodes.map((node, index) => ({ ...node, x: 322, y: 40 + index * 34, width: 110 * (node.rank / maxRank) }));
+  const leader = nodes.reduce((best, node) => (node.rank > best.rank ? node : best), nodes[0]);
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 520,
+    onAdvance: () => setStepIndex((step) => Math.min(states.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
 
   return (
-    <InteractiveBlock title="PageRank Power Iteration">
+    <InteractiveBlock title="PageRank Power Iteration Runner">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
           <label className="mb-2 block text-sm font-bold" htmlFor="pagerank-alpha">Damping alpha: {alpha.toFixed(2)}</label>
@@ -776,53 +1093,96 @@ function PageRankExplorer() {
             max="0.95"
             step="0.01"
             value={alpha}
-            onChange={(event) => setAlpha(Number(event.target.value))}
+            onChange={(event) => {
+              setPlaying(false);
+              setAlpha(Number(event.target.value));
+              setStepIndex(0);
+            }}
             className="w-full"
           />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(states.length - 1, step + 1)); }} disabled={atEnd}>
+              Iterate
+            </button>
+          </div>
           <div className="mt-4 grid gap-2">
             <MetricTile label={<InlineMath math={'\\alpha'} />} value={alpha.toFixed(2)} />
-            <MetricTile label={<InlineMath math={'1-\\alpha'} />} value={(1 - alpha).toFixed(2)} />
+            <MetricTile label="iteration" value={`${current.iteration} of ${states.length - 1}`} />
+            <MetricTile label={<InlineMath math={'\\|r_k-r_{k-1}\\|_1'} />} value={current.delta === null ? 'initial' : current.delta.toFixed(5)} />
+            <MetricTile label="current leader" value={`${leader.id} (${leader.rank.toFixed(3)})`} />
           </div>
         </div>
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox="0 0 430 230" className="h-60 w-full" role="img" aria-label="Directed PageRank graph and PageRank score bars">
+          <svg viewBox="0 0 500 250" className="h-72 w-full" role="img" aria-label="Directed PageRank graph and PageRank score bars">
             <defs>
-              <marker id="pagerank-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <marker id="pagerank-live-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={mutedColor} />
               </marker>
             </defs>
-            <path d="M 122 101 Q 86 130 84 145" fill="none" stroke={mutedColor} strokeWidth="2.5" markerEnd="url(#pagerank-arrow)" />
-            <path d="M 150 101 Q 186 130 188 145" fill="none" stroke={mutedColor} strokeWidth="2.5" markerEnd="url(#pagerank-arrow)" />
-            <path d="M 84 145 Q 100 112 122 100" fill="none" stroke={mutedColor} strokeWidth="2.5" markerEnd="url(#pagerank-arrow)" strokeDasharray="5 4" />
-            <path d="M 188 145 Q 172 112 150 100" fill="none" stroke={mutedColor} strokeWidth="2.5" markerEnd="url(#pagerank-arrow)" strokeDasharray="5 4" />
-            <text x="136" y="36" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>link graph</text>
-            <text x="342" y="36" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>PageRank score</text>
+            <text x="154" y="26" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>link graph</text>
+            <text x="390" y="26" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>rank</text>
+            {edgePairs.map(([sourceId, targetId], index) => {
+              const source = nodeById.get(sourceId)!;
+              const target = nodeById.get(targetId)!;
+              const dx = target.x - source.x;
+              const dy = target.y - source.y;
+              const length = Math.hypot(dx, dy) || 1;
+              const sourceRadius = 18 + source.rank * 42;
+              const targetRadius = 18 + target.rank * 42;
+              const startX = source.x + (dx / length) * sourceRadius;
+              const startY = source.y + (dy / length) * sourceRadius;
+              const endX = target.x - (dx / length) * (targetRadius + 5);
+              const endY = target.y - (dy / length) * (targetRadius + 5);
+              const midX = (startX + endX) / 2;
+              const midY = (startY + endY) / 2 - (index % 2 === 0 ? 18 : -12);
+              return (
+                <path
+                  key={`${sourceId}-${targetId}`}
+                  d={`M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`}
+                  fill="none"
+                  stroke={mutedColor}
+                  strokeWidth="2"
+                  strokeOpacity="0.55"
+                  markerEnd="url(#pagerank-live-arrow)"
+                />
+              );
+            })}
             {nodes.map((node) => (
               <g key={node.id}>
-                <circle cx={node.x} cy={node.y} r={nodeRadius} fill={panelFill} stroke={node.color} strokeWidth="3" />
+                <circle cx={node.x} cy={node.y} r={18 + node.rank * 42} fill={panelFill} stroke={node.color} strokeWidth="3" />
                 <text x={node.x} y={node.y + 5} textAnchor="middle" fontFamily="monospace" fontSize="16" fontWeight="700" fill={textColor}>{node.id}</text>
               </g>
             ))}
             {bars.map((bar) => (
               <g key={bar.id}>
-                <text x="260" y={bar.y + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>{bar.id}</text>
-                <rect x={bar.x} y={bar.y} width="112" height="16" rx="5" fill="transparent" stroke={mutedColor} strokeWidth="1" />
+                <text x="306" y={bar.y + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>{bar.id}</text>
+                <rect x={bar.x} y={bar.y} width="114" height="16" rx="5" fill="transparent" stroke={mutedColor} strokeWidth="1" />
                 <rect x={bar.x} y={bar.y} width={bar.width} height="16" rx="5" fill={bar.color} fillOpacity="0.8" />
-                <text x="410" y={bar.y + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>{bar.rank.toFixed(3)}</text>
+                <text x="486" y={bar.y + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>{bar.rank.toFixed(3)}</text>
               </g>
             ))}
           </svg>
           <VisualLegend
             items={[
-              { label: 'outgoing links from A', color: mutedColor },
-              { label: 'rank mass after iteration', color: primaryColor },
+              { label: 'directed link', color: mutedColor },
+              { label: 'larger node means more rank mass', color: primaryColor },
             ]}
           />
           <NoteParagraph className="mb-0 text-sm">
-            PageRank is the stationary distribution of a random walk with teleportation.
+            Each iteration distributes rank through outgoing links, adds teleportation, and stops once the rank vector barely changes.
           </NoteParagraph>
         </div>
       </div>
+      <CodeBlock language="python" code={pageRankCode} />
     </InteractiveBlock>
   );
 }
@@ -915,96 +1275,196 @@ function GraphModelSketch() {
   );
 }
 
-const gradientStart = -2;
-
 function GradientDescentExplorer() {
-  const { subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor } = useDataScienceTheme();
-  const [learningRate, setLearningRate] = useState(0.2);
-  const [steps, setSteps] = useState(6);
-  const history = useMemo(() => {
-    let value = gradientStart;
-    const trace = [value];
-    for (let i = 0; i < steps; i += 1) {
-      const gradient = 2 * (value - 3);
-      value -= learningRate * gradient;
-      trace.push(value);
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
+  const [learningRate, setLearningRate] = useState(0.08);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const trace = useMemo(() => {
+    let w = [-0.8, 0.4];
+    let b = -0.2;
+    const result: { w: number[]; b: number; loss: number; gradNorm: number; accuracy: number }[] = [];
+
+    for (let step = 0; step < 90; step += 1) {
+      let gradW0 = 0;
+      let gradW1 = 0;
+      let gradB = 0;
+      let loss = 0;
+      let correct = 0;
+
+      logisticTrainingExamples.forEach((example) => {
+        const z = w[0] * example.x + w[1] * example.y + b;
+        const probability = logisticSigmoid(z);
+        loss += -(example.label * Math.log(Math.max(probability, 1e-12)) + (1 - example.label) * Math.log(Math.max(1 - probability, 1e-12)));
+        const error = probability - example.label;
+        gradW0 += error * example.x;
+        gradW1 += error * example.y;
+        gradB += error;
+        if ((probability >= 0.5 ? 1 : 0) === example.label) correct += 1;
+      });
+
+      gradW0 /= logisticTrainingExamples.length;
+      gradW1 /= logisticTrainingExamples.length;
+      gradB /= logisticTrainingExamples.length;
+      const gradNorm = Math.sqrt(gradW0 ** 2 + gradW1 ** 2 + gradB ** 2);
+      result.push({ w: [...w], b, loss: loss / logisticTrainingExamples.length, gradNorm, accuracy: correct / logisticTrainingExamples.length });
+      if (gradNorm < 1e-3) break;
+      w = [w[0] - learningRate * gradW0, w[1] - learningRate * gradW1];
+      b -= learningRate * gradB;
     }
-    return trace;
-  }, [learningRate, steps]);
-  const theta = history[history.length - 1];
-  const loss = (theta - 3) ** 2;
-  const chart = { width: 430, height: 250, left: 52, top: 20, plotWidth: 326, plotHeight: 150 };
-  const domain = { min: -3, max: 6 };
-  const objective = (value: number) => (value - 3) ** 2;
-  const maxLoss = objective(domain.min);
-  const xCoord = (value: number) => chart.left + ((value - domain.min) / (domain.max - domain.min)) * chart.plotWidth;
-  const yCoord = (value: number) => chart.top + chart.plotHeight - (objective(value) / maxLoss) * chart.plotHeight;
-  const curvePath = Array.from({ length: 160 }, (_, index) => {
-    const value = domain.min + ((domain.max - domain.min) * index) / 159;
-    return `${index === 0 ? 'M' : 'L'} ${xCoord(value)} ${yCoord(value)}`;
-  }).join(' ');
-  const tracePath = history.map((value, index) => `${index === 0 ? 'M' : 'L'} ${xCoord(value)} ${yCoord(value)}`).join(' ');
+
+    return result;
+  }, [learningRate]);
+  const boundedStep = Math.min(stepIndex, trace.length - 1);
+  const current = trace[boundedStep];
+  const atEnd = boundedStep === trace.length - 1 || current.gradNorm < 1e-3;
+  const chart = { width: 460, height: 310, left: 44, top: 24, plotWidth: 348, plotHeight: 230 };
+  const xCoord = (value: number) => chart.left + (value / 10) * chart.plotWidth;
+  const yCoord = (value: number) => chart.top + chart.plotHeight - (value / 10) * chart.plotHeight;
+  const boundaryCandidates: Point2D[] = [];
+  if (Math.abs(current.w[1]) > 1e-9) {
+    [0, 10].forEach((x) => {
+      const y = -(current.w[0] * x + current.b) / current.w[1];
+      if (y >= 0 && y <= 10) boundaryCandidates.push({ id: `x-${x}`, x, y });
+    });
+  }
+  if (Math.abs(current.w[0]) > 1e-9) {
+    [0, 10].forEach((y) => {
+      const x = -(current.w[1] * y + current.b) / current.w[0];
+      if (x >= 0 && x <= 10) boundaryCandidates.push({ id: `y-${y}`, x, y });
+    });
+  }
+  const boundaryPoints = boundaryCandidates.filter(
+    (point, index, points) =>
+      points.findIndex((candidate) => Math.abs(candidate.x - point.x) < 1e-6 && Math.abs(candidate.y - point.y) < 1e-6) === index,
+  );
+  const boundarySegment = boundaryPoints.length >= 2 ? [boundaryPoints[0], boundaryPoints[1]] : null;
+  const lossChart = { width: 460, height: 110, left: 44, top: 12, plotWidth: 348, plotHeight: 68 };
+  const visibleLosses = trace.slice(0, boundedStep + 1);
+  const maxLoss = Math.max(...trace.map((state) => state.loss), 1);
+  const minLoss = Math.min(...trace.map((state) => state.loss));
+  const lossX = (index: number) => lossChart.left + (index / Math.max(1, trace.length - 1)) * lossChart.plotWidth;
+  const lossY = (value: number) =>
+    lossChart.top + lossChart.plotHeight - ((value - minLoss) / Math.max(1e-9, maxLoss - minLoss)) * lossChart.plotHeight;
+  const lossPath = visibleLosses.map((state, index) => `${index === 0 ? 'M' : 'L'} ${lossX(index)} ${lossY(state.loss)}`).join(' ');
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 360,
+    onAdvance: () => setStepIndex((step) => Math.min(trace.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
 
   return (
-    <InteractiveBlock title="Gradient Descent on a Quadratic">
+    <InteractiveBlock title="Logistic Regression Gradient Descent">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <label className="mb-2 block text-sm font-bold" htmlFor="gd-rate">Learning rate: {learningRate.toFixed(2)}</label>
+          <label className="mb-2 block text-sm font-bold" htmlFor="logistic-gd-rate">Learning rate: {learningRate.toFixed(2)}</label>
           <input
-            id="gd-rate"
+            id="logistic-gd-rate"
             type="range"
             min="0.02"
-            max="0.6"
+            max="0.16"
             step="0.01"
             value={learningRate}
-            onChange={(event) => setLearningRate(Number(event.target.value))}
-            className="mb-4 w-full"
-          />
-          <label className="mb-2 block text-sm font-bold" htmlFor="gd-steps">Steps: {steps}</label>
-          <input
-            id="gd-steps"
-            type="range"
-            min="1"
-            max="20"
-            value={steps}
-            onChange={(event) => setSteps(Number(event.target.value))}
+            onChange={(event) => {
+              setPlaying(false);
+              setLearningRate(Number(event.target.value));
+              setStepIndex(0);
+            }}
             className="w-full"
           />
-          <div className="mt-4 grid gap-2">
-            <MetricTile label={<InlineMath math={'\\theta'} />} value={theta.toFixed(3)} />
-            <MetricTile label={<InlineMath math={'f(\\theta)'} />} value={loss.toFixed(4)} />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(trace.length - 1, step + 1)); }} disabled={atEnd}>
+              Train step
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <MetricTile label="iteration" value={`${boundedStep} of ${trace.length - 1}`} />
+            <MetricTile label="cross entropy" value={current.loss.toFixed(4)} />
+            <MetricTile label="accuracy" value={`${Math.round(current.accuracy * 100)}%`} />
+            <MetricTile label="gradient norm" value={current.gradNorm.toFixed(4)} />
+            <MetricTile label={<InlineMath math={'w'} />} value={`[${current.w.map((value) => value.toFixed(2)).join(', ')}]`} />
+            <MetricTile label={<InlineMath math={'b'} />} value={current.b.toFixed(2)} />
           </div>
         </div>
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="Gradient descent path with x-axis theta and y-axis loss">
-            <line x1={chart.left} y1={chart.top + chart.plotHeight} x2={chart.left + chart.plotWidth} y2={chart.top + chart.plotHeight} stroke={mutedColor} strokeWidth="2" />
-            <line x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.top + chart.plotHeight} stroke={mutedColor} strokeWidth="2" />
-            <text transform={`translate(17 ${chart.top + chart.plotHeight / 2}) rotate(-90)`} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>
-              loss f(theta)
-            </text>
-            <path d={curvePath} fill="none" stroke={primaryColor} strokeWidth="3" />
-            <path d={tracePath} fill="none" stroke={secondaryColor} strokeWidth="2.5" strokeDasharray="6 5" />
-            {history.map((value, index) => (
-              <g key={`${value}-${index}`}>
-                <circle cx={xCoord(value)} cy={yCoord(value)} r={index === history.length - 1 ? 5.5 : 4} fill={index === history.length - 1 ? secondaryColor : textColor} />
-                {index === 0 && <text x={xCoord(value)} y={yCoord(value) - 12} textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>start</text>}
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-80 w-full" role="img" aria-label="Logistic regression decision boundary moving during gradient descent">
+            <rect x={chart.left} y={chart.top} width={chart.plotWidth} height={chart.plotHeight} rx="8" fill={panelFill} stroke={mutedColor} strokeOpacity="0.45" />
+            {[0, 2, 4, 6, 8, 10].map((tick) => (
+              <g key={tick}>
+                <line x1={xCoord(tick)} y1={chart.top} x2={xCoord(tick)} y2={chart.top + chart.plotHeight} stroke={mutedColor} strokeOpacity="0.15" />
+                <line x1={chart.left} y1={yCoord(tick)} x2={chart.left + chart.plotWidth} y2={yCoord(tick)} stroke={mutedColor} strokeOpacity="0.15" />
+                <text x={xCoord(tick)} y={chart.top + chart.plotHeight + 18} textAnchor="middle" fontFamily="monospace" fontSize="10" fill={textColor}>{tick}</text>
               </g>
             ))}
-            <line x1={xCoord(3)} y1={chart.top} x2={xCoord(3)} y2={chart.top + chart.plotHeight} stroke={mutedColor} strokeWidth="1.5" strokeDasharray="4 4" />
-            <text x={xCoord(3)} y={chart.top + chart.plotHeight + 20} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>minimum</text>
-            <text x={chart.left + chart.plotWidth / 2} y={chart.height - 14} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>theta</text>
+            {boundarySegment && (
+              <line
+                x1={xCoord(boundarySegment[0].x)}
+                y1={yCoord(boundarySegment[0].y)}
+                x2={xCoord(boundarySegment[1].x)}
+                y2={yCoord(boundarySegment[1].y)}
+                stroke={textColor}
+                strokeWidth="3"
+                strokeDasharray="7 5"
+              />
+            )}
+            {logisticTrainingExamples.map((example) => {
+              const probability = logisticSigmoid(current.w[0] * example.x + current.w[1] * example.y + current.b);
+              const predicted = probability >= 0.5 ? 1 : 0;
+              const correct = predicted === example.label;
+              const fill = example.label === 1 ? primaryColor : secondaryColor;
+              return (
+                <g key={`${example.x}-${example.y}`}>
+                  <circle
+                    cx={xCoord(example.x)}
+                    cy={yCoord(example.y)}
+                    r="7"
+                    fill={fill}
+                    fillOpacity="0.85"
+                    stroke={correct ? panelFill : '#ef4444'}
+                    strokeWidth={correct ? 1.5 : 3}
+                  />
+                </g>
+              );
+            })}
+            <text x={chart.left + chart.plotWidth / 2} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 1</text>
+            <text x="16" y={chart.top + chart.plotHeight / 2} transform={`rotate(-90 16 ${chart.top + chart.plotHeight / 2})`} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 2</text>
+          </svg>
+          <svg viewBox={`0 0 ${lossChart.width} ${lossChart.height}`} className="h-28 w-full" role="img" aria-label="Logistic regression loss history">
+            <line x1={lossChart.left} y1={lossChart.top + lossChart.plotHeight} x2={lossChart.left + lossChart.plotWidth} y2={lossChart.top + lossChart.plotHeight} stroke={mutedColor} strokeWidth="2" />
+            <line x1={lossChart.left} y1={lossChart.top} x2={lossChart.left} y2={lossChart.top + lossChart.plotHeight} stroke={mutedColor} strokeWidth="2" />
+            <path d={lossPath} fill="none" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx={lossX(boundedStep)} cy={lossY(current.loss)} r="4" fill={secondaryColor} />
+            <text x={lossChart.left} y={lossChart.height - 8} fontFamily="monospace" fontSize="12" fill={textColor}>iteration</text>
+            <text x={lossChart.left + lossChart.plotWidth} y={lossChart.top + 12} textAnchor="end" fontFamily="monospace" fontSize="12" fill={textColor}>loss</text>
           </svg>
           <VisualLegend
             items={[
-              { label: <InlineMath math={'f(\\theta)=(\\theta-3)^2'} />, color: primaryColor },
-              { label: 'iterates', color: secondaryColor },
+              { label: 'label 1 examples', color: primaryColor },
+              { label: 'label 0 examples', color: secondaryColor },
+              { label: 'dashed decision boundary', color: textColor },
             ]}
           />
           <NoteParagraph className="mb-0 text-sm">
-            Each step follows the negative slope; large learning rates can jump across the minimum instead of settling smoothly.
+            The boundary moves because each gradient step reduces cross-entropy on the labeled examples.
           </NoteParagraph>
         </div>
       </div>
+      <CodeBlock language="python" code={logisticGradientDescentCode} />
     </InteractiveBlock>
   );
 }
@@ -1219,6 +1679,789 @@ function RankAggregationExplorer() {
   );
 }
 
+function EmLoopRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor } = useDataScienceTheme();
+  const [iteration, setIteration] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const variance = 4.0;
+  const states = useMemo(() => {
+  let means = [1.5, 2.5];
+    let priors = [0.5, 0.5];
+    const result: { means: number[]; priors: number[]; responsibilities: number[]; logLikelihood: number }[] = [];
+
+    for (let step = 0; step <= 24; step += 1) {
+      const responsibilities = emMixtureData.map((x) => {
+        const left = priors[0] * normalPdf(x, means[0], variance);
+        const right = priors[1] * normalPdf(x, means[1], variance);
+        return left / (left + right);
+      });
+      const logLikelihood = emMixtureData.reduce((sum, x) => {
+        const mixtureDensity = priors[0] * normalPdf(x, means[0], variance) + priors[1] * normalPdf(x, means[1], variance);
+        return sum + Math.log(Math.max(mixtureDensity, 1e-12));
+      }, 0);
+      result.push({ means: [...means], priors: [...priors], responsibilities, logLikelihood });
+
+      const leftMass = responsibilities.reduce((sum, value) => sum + value, 0);
+      const rightMass = emMixtureData.length - leftMass;
+      means = [
+        emMixtureData.reduce((sum, x, index) => sum + responsibilities[index] * x, 0) / leftMass,
+        emMixtureData.reduce((sum, x, index) => sum + (1 - responsibilities[index]) * x, 0) / rightMass,
+      ];
+      priors = [leftMass / emMixtureData.length, rightMass / emMixtureData.length];
+    }
+
+    return result;
+  }, []);
+  const boundedIteration = Math.min(iteration, states.length - 1);
+  const current = states[boundedIteration];
+  const previousLogLikelihood = states[Math.max(0, boundedIteration - 1)].logLikelihood;
+  const converged = boundedIteration > 0 && Math.abs(current.logLikelihood - previousLogLikelihood) < 1e-4;
+  const atEnd = boundedIteration === states.length - 1 || converged;
+  const xMin = -2.3;
+  const xMax = 6.7;
+  const chart = { width: 430, height: 250, left: 42, top: 28, plotWidth: 230, axisY: 132 };
+  const xCoord = (value: number) => chart.left + ((value - xMin) / (xMax - xMin)) * chart.plotWidth;
+  const meanTrace = states.slice(Math.max(0, boundedIteration - 11), boundedIteration + 1);
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 800,
+    onAdvance: () => setIteration((step) => Math.min(states.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="EM Loop Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Iteration {boundedIteration}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setIteration(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setIteration(0); }} disabled={boundedIteration === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setIteration((step) => Math.max(0, step - 1)); }} disabled={boundedIteration === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setIteration((step) => Math.min(states.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              EM step
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <MetricTile label={<InlineMath math={'\\mu_1'} />} value={current.means[0].toFixed(3)} />
+            <MetricTile label={<InlineMath math={'\\mu_2'} />} value={current.means[1].toFixed(3)} />
+            <MetricTile label={<InlineMath math={'\\pi_1'} />} value={current.priors[0].toFixed(3)} />
+            <MetricTile label={<InlineMath math={'\\pi_2'} />} value={current.priors[1].toFixed(3)} />
+            <MetricTile label="log likelihood" value={current.logLikelihood.toFixed(3)} />
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-64 w-full" role="img" aria-label="EM responsibilities for a one-dimensional Gaussian mixture">
+            <line x1={chart.left} y1={chart.axisY} x2={chart.left + chart.plotWidth} y2={chart.axisY} stroke={mutedColor} strokeWidth="2" />
+            {[-2, 0, 2, 4, 6].map((tick) => (
+              <g key={tick}>
+                <line x1={xCoord(tick)} y1={chart.axisY - 5} x2={xCoord(tick)} y2={chart.axisY + 5} stroke={mutedColor} strokeWidth="1.5" />
+                <text x={xCoord(tick)} y={chart.axisY + 24} textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>{tick}</text>
+              </g>
+            ))}
+            {meanTrace.map((state, traceIndex) =>
+              state.means.map((mean, componentIndex) => {
+                const isCurrentTrace = traceIndex === meanTrace.length - 1;
+                const color = componentIndex === 0 ? primaryColor : secondaryColor;
+                return (
+                  <circle
+                    key={`mean-trace-${traceIndex}-${componentIndex}`}
+                    cx={xCoord(mean)}
+                    cy={componentIndex === 0 ? 54 : 68}
+                    r={isCurrentTrace ? 4 : 2.5}
+                    fill={color}
+                    fillOpacity={isCurrentTrace ? 0.72 : 0.18 + (traceIndex / Math.max(1, meanTrace.length - 1)) * 0.32}
+                  />
+                );
+              }),
+            )}
+            {current.means.map((mean, index) => (
+              <g key={index}>
+                <line x1={xCoord(mean)} y1="42" x2={xCoord(mean)} y2={chart.axisY - 20} stroke={index === 0 ? primaryColor : secondaryColor} strokeWidth="3" />
+                <path d={`M ${xCoord(mean)} 36 l 8 8 l -8 8 l -8 -8 Z`} fill={index === 0 ? primaryColor : secondaryColor} />
+                <text x={xCoord(mean)} y="25" textAnchor="middle" fontFamily="monospace" fontSize="11" fill={textColor}>mu{index + 1}</text>
+              </g>
+            ))}
+            {emMixtureData.map((x, index) => {
+              const gamma = current.responsibilities[index];
+              const y = chart.axisY - 58 + index * 12;
+              return (
+                <g key={x}>
+                  <line x1={xCoord(x)} y1={chart.axisY - 16} x2={xCoord(x)} y2={chart.axisY + 16} stroke={mutedColor} strokeOpacity="0.35" />
+                  <circle cx={xCoord(x)} cy={chart.axisY} r="6" fill={gamma >= 0.5 ? primaryColor : secondaryColor} fillOpacity="0.82" />
+                  <rect x="302" y={y} width="82" height="8" rx="3" fill={secondaryColor} fillOpacity="0.2" />
+                  <rect x="302" y={y} width={gamma * 82} height="8" rx="3" fill={primaryColor} fillOpacity="0.85" />
+                  <text x="292" y={y + 8} textAnchor="end" fontFamily="monospace" fontSize="10" fill={textColor}>{x.toFixed(1)}</text>
+                </g>
+              );
+            })}
+            <text x="302" y="60" fontFamily="monospace" fontSize="11" fill={textColor}>responsibility to component 1</text>
+            <text x={chart.left + chart.plotWidth / 2} y="232" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature value</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'component 1 mass', color: primaryColor },
+              { label: 'component 2 mass', color: secondaryColor },
+            ]}
+          />
+        </div>
+      </div>
+      <CodeBlock language="python" code={emLoopCode} />
+    </InteractiveBlock>
+  );
+}
+
+function KMeansConvergenceRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor, panelFill } = useDataScienceTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const clusterColors = [primaryColor, secondaryColor, '#a855f7'];
+  const steps = useMemo(() => {
+    let centers = initialKMeansCenters.map((center) => ({ ...center }));
+    const result: {
+      centers: Point2D[];
+      assignments: number[];
+      updatedCenters: Point2D[];
+      shift: number;
+      inertia: number;
+      converged: boolean;
+    }[] = [];
+
+    for (let step = 0; step < 20; step += 1) {
+      const assignments = kmeansPoints.map((point) => {
+        let bestCluster = 0;
+        let bestDistance = squaredDistance2D(point, centers[0]);
+        for (let cluster = 1; cluster < centers.length; cluster += 1) {
+          const distance = squaredDistance2D(point, centers[cluster]);
+          if (distance < bestDistance) {
+            bestCluster = cluster;
+            bestDistance = distance;
+          }
+        }
+        return bestCluster;
+      });
+      const inertia = kmeansPoints.reduce((sum, point, index) => sum + squaredDistance2D(point, centers[assignments[index]]), 0);
+      const updatedCenters = centers.map((center, cluster) => {
+        const assignedPoints = kmeansPoints.filter((_, index) => assignments[index] === cluster);
+        if (assignedPoints.length === 0) return { ...center };
+        return {
+          ...center,
+          x: assignedPoints.reduce((sum, point) => sum + point.x, 0) / assignedPoints.length,
+          y: assignedPoints.reduce((sum, point) => sum + point.y, 0) / assignedPoints.length,
+        };
+      });
+      const shift = Math.max(...updatedCenters.map((center, index) => Math.sqrt(squaredDistance2D(center, centers[index]))));
+      const converged = shift < 1e-4;
+      result.push({
+        centers: centers.map((center) => ({ ...center })),
+        assignments,
+        updatedCenters,
+        shift,
+        inertia,
+        converged,
+      });
+      centers = updatedCenters;
+      if (converged) break;
+    }
+    return result;
+  }, []);
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const atEnd = boundedStep === steps.length - 1 || current.converged;
+  const counts = current.assignments.reduce(
+    (totals, assignment) => {
+      totals[assignment] += 1;
+      return totals;
+    },
+    [0, 0, 0],
+  );
+  const chart = { width: 460, height: 330, left: 44, top: 24, plotWidth: 348, plotHeight: 246 };
+  const xCoord = (value: number) => chart.left + (value / 10) * chart.plotWidth;
+  const yCoord = (value: number) => chart.top + chart.plotHeight - (value / 10) * chart.plotHeight;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 850,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="KMeans Clustering Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Iteration {boundedStep + 1}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }}
+              disabled={atEnd}
+            >
+              Step
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <MetricTile label="inertia" value={current.inertia.toFixed(2)} />
+            <MetricTile label="largest center move" value={current.shift.toFixed(3)} />
+            <MetricTile label="cluster sizes" value={counts.join(' / ')} />
+            <MetricTile label="status" value={current.converged ? 'converged' : 'updating means'} />
+          </div>
+          <p className="mt-4 text-sm">{current.converged ? 'Centers no longer move, so the run has converged.' : 'Assign every point to its nearest center, then move each center to its assigned mean.'}</p>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-80 w-full" role="img" aria-label="KMeans convergence over two-dimensional points">
+            <rect x={chart.left} y={chart.top} width={chart.plotWidth} height={chart.plotHeight} rx="8" fill={panelFill} stroke={mutedColor} strokeOpacity="0.45" />
+            {[0, 2, 4, 6, 8, 10].map((tick) => (
+              <g key={tick}>
+                <line x1={xCoord(tick)} y1={chart.top} x2={xCoord(tick)} y2={chart.top + chart.plotHeight} stroke={mutedColor} strokeOpacity="0.16" />
+                <line x1={chart.left} y1={yCoord(tick)} x2={chart.left + chart.plotWidth} y2={yCoord(tick)} stroke={mutedColor} strokeOpacity="0.16" />
+                <text x={xCoord(tick)} y={chart.top + chart.plotHeight + 18} textAnchor="middle" fontFamily="monospace" fontSize="10" fill={textColor}>{tick}</text>
+              </g>
+            ))}
+            {kmeansPoints.map((point, index) => {
+              const cluster = current.assignments[index];
+              const color = clusterColors[cluster];
+              const center = current.centers[cluster];
+              return (
+                <g key={point.id}>
+                  <line x1={xCoord(point.x)} y1={yCoord(point.y)} x2={xCoord(center.x)} y2={yCoord(center.y)} stroke={color} strokeOpacity="0.26" strokeWidth="1.5" />
+                  <circle cx={xCoord(point.x)} cy={yCoord(point.y)} r="6" fill={color} fillOpacity="0.88" stroke={panelFill} strokeWidth="1.5" />
+                </g>
+              );
+            })}
+            {current.centers.map((center, index) => {
+              const color = clusterColors[index];
+              const updated = current.updatedCenters[index];
+              return (
+                <g key={index}>
+                  <line x1={xCoord(center.x)} y1={yCoord(center.y)} x2={xCoord(updated.x)} y2={yCoord(updated.y)} stroke={color} strokeWidth="2.5" strokeDasharray="6 5" />
+                  <path d={`M ${xCoord(center.x)} ${yCoord(center.y) - 11} l 11 11 l -11 11 l -11 -11 Z`} fill={color} stroke={panelFill} strokeWidth="1.5" />
+                  <circle cx={xCoord(updated.x)} cy={yCoord(updated.y)} r="10" fill="transparent" stroke={color} strokeWidth="3" />
+                </g>
+              );
+            })}
+            <text x={chart.left + chart.plotWidth / 2} y={chart.height - 12} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 1</text>
+            <text x="16" y={chart.top + chart.plotHeight / 2} transform={`rotate(-90 16 ${chart.top + chart.plotHeight / 2})`} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>feature 2</text>
+          </svg>
+          <VisualLegend
+            items={[
+              { label: 'cluster 1', color: clusterColors[0] },
+              { label: 'cluster 2', color: clusterColors[1] },
+              { label: 'cluster 3', color: clusterColors[2] },
+              { label: 'open circle is updated mean', color: mutedColor, hollow: true },
+            ]}
+          />
+        </div>
+      </div>
+      <CodeBlock language="python" code={kMeansCode} />
+    </InteractiveBlock>
+  );
+}
+
+function EditDistanceRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor } = useDataScienceTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const source = 'kitten';
+  const target = 'sitting';
+  const rows = source.length + 1;
+  const columns = target.length + 1;
+  const dp = Array.from({ length: rows }, () => Array.from({ length: columns }, () => 0));
+
+  for (let row = 0; row < rows; row += 1) dp[row][0] = row;
+  for (let column = 0; column < columns; column += 1) dp[0][column] = column;
+  for (let row = 1; row < rows; row += 1) {
+    for (let column = 1; column < columns; column += 1) {
+      const cost = source[row - 1] === target[column - 1] ? 0 : 1;
+      dp[row][column] = Math.min(
+        dp[row - 1][column] + 1,
+        dp[row][column - 1] + 1,
+        dp[row - 1][column - 1] + cost,
+      );
+    }
+  }
+
+  const maxStep = rows * columns - 1;
+  const boundedStep = Math.min(stepIndex, maxStep);
+  const atEnd = boundedStep === maxStep;
+  const activeRow = Math.floor(boundedStep / columns);
+  const activeColumn = boundedStep % columns;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 115,
+    onAdvance: () => setStepIndex((step) => Math.min(maxStep, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Edit Distance Dynamic Program">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,320px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm">
+            Source <strong>{source}</strong>, target <strong>{target}</strong>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(maxStep, step + 1)); }} disabled={atEnd}>
+              Fill cell
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <MetricTile label="active cell" value={`(${activeRow}, ${activeColumn})`} />
+            <MetricTile label="current value" value={dp[activeRow][activeColumn]} />
+            <MetricTile label="final distance" value={boundedStep === maxStep ? dp[source.length][target.length] : 'not fully filled'} />
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="overflow-x-auto">
+            <table className="min-w-[420px] border-collapse text-center text-sm">
+              <tbody>
+                <tr>
+                  <td className="h-9 w-10" />
+                  <td className="h-9 w-10 text-xs text-current/60">eps</td>
+                  {target.split('').map((char) => (
+                    <td key={char} className="h-9 w-10 font-bold">{char}</td>
+                  ))}
+                </tr>
+                {dp.map((rowValues, row) => (
+                  <tr key={row}>
+                    <td className="h-9 w-10 font-bold">{row === 0 ? 'eps' : source[row - 1]}</td>
+                    {rowValues.map((value, column) => {
+                      const cellIndex = row * columns + column;
+                      const isFilled = cellIndex <= boundedStep;
+                      const isActive = row === activeRow && column === activeColumn;
+                      return (
+                        <td
+                          key={`${row}-${column}`}
+                          className={`h-9 w-10 border ${
+                            isDarkMode ? 'border-green-500/20' : 'border-slate-200'
+                          } ${
+                            isActive
+                              ? isDarkMode
+                                ? 'bg-green-400 text-black'
+                                : 'bg-blue-500 text-white'
+                              : isFilled
+                                ? isDarkMode
+                                  ? 'bg-green-500/10'
+                                  : 'bg-blue-50'
+                                : ''
+                          }`}
+                        >
+                          {isFilled ? value : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <VisualLegend
+            items={[
+              { label: 'filled DP cell', color: primaryColor },
+              { label: 'active cell', color: secondaryColor },
+              { label: 'unfilled future cell', color: mutedColor, hollow: true },
+            ]}
+          />
+          <p className="text-sm">Each cell stores the best cost for converting prefixes of the two strings.</p>
+        </div>
+      </div>
+      <CodeBlock language="python" code={editDistanceCode} />
+    </InteractiveBlock>
+  );
+}
+
+function HierarchicalClusteringRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor } = useDataScienceTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const points = [
+    { id: 'A', x: 0 },
+    { id: 'B', x: 0.8 },
+    { id: 'C', x: 2.6 },
+    { id: 'D', x: 3.1 },
+    { id: 'E', x: 5.2 },
+    { id: 'F', x: 6 },
+    { id: 'G', x: 8.4 },
+    { id: 'H', x: 9.1 },
+  ];
+  const pointMap = new Map(points.map((point) => [point.id, point.x]));
+  const steps = (() => {
+    const clusters = points.map((point) => [point.id]);
+    const result: { clusters: string[][]; merge: string; distance: number | null }[] = [
+      { clusters: clusters.map((cluster) => [...cluster]), merge: 'start with singleton clusters', distance: null },
+    ];
+    const singleLinkDistance = (left: string[], right: string[]) =>
+      Math.min(...left.flatMap((leftId) => right.map((rightId) => Math.abs((pointMap.get(leftId) ?? 0) - (pointMap.get(rightId) ?? 0)))));
+
+    while (clusters.length > 1) {
+      let bestI = 0;
+      let bestJ = 1;
+      let bestDistance = singleLinkDistance(clusters[0], clusters[1]);
+      for (let i = 0; i < clusters.length; i += 1) {
+        for (let j = i + 1; j < clusters.length; j += 1) {
+          const distance = singleLinkDistance(clusters[i], clusters[j]);
+          if (distance < bestDistance) {
+            bestI = i;
+            bestJ = j;
+            bestDistance = distance;
+          }
+        }
+      }
+      const left = clusters[bestI];
+      const right = clusters[bestJ];
+      clusters[bestI] = [...left, ...right].sort();
+      clusters.splice(bestJ, 1);
+      result.push({
+        clusters: clusters.map((cluster) => [...cluster]),
+        merge: `merge {${left.join(',')}} with {${right.join(',')}}`,
+        distance: bestDistance,
+      });
+    }
+
+    return result;
+  })();
+  const boundedStep = Math.min(stepIndex, steps.length - 1);
+  const current = steps[boundedStep];
+  const atEnd = boundedStep === steps.length - 1;
+  const chart = { width: 430, height: 280, left: 40, plotWidth: 340, axisY: 92 };
+  const maxPoint = Math.max(...points.map((point) => point.x));
+  const xCoord = (value: number) => chart.left + (value / maxPoint) * chart.plotWidth;
+  const clusterColor = (index: number) => [primaryColor, secondaryColor, '#a855f7', '#f59e0b', mutedColor][index] ?? mutedColor;
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 800,
+    onAdvance: () => setStepIndex((step) => Math.min(steps.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Agglomerative Clustering Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,320px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Step {boundedStep}</p>
+          <p className="mb-4 text-sm">{current.merge}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(steps.length - 1, step + 1)); }} disabled={atEnd}>
+              Merge closest
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <MetricTile label="clusters" value={current.clusters.map((cluster) => `{${cluster.join(',')}}`).join(' ')} />
+            <MetricTile label="single-link distance" value={current.distance === null ? 'none yet' : current.distance} />
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-72 w-full" role="img" aria-label="Agglomerative clustering merges on a one-dimensional line">
+            <line x1={chart.left} y1={chart.axisY} x2={chart.left + chart.plotWidth} y2={chart.axisY} stroke={mutedColor} strokeWidth="2" />
+            {points.map((point) => (
+              <g key={point.id}>
+                <circle cx={xCoord(point.x)} cy={chart.axisY} r="6" fill={textColor} />
+                <text x={xCoord(point.x)} y={chart.axisY + 24} textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>{point.id}</text>
+              </g>
+            ))}
+            {current.clusters.map((cluster, index) => {
+              const xs = cluster.map((id) => pointMap.get(id) ?? 0);
+              const minX = Math.min(...xs);
+              const maxX = Math.max(...xs);
+              return (
+                <g key={cluster.join('-')}>
+                  <rect
+                    x={xCoord(minX) - 13}
+                    y={136 + index * 14}
+                    width={Math.max(26, xCoord(maxX) - xCoord(minX) + 26)}
+                    height="10"
+                    rx="5"
+                    fill={clusterColor(index)}
+                    fillOpacity="0.35"
+                    stroke={clusterColor(index)}
+                    strokeWidth="1.5"
+                  />
+                </g>
+              );
+            })}
+            <text x="214" y="264" textAnchor="middle" fontFamily="monospace" fontSize="12" fill={textColor}>single-link clusters after each merge</text>
+          </svg>
+        </div>
+      </div>
+      <CodeBlock language="python" code={agglomerativeCode} />
+    </InteractiveBlock>
+  );
+}
+
+function PowerMethodRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor } = useDataScienceTheme();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const states = useMemo(() => {
+    let vector = [1 / 3, 1 / 3, 1 / 3];
+    const result = [vector];
+    for (let step = 0; step < 30; step += 1) {
+      const next = [0, 0, 0];
+      for (let row = 0; row < 3; row += 1) {
+        for (let column = 0; column < 3; column += 1) {
+          next[column] += vector[row] * powerMethodMatrix[row][column];
+        }
+      }
+      vector = next;
+      result.push(vector);
+      const previous = result[result.length - 2];
+      const delta = vector.reduce((sum, value, index) => sum + Math.abs(value - previous[index]), 0);
+      if (delta < 1e-4) break;
+    }
+    return result;
+  }, []);
+  const boundedStep = Math.min(stepIndex, states.length - 1);
+  const current = states[boundedStep];
+  const previous = states[Math.max(0, boundedStep - 1)];
+  const delta = current.reduce((sum, value, index) => sum + Math.abs(value - previous[index]), 0);
+  const atEnd = boundedStep === states.length - 1 || (boundedStep > 0 && delta < 1e-4);
+  const colors = [primaryColor, secondaryColor, mutedColor];
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 650,
+    onAdvance: () => setStepIndex((step) => Math.min(states.length - 1, step + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Power Method Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,320px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Iteration {boundedStep}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setStepIndex(0))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex(0); }} disabled={boundedStep === 0}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.max(0, step - 1)); }} disabled={boundedStep === 0}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setStepIndex((step) => Math.min(states.length - 1, step + 1)); }} disabled={atEnd}>
+              Multiply by M
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <MetricTile label={<InlineMath math={'\\|x_k-x_{k-1}\\|_1'} />} value={delta.toFixed(5)} />
+            <MetricTile label="sum check" value={current.reduce((sum, value) => sum + value, 0).toFixed(3)} />
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="grid gap-3">
+            {current.map((value, index) => (
+              <div key={index}>
+                <div className="mb-1 flex justify-between text-sm">
+                  <span>state {index + 1}</span>
+                  <span>{value.toFixed(4)}</span>
+                </div>
+                <div className={isDarkMode ? 'h-4 rounded bg-black/40' : 'h-4 rounded bg-slate-200'}>
+                  <div className="h-4 rounded" style={{ width: `${value * 100}%`, backgroundColor: colors[index] }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full border-collapse text-center text-sm">
+              <tbody>
+                {powerMethodMatrix.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((value, columnIndex) => (
+                      <td key={`${rowIndex}-${columnIndex}`} className={`border p-2 ${isDarkMode ? 'border-green-500/20' : 'border-slate-200'}`}>
+                        {value.toFixed(1)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-sm">The vector stabilizes when repeated multiplication no longer changes the distribution much.</p>
+        </div>
+      </div>
+      <CodeBlock language="python" code={powerMethodCode} />
+    </InteractiveBlock>
+  );
+}
+
+function TopKThresholdRunner() {
+  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor, mutedColor, textColor } = useDataScienceTheme();
+  const [depth, setDepth] = useState(1);
+  const [playing, setPlaying] = useState(false);
+  const k = 3;
+  const objects = {
+    A: [0.98, 0.10],
+    B: [0.91, 0.45],
+    C: [0.86, 0.88],
+    D: [0.72, 0.71],
+    E: [0.64, 0.96],
+    F: [0.52, 0.72],
+    G: [0.43, 0.83],
+    H: [0.31, 0.58],
+  } as const;
+  const list1 = Object.entries(objects).sort((a, b) => b[1][0] - a[1][0]);
+  const list2 = Object.entries(objects).sort((a, b) => b[1][1] - a[1][1]);
+  const seen = new Set([...list1.slice(0, depth).map(([id]) => id), ...list2.slice(0, depth).map(([id]) => id)]);
+  const fullScores = Object.entries(objects).map(([id, scores]) => ({ id, score: scores[0] + scores[1], scores }));
+  const knownScores = fullScores.filter((item) => seen.has(item.id)).sort((a, b) => b.score - a.score);
+  const threshold = list1[depth - 1][1][0] + list2[depth - 1][1][1];
+  const secondBestKnown = knownScores[k - 1]?.score ?? 0;
+  const canStop = knownScores.length >= k && secondBestKnown >= threshold;
+  const atEnd = depth === list1.length || canStop;
+  const maxScore = Math.max(...fullScores.map((item) => item.score));
+  const buttonClass = isDarkMode
+    ? 'rounded-md border border-green-500/30 bg-black/30 px-3 py-2 text-sm font-bold text-green-200 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40';
+
+  useAutoRunner({
+    playing,
+    canAdvance: !atEnd,
+    delay: 750,
+    onAdvance: () => setDepth((value) => Math.min(list1.length, value + 1)),
+    onStop: () => setPlaying(false),
+  });
+
+  return (
+    <InteractiveBlock title="Top-k Threshold Runner">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,320px)_minmax(0,1fr)]">
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wider">Depth {depth}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={() => toggleOrReplayRunner(atEnd, setPlaying, () => setDepth(1))}>
+              {getRunnerPlayLabel(playing, atEnd)}
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setDepth(1); }} disabled={depth === 1}>
+              Reset
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setDepth((value) => Math.max(1, value - 1)); }} disabled={depth === 1}>
+              Back
+            </button>
+            <button type="button" className={buttonClass} onClick={() => { setPlaying(false); setDepth((value) => Math.min(list1.length, value + 1)); }} disabled={atEnd}>
+              Read next row
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <MetricTile label="threshold" value={threshold.toFixed(2)} />
+            <MetricTile label="known objects" value={[...seen].join(', ')} />
+            <MetricTile label="stop condition" value={canStop ? 'top-k certified' : 'keep scanning'} />
+          </div>
+        </div>
+
+        <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
+            {[list1, list2].map((list, listIndex) => (
+              <div key={listIndex} className={`rounded-md border p-3 ${isDarkMode ? 'border-green-500/20 bg-black/20' : 'border-slate-200 bg-white/75'}`}>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider">score list {listIndex + 1}</p>
+                {list.map(([id, scores], index) => (
+                  <div key={id} className={`flex justify-between gap-3 py-1 text-sm ${index < depth ? 'font-bold' : 'opacity-55'}`}>
+                    <span>{id}</span>
+                    <span>{scores[listIndex].toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <svg viewBox="0 0 430 280" className="h-72 w-full" role="img" aria-label="Known aggregate scores for threshold top-k retrieval">
+            {fullScores.sort((a, b) => b.score - a.score).map((item, index) => {
+              const y = 20 + index * 30;
+              const known = seen.has(item.id);
+              const inTopK = knownScores.slice(0, k).some((candidate) => candidate.id === item.id);
+              return (
+                <g key={item.id}>
+                  <text x="34" y={y + 14} textAnchor="middle" fontFamily="monospace" fontSize="13" fontWeight="700" fill={textColor}>{item.id}</text>
+                  <rect x="64" y={y} width="270" height="16" rx="5" fill="transparent" stroke={mutedColor} strokeWidth="1" />
+                  <rect
+                    x="64"
+                    y={y}
+                    width={(item.score / maxScore) * 270}
+                    height="16"
+                    rx="5"
+                    fill={known ? (inTopK ? primaryColor : secondaryColor) : mutedColor}
+                    fillOpacity={known ? 0.82 : 0.22}
+                  />
+                  <text x="356" y={y + 13} fontFamily="monospace" fontSize="12" fill={textColor}>{known ? item.score.toFixed(2) : 'unseen'}</text>
+                </g>
+              );
+            })}
+          </svg>
+          <p className="text-sm">
+            The algorithm can stop when the kth known score is at least the score any unseen object could still reach.
+          </p>
+        </div>
+      </div>
+      <CodeBlock language="python" code={topKThresholdCode} />
+    </InteractiveBlock>
+  );
+}
+
 export default function FoundationsDataScienceNote() {
   return (
     <NotesLayout>
@@ -1384,6 +2627,7 @@ export default function FoundationsDataScienceNote() {
           </BulletList>
         </NoteTopicBlock>
       </NoteTopicGroup>
+      <EmLoopRunner />
 
       <NoteSectionTitle id="gaussian-mixture-models">11. Gaussian Mixture Models</NoteSectionTitle>
       <NoteParagraph>
@@ -1404,7 +2648,7 @@ export default function FoundationsDataScienceNote() {
         Clustering groups points without ground-truth labels. KMeans is a hard-clustering algorithm: each point belongs to exactly one cluster. It is also
         interpretable as a hard version of EM.
       </NoteParagraph>
-      <KMeansExplorer />
+      <KMeansConvergenceRunner />
 
       <NoteSectionTitle id="dbscan">13. DBSCAN</NoteSectionTitle>
       <NoteParagraph>
@@ -1518,6 +2762,7 @@ export default function FoundationsDataScienceNote() {
           ['Dynamic time warping', 'time series', 'Minimum-cost alignment that can stretch time.'],
         ]}
       />
+      <EditDistanceRunner />
 
       <NoteSectionTitle id="hierarchical-clustering">21. Hierarchical Clustering</NoteSectionTitle>
       <NoteParagraph>
@@ -1536,6 +2781,7 @@ export default function FoundationsDataScienceNote() {
       <NoteParagraph>
         The dendrogram can be cut at different heights to produce different numbers of clusters.
       </NoteParagraph>
+      <HierarchicalClusteringRunner />
 
       <NoteSectionTitle id="clustering-aggregation">22. Clustering Aggregation</NoteSectionTitle>
       <NoteParagraph>
@@ -1645,6 +2891,7 @@ export default function FoundationsDataScienceNote() {
           <span>Otherwise set <InlineMath math={'k\\leftarrow k+1'} /> and repeat.</span>,
         ]}
       />
+      <PowerMethodRunner />
 
       <NoteSectionTitle id="pagerank">29. PageRank</NoteSectionTitle>
       <NoteParagraph>
@@ -1761,6 +3008,7 @@ export default function FoundationsDataScienceNote() {
       <NoteParagraph>
         Top-k retrieval asks for the best k objects under a monotone aggregate function without reading every score if possible.
       </NoteParagraph>
+      <TopKThresholdRunner />
 
       <NoteSectionTitle id="voting-theory-and-arrows-theorem">37. Voting Theory and Arrow's Theorem</NoteSectionTitle>
       <NoteParagraph>
