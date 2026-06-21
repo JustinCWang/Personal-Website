@@ -14,6 +14,7 @@ import {
   NoteTable,
   RelatedNotes,
 } from '../../../components/notes';
+import { SqlLogicalQueryRunner } from './ProgrammingToolAlgorithmRunners';
 
 export default function SQLNote() {
   return (
@@ -75,6 +76,7 @@ WHERE graduation_year >= 2026;
           ['ORDER BY and LIMIT', 'sort and restrict the final result'],
         ]}
       />
+      <SqlLogicalQueryRunner />
 
       <NoteSectionTitle id="predicates-patterns-and-three-valued-logic">4. Predicates, Patterns, and Three-Valued Logic</NoteSectionTitle>
       <NoteParagraph>

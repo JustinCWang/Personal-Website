@@ -19,6 +19,7 @@ import {
   RelatedNotes,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { RaftElectionRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -753,6 +754,7 @@ for _, server := range servers {
         <li>A server that sees a higher term steps down to follower.</li>
       </BulletList>
       <RaftMajorityExplorer />
+      <RaftElectionRunner />
 
       <NoteSectionTitle id="raft-log-replication-and-safety">13. Raft Log Replication and Safety</NoteSectionTitle>
       <NoteParagraph>

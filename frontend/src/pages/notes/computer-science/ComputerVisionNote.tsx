@@ -17,6 +17,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { RansacLineRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -1001,6 +1002,7 @@ export default function ComputerVisionNote() {
         Model fitting chooses parameters that make a model agree with observed data. In vision, this might mean fitting a line to edge points, a homography to matched keypoints, a camera pose to correspondences, or a geometric primitive to 3D points.
       </NoteParagraph>
       <ModelFittingExplorer />
+      <RansacLineRunner />
 
       <NoteSectionTitle id="feature-warping-and-generalized-linear-models">30. Feature Warping and Generalized Linear Models</NoteSectionTitle>
       <NoteParagraph>

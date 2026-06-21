@@ -16,6 +16,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { PasswordHashStretchingRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -610,6 +611,7 @@ export default function InformationSecurityNote() {
         memory-hard password hashing such as bcrypt, scrypt, Argon2, or PBKDF2.
       </NoteParagraph>
       <PasswordHashingExplorer />
+      <PasswordHashStretchingRunner />
 
       <NoteSectionTitle id="public-key-cryptography">16. Public Key Cryptography</NoteSectionTitle>
       <NoteParagraph>

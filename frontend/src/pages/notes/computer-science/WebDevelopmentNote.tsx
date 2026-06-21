@@ -17,6 +17,7 @@ import {
   RelatedNotes,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { ReactReconciliationRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -755,6 +756,7 @@ export default function WebDevelopmentNote() {
         data owned by a component that can change and cause React to render again.
       </NoteParagraph>
       <ReactStateExplorer />
+      <ReactReconciliationRunner />
       <NoteTopicGroup>
         <NoteTopicBlock title="React Data Flow">
           <BulletList className="mb-0">

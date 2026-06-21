@@ -17,6 +17,16 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import {
+  BfsTraversalRunner,
+  DijkstraAlgorithmRunner,
+  FordFulkersonRunner,
+  GaleShapleyRunner,
+  KruskalMstRunner,
+  LcsDynamicProgrammingRunner,
+  LinearSearchRunner,
+  SortingAlgorithmsRunner,
+} from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -825,6 +835,7 @@ export default function AlgorithmsNote() {
       />
       <MathBlock math="f(n)=O(g(n)) \text{ means } \exists c>0,n_0 \text{ such that } f(n)\le c g(n) \text{ for all } n\ge n_0." />
       <GrowthRateExplorer />
+      <LinearSearchRunner />
 
       <NoteSectionTitle id="stable-matching-and-gale-shapley">3. Stable Matching and Gale-Shapley</NoteSectionTitle>
       <NoteParagraph>
@@ -849,6 +860,7 @@ export default function AlgorithmsNote() {
         lists. If a proposer preferred a receiver to its final match, it must have already proposed there and been rejected or replaced.
       </NoteParagraph>
       <StableMatchingExplorer />
+      <GaleShapleyRunner />
 
       <NoteSectionTitle id="graph-basics-and-representations">4. Graph Basics and Representations</NoteSectionTitle>
       <NoteParagraph>
@@ -890,6 +902,7 @@ export default function AlgorithmsNote() {
         constant number of times. Running BFS from an unvisited vertex also finds its connected component.
       </NoteParagraph>
       <GraphSearchExplorer />
+      <BfsTraversalRunner />
 
       <NoteSectionTitle id="dfs-edge-classification-and-cycles">6. DFS, Edge Classification, and Cycles</NoteSectionTitle>
       <NoteParagraph>
@@ -1013,6 +1026,7 @@ export default function AlgorithmsNote() {
       </NoteParagraph>
       <MathBlock math="\text{relax }(u,v):\quad d[v]\leftarrow \min(d[v], d[u]+\ell(u,v))" />
       <DijkstraExplorer />
+      <DijkstraAlgorithmRunner />
       <NoteParagraph>
         Negative edges break the key proof idea: a later path through an unsettled vertex might improve a distance that was already declared final.
       </NoteParagraph>
@@ -1067,6 +1081,7 @@ export default function AlgorithmsNote() {
         The main cost is sorting: <InlineMath math="O(m\log m)" />, which is also <InlineMath math="O(m\log n)" /> for simple graphs. Path
         compression and union by rank make union-find operations effectively constant for ordinary analysis.
       </NoteParagraph>
+      <KruskalMstRunner />
 
       <NoteSectionTitle id="divide-and-conquer">17. Divide and Conquer</NoteSectionTitle>
       <NoteParagraph>
@@ -1096,6 +1111,7 @@ export default function AlgorithmsNote() {
           ['Binary search', <InlineMath math="T(n)=T(n/2)+O(1)" />, <InlineMath math="O(\log n)" />],
         ]}
       />
+      <SortingAlgorithmsRunner />
 
       <NoteSectionTitle id="karatsuba-multiplication">19. Karatsuba Multiplication</NoteSectionTitle>
       <NoteParagraph>
@@ -1214,6 +1230,7 @@ export default function AlgorithmsNote() {
         With integral capacities, each augmentation increases the flow value by at least 1, so Ford-Fulkerson terminates. More refined choices of
         augmenting paths lead to stronger polynomial guarantees.
       </NoteParagraph>
+      <FordFulkersonRunner />
 
       <NoteSectionTitle id="max-flow-min-cut-theorem">27. Max-Flow Min-Cut Theorem</NoteSectionTitle>
       <NoteParagraph>
@@ -1280,6 +1297,7 @@ export default function AlgorithmsNote() {
         <InlineMath math="O(mn)" />.
       </NoteParagraph>
       <LcsDpExplorer />
+      <LcsDynamicProgrammingRunner />
 
       <NoteSectionTitle id="computational-hardness">33. Computational Hardness</NoteSectionTitle>
       <NoteParagraph>

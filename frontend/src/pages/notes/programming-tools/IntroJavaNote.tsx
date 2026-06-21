@@ -16,6 +16,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { HashTableChainingRunner, TreeTraversalRunner } from './ProgrammingToolAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -282,84 +283,6 @@ function BigOExplorer() {
               <span className="text-right">{Math.round(row.value)}</span>
             </div>
           ))}
-        </div>
-      </div>
-    </InteractiveBlock>
-  );
-}
-
-function SortingExplorer() {
-  const { isDarkMode, subtlePanelClass, primaryColor, secondaryColor } = useCSTheme();
-  const [algorithm, setAlgorithm] = useState<'selection' | 'insertion' | 'merge'>('selection');
-  const values = [7, 3, 5, 2, 9];
-  const result =
-    algorithm === 'selection'
-      ? [2, 3, 5, 7, 9]
-      : algorithm === 'insertion'
-        ? [3, 5, 7, 2, 9]
-        : [3, 7, 2, 5, 9];
-  const explanation =
-    algorithm === 'selection'
-      ? 'Selection sort repeatedly chooses the smallest remaining value and moves it into the next final position.'
-      : algorithm === 'insertion'
-        ? 'Insertion sort grows a sorted prefix by inserting the next value where it belongs.'
-        : 'Merge sort splits first, then combines sorted halves with a two-pointer merge.';
-
-  return (
-    <InteractiveBlock title="Sorting Intuition">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]">
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <div className="mb-4 flex flex-wrap gap-2">
-            {[
-              { label: 'Selection', value: 'selection' as const },
-              { label: 'Insertion', value: 'insertion' as const },
-              { label: 'Merge', value: 'merge' as const },
-            ].map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setAlgorithm(option.value)}
-                className={`rounded-md px-3 py-2 text-sm font-bold transition ${
-                  algorithm === option.value
-                    ? isDarkMode
-                      ? 'bg-green-400 text-black'
-                      : 'bg-blue-600 text-white'
-                    : isDarkMode
-                      ? 'bg-slate-800 text-green-100'
-                      : 'bg-slate-200 text-slate-700'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <NoteParagraph className="mb-0 text-sm">{explanation}</NoteParagraph>
-        </div>
-        <div className={`rounded-lg border p-4 ${subtlePanelClass}`}>
-          <div className="mb-5">
-            <div className="mb-2 text-xs uppercase opacity-70">Before</div>
-            <div className="flex gap-2">
-              {values.map((value) => (
-                <div key={`before-${value}`} className="flex h-12 w-12 items-center justify-center rounded-md text-sm font-bold text-white" style={{ backgroundColor: primaryColor }}>
-                  {value}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="mb-2 text-xs uppercase opacity-70">After one idea step</div>
-            <div className="flex gap-2">
-              {result.map((value, index) => (
-                <div
-                  key={`${algorithm}-${index}`}
-                  className="flex h-12 w-12 items-center justify-center rounded-md text-sm font-bold text-white"
-                  style={{ backgroundColor: index === 0 || algorithm === 'merge' ? secondaryColor : primaryColor }}
-                >
-                  {value}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </InteractiveBlock>
@@ -791,22 +714,7 @@ double a = s.area(); // Circle's area method runs`}
       </NoteParagraph>
       <BigOExplorer />
 
-      <NoteSectionTitle id="sorting-algorithms">20. Sorting Algorithms</NoteSectionTitle>
-      <NoteParagraph>
-        Sorting algorithms rearrange data into order. They are useful both practically and as examples of algorithmic tradeoffs.
-      </NoteParagraph>
-      <NoteTable
-        headers={['Algorithm', 'Main idea', 'Typical time']}
-        rows={[
-          ['Selection sort', 'choose the smallest remaining item', <InlineMath math="O(n^2)" />],
-          ['Insertion sort', 'insert each item into a sorted prefix', <InlineMath math="O(n^2)" />],
-          ['Mergesort', 'split, recursively sort, then merge', <InlineMath math="O(n\log n)" />],
-          ['Heapsort', 'use a heap to repeatedly remove the largest item', <InlineMath math="O(n\log n)" />],
-        ]}
-      />
-      <SortingExplorer />
-
-      <NoteSectionTitle id="linked-lists">21. Linked Lists</NoteSectionTitle>
+      <NoteSectionTitle id="linked-lists">20. Linked Lists</NoteSectionTitle>
       <NoteParagraph>
         A linked list stores a sequence in nodes. Each node stores data plus a reference to the next node. The list itself stores a reference to the
         first node, often called <code>head</code>.
@@ -828,7 +736,7 @@ while (trav != null) {
         Arrays store sequence through physical adjacency. Linked lists store sequence through references.
       </NoteParagraph>
 
-      <NoteSectionTitle id="list-adt">22. List ADT</NoteSectionTitle>
+      <NoteSectionTitle id="list-adt">21. List ADT</NoteSectionTitle>
       <NoteParagraph>
         A list is an ordered collection where position matters. The ADT describes operations like add, remove, get, replace, find, and size without
         requiring one representation.
@@ -841,7 +749,7 @@ while (trav != null) {
         ]}
       />
 
-      <NoteSectionTitle id="stack-adt">23. Stack ADT</NoteSectionTitle>
+      <NoteSectionTitle id="stack-adt">22. Stack ADT</NoteSectionTitle>
       <NoteParagraph>
         A stack is Last In, First Out. The only active end is the top.
       </NoteParagraph>
@@ -858,7 +766,7 @@ while (trav != null) {
         Stacks model method calls, undo history, expression evaluation, parentheses matching, depth-first search, and recursion.
       </NoteParagraph>
 
-      <NoteSectionTitle id="queue-adt">24. Queue ADT</NoteSectionTitle>
+      <NoteSectionTitle id="queue-adt">23. Queue ADT</NoteSectionTitle>
       <NoteParagraph>
         A queue is First In, First Out. Items enter at the rear and leave from the front.
       </NoteParagraph>
@@ -870,7 +778,7 @@ while (trav != null) {
         ]}
       />
 
-      <NoteSectionTitle id="trees-and-binary-trees">25. Trees and Binary Trees</NoteSectionTitle>
+      <NoteSectionTitle id="trees-and-binary-trees">24. Trees and Binary Trees</NoteSectionTitle>
       <NoteParagraph>
         A tree is a node structure with one root and parent-child relationships. A binary tree restricts each node to at most two children, usually
         called left and right.
@@ -886,13 +794,14 @@ while (trav != null) {
         ]}
       />
 
-      <NoteSectionTitle id="tree-traversals">26. Tree Traversals</NoteSectionTitle>
+      <NoteSectionTitle id="tree-traversals">25. Tree Traversals</NoteSectionTitle>
       <NoteParagraph>
         A traversal visits every node. Recursive traversals work naturally because a tree is either empty or a root with subtrees.
       </NoteParagraph>
       <TreeTraversalExplorer />
+      <TreeTraversalRunner />
 
-      <NoteSectionTitle id="binary-search-trees">27. Binary Search Trees</NoteSectionTitle>
+      <NoteSectionTitle id="binary-search-trees">26. Binary Search Trees</NoteSectionTitle>
       <NoteParagraph>
         A binary search tree stores ordered keys. For each node with key <code>k</code>, keys in the left subtree are less than <code>k</code>, and
         keys in the right subtree are greater than or equal to <code>k</code>.
@@ -902,7 +811,7 @@ while (trav != null) {
         <code>null</code>.
       </NoteParagraph>
 
-      <NoteSectionTitle id="balanced-search-trees-and-2-3-trees">28. Balanced Search Trees and 2-3 Trees</NoteSectionTitle>
+      <NoteSectionTitle id="balanced-search-trees-and-2-3-trees">27. Balanced Search Trees and 2-3 Trees</NoteSectionTitle>
       <NoteParagraph>
         A plain BST can degrade into a chain, giving linear-time search. Balanced search trees keep height proportional to <InlineMath math="\log n" />
         so search, insert, and delete stay efficient.
@@ -912,7 +821,7 @@ while (trav != null) {
         promoted and the split may propagate upward.
       </NoteParagraph>
 
-      <NoteSectionTitle id="heaps">29. Heaps</NoteSectionTitle>
+      <NoteSectionTitle id="heaps">28. Heaps</NoteSectionTitle>
       <NoteParagraph>
         A heap is a complete binary tree with an ordering property. In a max-heap, every node is greater than or equal to its children, so the
         largest item is at the root.
@@ -926,7 +835,7 @@ while (trav != null) {
         ]}
       />
 
-      <NoteSectionTitle id="heap-implementation">30. Heap Implementation</NoteSectionTitle>
+      <NoteSectionTitle id="heap-implementation">29. Heap Implementation</NoteSectionTitle>
       <NoteParagraph>
         Because heaps are complete trees, they can be stored compactly in arrays. For zero-based index <code>i</code>, the child and parent formulas
         are mechanical.
@@ -943,7 +852,7 @@ while (trav != null) {
         Insert uses sift up. Removal replaces the root with the last item and uses sift down to restore heap order.
       </NoteParagraph>
 
-      <NoteSectionTitle id="priority-queues">31. Priority Queues</NoteSectionTitle>
+      <NoteSectionTitle id="priority-queues">30. Priority Queues</NoteSectionTitle>
       <NoteParagraph>
         A priority queue removes the most important item first. A heap is the standard implementation because the highest-priority item sits at the
         root.
@@ -960,7 +869,7 @@ while (trav != null) {
 }`}
       />
 
-      <NoteSectionTitle id="hash-tables">32. Hash Tables</NoteSectionTitle>
+      <NoteSectionTitle id="hash-tables">31. Hash Tables</NoteSectionTitle>
       <NoteParagraph>
         A hash table maps a key to an array index using a hash function. With good hashing and controlled load factor, search, insertion, and
         deletion are average-case <InlineMath math="O(1)" />.
@@ -976,8 +885,9 @@ while (trav != null) {
           ['Rehashing', 'grow the table and reinsert entries'],
         ]}
       />
+      <HashTableChainingRunner />
 
-      <NoteSectionTitle id="adts-and-design-principles">33. ADTs and Design Principles</NoteSectionTitle>
+      <NoteSectionTitle id="adts-and-design-principles">32. ADTs and Design Principles</NoteSectionTitle>
       <NoteParagraph>
         An Abstract Data Type defines behavior independently of implementation. The ADT says what operations mean. The data structure says how those
         operations are implemented.

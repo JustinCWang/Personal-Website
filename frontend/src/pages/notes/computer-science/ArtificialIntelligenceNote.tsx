@@ -17,6 +17,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { AStarSearchRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -730,6 +731,7 @@ export default function ArtificialIntelligenceNote() {
         <InlineMath math="g(n)" /> is the true path cost from the start to <InlineMath math="n" />. <InlineMath math="h(n)" /> estimates the remaining cost from <InlineMath math="n" /> to a goal.
       </NoteParagraph>
       <AStarHeuristicExplorer />
+      <AStarSearchRunner />
 
       <NoteSectionTitle id="heuristics-admissibility-and-consistency">12. Heuristics: Admissibility and Consistency</NoteSectionTitle>
       <NoteParagraph>

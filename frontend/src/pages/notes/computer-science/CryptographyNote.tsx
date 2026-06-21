@@ -17,6 +17,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { ModularExponentiationRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -817,6 +818,7 @@ export default function CryptographyNote() {
         Diffie-Hellman lets two parties derive a shared secret over an insecure channel. Alice sends <InlineMath math="g^a" />, Bob sends <InlineMath math="g^b" />, and both compute <InlineMath math="g^{ab}" />.
       </NoteParagraph>
       <DiffieHellmanExplorer />
+      <ModularExponentiationRunner />
 
       <NoteSectionTitle id="cdh-and-ddh">39. CDH and DDH</NoteSectionTitle>
       <NoteParagraph>

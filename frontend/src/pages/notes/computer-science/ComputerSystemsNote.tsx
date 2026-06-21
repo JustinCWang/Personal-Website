@@ -18,6 +18,7 @@ import {
   RelatedNotes,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { LruCacheRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -643,6 +644,7 @@ ret`}
         and spatial locality to reduce average access time.
       </NoteParagraph>
       <CacheExplorer />
+      <LruCacheRunner />
 
       <NoteSectionTitle id="cache-writes-and-coherence">18. Cache Writes and Coherence</NoteSectionTitle>
       <NoteParagraph>

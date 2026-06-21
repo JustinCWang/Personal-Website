@@ -17,6 +17,7 @@ import {
   NoteTopicGroup,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { BackpropagationRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -826,6 +827,7 @@ export default function MachineLearningNote() {
           <span>Update parameters, for example <InlineMath math="\theta\leftarrow\theta-\eta\nabla_\theta L" />.</span>,
         ]}
       />
+      <BackpropagationRunner />
 
       <NoteSectionTitle id="gradient-based-optimization">33. Gradient-Based Optimization</NoteSectionTitle>
       <NoteParagraph>

@@ -655,29 +655,7 @@ except ValueError:
         </NoteTopicBlock>
       </NoteTopicGroup>
 
-      <NoteSectionTitle id="simple-algorithms-and-big-o">16. Simple Algorithms and Big-O</NoteSectionTitle>
-      <NoteParagraph>
-        An algorithm is a precise procedure for solving a problem. Big-O describes how the amount of work grows with the input size.
-      </NoteParagraph>
-      <NoteTable
-        headers={['Pattern', 'Typical growth']}
-        rows={[
-          ['constant-time lookup by known index', <InlineMath math="O(1)" />],
-          ['single loop over n items', <InlineMath math="O(n)" />],
-          ['nested loop over all pairs', <InlineMath math="O(n^2)" />],
-          ['binary search on sorted data', <InlineMath math="O(\log n)" />],
-        ]}
-      />
-      <CodeBlock
-        language="python"
-        code={`def linear_search(values, target):
-    for i in range(len(values)):
-        if values[i] == target:
-            return i
-    return -1`}
-      />
-
-      <NoteSectionTitle id="program-design-foundations">17. Program Design Foundations</NoteSectionTitle>
+      <NoteSectionTitle id="program-design-foundations">16. Program Design Foundations</NoteSectionTitle>
       <NoteParagraph>
         Good programs are organized around clear names, small functions, explicit assumptions, and data structures that match the problem.
       </NoteParagraph>

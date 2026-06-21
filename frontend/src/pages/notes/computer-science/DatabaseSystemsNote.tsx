@@ -18,6 +18,7 @@ import {
   RelatedNotes,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { HashJoinRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -1068,6 +1069,7 @@ return $course/title`}
           ['transaction', 'Locks, log records, dirty pages, and commit protocol.'],
         ]}
       />
+      <HashJoinRunner />
 
       <NoteSectionTitle id="transactions-and-acid">28. Transactions and ACID</NoteSectionTitle>
       <NoteParagraph>

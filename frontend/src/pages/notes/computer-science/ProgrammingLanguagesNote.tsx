@@ -18,6 +18,7 @@ import {
   RelatedNotes,
 } from '../../../components/notes';
 import { useDarkMode } from '../../../hooks/useDarkMode';
+import { UnificationRunner } from './CsAlgorithmRunners';
 
 type TableRow = ReactNode[];
 
@@ -1110,6 +1111,7 @@ let rec filter p l =
         is the least-specific solution.
       </NoteParagraph>
       <UnificationExplorer />
+      <UnificationRunner />
       <NoteParagraph>
         The occurs check prevents infinite types. For example, self-application can generate a constraint like <InlineMath math={'\\alpha \\doteq \\alpha \\to \\beta'} />,
         which has no finite solution.
