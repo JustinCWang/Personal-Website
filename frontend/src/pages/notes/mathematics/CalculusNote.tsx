@@ -436,7 +436,7 @@ export default function CalculusNote() {
     <NotesLayout>
       <NoteHeader
         title="Calculus"
-        subtitle="The beginning of all things regarding change..."
+        subtitle="A practical guide to limits, derivatives, integrals, series, multivariable calculus, vector calculus, and computational approximation."
       />
 
       <NoteTopicGroup>
@@ -648,7 +648,7 @@ export default function CalculusNote() {
           <NoteParagraph>
             Unlike rational functions, exponential functions have domain <InlineMath math="\mathbb{R}" />. However, as seen from the examples, the range is now
             limited by their horizontal asymptote, controlled by the <strong>vertical shift</strong> of the function. Practically, we see exponential functions
-            as a very good fit for modeling a variety of fields from finance to biology.
+            as a good fit for modeling a variety of fields from finance to biology.
           </NoteParagraph>
         </div>
 
@@ -1716,7 +1716,7 @@ export default function CalculusNote() {
 
       <NoteSubSectionTitle id="partial-fractions">6.5 Partial Fractions</NoteSubSectionTitle>
       <NoteParagraph>
-        Partial fractions turn one complicated rational function into several simpler rational functions. It is basically factoring for integration.
+        Partial fractions turn one complicated rational function into several simpler rational functions. It plays a role similar to factoring, but for integration.
       </NoteParagraph>
       <NoteParagraph>
         The technique works best after the denominator is factored and the degree of the numerator is smaller than the degree of the denominator.

@@ -34,7 +34,7 @@ export default function NotesIndex() {
           In these notes, I share my personal explanations and intuition for the topics that I have learned.
         </p>
         <p className="leading-relaxed mb-4">
-          My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and math.
+          My hope is that these explanations help other people who are curious about CS and math.
         </p>
         <p className="leading-relaxed">
           These notes are meant to teach the concepts directly: define the notation, explain the intuition, show useful examples, and connect each topic to the next.
@@ -42,7 +42,7 @@ export default function NotesIndex() {
       </div>
 
       <NoteParagraph className="text-center">
-        Please select a topic from the sidebar on the left to get started. <br />
+        Please select a topic from the sidebar to get started. <br />
         If you want to see how these pages are built, click the info button in the note sidebar. <br />
         If you find any errors or have suggestions, please make a pull request on the GitHub repo! <br />
       </NoteParagraph>

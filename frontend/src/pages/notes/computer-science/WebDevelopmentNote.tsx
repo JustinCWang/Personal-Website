@@ -1061,7 +1061,7 @@ def read_item(item_id: int):
       <NoteSectionTitle id="debugging">29. Debugging</NoteSectionTitle>
       <NoteParagraph>
         Debugging is disciplined hypothesis testing. A good debugging loop reproduces the bug, narrows where it occurs, inspects actual state, changes one
-        thing, and confirms the result.
+        variable, and confirms the result.
       </NoteParagraph>
       <NoteTable
         headers={['tool', 'use']}

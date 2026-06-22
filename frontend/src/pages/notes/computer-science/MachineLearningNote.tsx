@@ -532,7 +532,7 @@ export default function MachineLearningNote() {
         rows={[
           ['linear algebra', 'datasets as matrices, linear layers, PCA, kernels, covariance'],
           ['calculus', 'gradients, backpropagation, convexity, optimization'],
-          ['probability', 'likelihood, Bayes rule, generative models, uncertainty'],
+          ['probability', "likelihood, Bayes' rule, generative models, uncertainty"],
           ['optimization', 'training as minimizing loss or maximizing likelihood'],
         ]}
       />
@@ -917,7 +917,7 @@ export default function MachineLearningNote() {
 
       <NoteSectionTitle id="probabilistic-generative-models">41. Probabilistic Generative Models</NoteSectionTitle>
       <NoteParagraph>
-        Discriminative models learn <InlineMath math="p(y\mid x)" /> or a decision boundary. Generative models learn <InlineMath math="p(x,y)" /> or <InlineMath math="p(x\mid y)p(y)" /> and classify with Bayes rule.
+        Discriminative models learn <InlineMath math="p(y\mid x)" /> or a decision boundary. Generative models learn <InlineMath math="p(x,y)" /> or <InlineMath math="p(x\mid y)p(y)" /> and classify with Bayes' rule.
       </NoteParagraph>
       <MathBlock math="p(y\mid x)=\frac{p(x\mid y)p(y)}{p(x)}" />
 

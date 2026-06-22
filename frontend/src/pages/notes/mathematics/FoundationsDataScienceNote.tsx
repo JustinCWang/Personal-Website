@@ -1908,7 +1908,7 @@ function KMeansConvergenceRunner() {
   });
 
   return (
-    <InteractiveBlock title="KMeans Clustering Runner">
+    <InteractiveBlock title="K-Means Clustering Runner">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(250px,340px)_minmax(0,1fr)]">
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
           <p className="mb-3 text-sm font-bold uppercase tracking-wider">Iteration {boundedStep + 1}</p>
@@ -1941,7 +1941,7 @@ function KMeansConvergenceRunner() {
         </div>
 
         <div className={`min-w-0 rounded-lg border p-4 ${subtlePanelClass}`}>
-          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-80 w-full" role="img" aria-label="KMeans convergence over two-dimensional points">
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} className="h-80 w-full" role="img" aria-label="K-means convergence over two-dimensional points">
             <rect x={chart.left} y={chart.top} width={chart.plotWidth} height={chart.plotHeight} rx="8" fill={panelFill} stroke={mutedColor} strokeOpacity="0.45" />
             {[0, 2, 4, 6, 8, 10].map((tick) => (
               <g key={tick}>
@@ -2536,7 +2536,7 @@ export default function FoundationsDataScienceNote() {
             <li><InlineMath math={'P(A\\cap B)=P(A\\mid B)P(B)'} /></li>
             <li><InlineMath math={'A'} /> and <InlineMath math={'B'} /> are independent when <InlineMath math={'P(A\\cap B)=P(A)P(B)'} />.</li>
             <li>Total probability: <InlineMath math={'P(A)=\\sum_i P(A\\mid B_i)P(B_i)'} /> for a partition <InlineMath math={'B_1,\\ldots,B_n'} />.</li>
-            <li>Bayes rule: <InlineMath math={'P(A\\mid B)=P(B\\mid A)P(A)/P(B)'} />.</li>
+            <li>Bayes' rule: <InlineMath math={'P(A\\mid B)=P(B\\mid A)P(A)/P(B)'} />.</li>
           </BulletList>
         </NoteTopicBlock>
       </NoteTopicGroup>
@@ -2643,9 +2643,9 @@ export default function FoundationsDataScienceNote() {
         ]}
       />
 
-      <NoteSectionTitle id="hard-clustering-and-kmeans">12. Hard Clustering and KMeans</NoteSectionTitle>
+      <NoteSectionTitle id="hard-clustering-and-kmeans">12. Hard Clustering and K-Means</NoteSectionTitle>
       <NoteParagraph>
-        Clustering groups points without ground-truth labels. KMeans is a hard-clustering algorithm: each point belongs to exactly one cluster. It is also
+        Clustering groups points without ground-truth labels. K-means is a hard-clustering algorithm: each point belongs to exactly one cluster. It is also
         interpretable as a hard version of EM.
       </NoteParagraph>
       <KMeansConvergenceRunner />
@@ -3038,7 +3038,7 @@ export default function FoundationsDataScienceNote() {
           ['Bayes predictor', 'count, normalize, apply Bayes, normalize posterior, argmax.'],
           ['distribution fitting', 'fit parameters, evaluate prob or density, report parameters.'],
           ['GMM with EM', 'estep returns responsibility matrix; mstep updates priors, means, variances.'],
-          ['KMeans', 'assign nearest center, update means, handle empty clusters.'],
+          ['K-means', 'assign nearest center, update means, handle empty clusters.'],
           ['random projection', 'sample matrix, project data, check pairwise distance distortion.'],
           ['SVD outliers', 'reconstruct with top k, compute errors, z-score, threshold.'],
           ['PageRank', 'iterate transition update with teleportation until convergence.'],
