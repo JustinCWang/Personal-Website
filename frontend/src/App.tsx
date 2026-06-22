@@ -23,6 +23,7 @@ import DiscreteMathNote from './pages/notes/mathematics/DiscreteMath.tsx'
 import IntroPythonNote from './pages/notes/programming-tools/IntroPythonNote.tsx'
 import IntroJavaNote from './pages/notes/programming-tools/IntroJavaNote.tsx'
 import CProgrammingNote from './pages/notes/programming-tools/CProgrammingNote.tsx'
+import CSharpDotNetMauiNote from './pages/notes/programming-tools/CSharpDotNetMauiNote.tsx'
 import GoNote from './pages/notes/programming-tools/GoNote.tsx'
 import OCamlNote from './pages/notes/programming-tools/OCamlNote.tsx'
 import SQLNote from './pages/notes/programming-tools/SQLNote.tsx'
@@ -95,6 +96,7 @@ const AppContent = () => {
       <Route path="/notes/intro-python" element={<IntroPythonNote />} />
       <Route path="/notes/intro-java" element={<IntroJavaNote />} />
       <Route path="/notes/c-programming" element={<CProgrammingNote />} />
+      <Route path="/notes/csharp-dotnet-maui" element={<CSharpDotNetMauiNote />} />
       <Route path="/notes/go" element={<GoNote />} />
       <Route path="/notes/ocaml" element={<OCamlNote />} />
       <Route path="/notes/sql" element={<SQLNote />} />
