@@ -78,6 +78,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
   const [skills, setSkills] = useState<SkillWithUser[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const { isFrozen, toggleFreeze } = useAnimationFreeze()
   const { animationsEnabled, toggleAnimations } = useAnimationToggle()
@@ -144,6 +145,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!isMobileNavOpen) return
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileNavOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isMobileNavOpen])
 
   /**
    * Format date for display
@@ -248,10 +262,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-4 sm:px-6 relative">
         {/* Navigation Header */}
         <div className="absolute top-0 left-0 right-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex justify-between items-center">
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className={`flex justify-between items-center gap-2 rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-md md:rounded-none md:border-transparent md:bg-transparent md:px-0 md:py-0 md:shadow-none md:backdrop-blur-none ${
+              isDarkMode
+                ? 'border-green-500/30 bg-black/85'
+                : 'border-slate-200 bg-white/85'
+            }`}>
               {/* Name/Logo */}
-              <h1 className={`text-lg sm:text-xl md:text-2xl font-bold tracking-wide font-mono ${isDarkMode
+              <h1 className={`shrink-0 text-base sm:text-xl md:text-2xl font-bold tracking-wide font-mono ${isDarkMode
                   ? 'text-primary-dark hacker-text-gradient'
                   : 'text-primary-light'
                 }`}>
@@ -301,12 +319,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
               {/* Dark Mode Toggle */}
               <div className="flex items-center gap-2 sm:gap-4">
                 <button
+                  type="button"
                   onClick={toggleDarkMode}
-                  className={`p-2 rounded-lg transition-all duration-300 ${isDarkMode
+                  className={`p-2 rounded-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkMode
                       ? 'bg-green-400 text-black hover:bg-green-300'
                       : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                     }`}
                   title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                  aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                   {isDarkMode ? (
                     // Sun icon for light mode
@@ -336,8 +356,70 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
                     onChange: setRippleEffectSettings,
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsMobileNavOpen((open) => !open)}
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 md:hidden ${
+                    isDarkMode
+                      ? 'text-green-300 hover:bg-green-400/15 focus-visible:ring-green-400'
+                      : 'text-slate-700 hover:bg-slate-200 focus-visible:ring-slate-500'
+                  }`}
+                  aria-expanded={isMobileNavOpen}
+                  aria-controls="mobile-navigation"
+                  aria-label={isMobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                >
+                  {isMobileNavOpen ? (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
+
+            <nav
+              id="mobile-navigation"
+              aria-label="Mobile navigation"
+              className={`${isMobileNavOpen ? 'grid' : 'hidden'} mt-2 gap-1 rounded-2xl border p-2 shadow-xl backdrop-blur-md md:hidden ${
+                isDarkMode
+                  ? 'border-green-500/30 bg-black/95'
+                  : 'border-slate-200 bg-white/95'
+              }`}
+            >
+              {[
+                { label: 'About', href: '#about' },
+                { label: 'Projects', href: '#projects' },
+                { label: 'Contact', href: '#contact' },
+              ].map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className={`rounded-xl px-4 py-3 text-left text-base font-bold font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${
+                    isDarkMode
+                      ? 'text-green-300 hover:bg-green-400/15 focus-visible:ring-green-400'
+                      : 'text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-500'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <Link
+                to="/notes"
+                onClick={() => setIsMobileNavOpen(false)}
+                className={`rounded-xl px-4 py-3 text-left text-base font-bold font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${
+                  isDarkMode
+                    ? 'bg-green-400/10 text-green-300 hover:bg-green-400/20 focus-visible:ring-green-400'
+                    : 'bg-slate-100 text-slate-800 hover:bg-slate-200 focus-visible:ring-slate-500'
+                }`}
+              >
+                My Notes
+              </Link>
+            </nav>
           </div>
         </div>
 

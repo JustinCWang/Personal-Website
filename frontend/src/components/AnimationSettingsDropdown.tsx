@@ -116,13 +116,17 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
         `}</style>
       )}
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`p-2 rounded-lg transition-all duration-300 ${
+        className={`p-2 rounded-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
           isDarkMode
             ? 'bg-gray-600 text-green-300 hover:bg-gray-500'
             : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
         }`}
         title="Animation Settings"
+        aria-label="Animation settings"
+        aria-expanded={open}
+        aria-controls="animation-settings-panel"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
@@ -130,7 +134,7 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
         </svg>
       </button>
       {open && (
-        <div className={`absolute right-0 mt-2 w-80 z-50 rounded-lg shadow-lg border text-sm font-mono ${
+        <div id="animation-settings-panel" className={`absolute right-0 mt-2 w-[min(20rem,calc(100vw-2rem))] z-50 rounded-lg shadow-lg border text-sm font-mono ${
           isDarkMode ? 'bg-gray-900 border-green-500 text-green-200' : 'bg-white border-slate-300 text-slate-700'
         }`}>
           <div className="p-4 space-y-4">
@@ -221,4 +225,4 @@ const AnimationSettingsDropdown: React.FC<AnimationSettingsDropdownProps> = ({
   );
 };
 
-export default AnimationSettingsDropdown; 
+export default AnimationSettingsDropdown;
