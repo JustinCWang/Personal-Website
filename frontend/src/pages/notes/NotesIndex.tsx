@@ -34,7 +34,7 @@ export default function NotesIndex() {
           In these notes, I share my personal explanations and intuition for the topics that I have learned.
         </p>
         <p className="leading-relaxed mb-4">
-          My hope is that these explanations help other people who are curious about CS and math.
+          My hope is that maybe my intuition and explanations can benefit not just myself, but others who find themselves curious with the world of CS and math.
         </p>
         <p className="leading-relaxed">
           These notes are meant to teach the concepts directly: define the notation, explain the intuition, show useful examples, and connect each topic to the next.

@@ -40,7 +40,7 @@ const PERSONAL_INFO = {
   name: "Justin Wang",
   title: "CS Student at Boston University",
   bio: "Passionate about learning and creating fun and impactful software!",
-  image: "/professionalpic.jpg",
+  image: "/professionalpic.png",
   hobbies: [
     "🎵 Classical Pianist",
     "📚 Anime & Manga",
@@ -494,7 +494,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, isAuthenticated = fa
             {/* Profile Image with Admin Access Button */}
             <div className="flex justify-center">
               <div className="relative">
-                <div className={`w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 p-3 rounded-2xl ${isDarkMode
+                <div className={`w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-100 p-3 rounded-2xl ${isDarkMode
                     ? 'bg-gradient-to-br from-gray-800 to-black border-2 border-green-400'
                     : 'bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-slate-400'
                   } shadow-xl`}>
